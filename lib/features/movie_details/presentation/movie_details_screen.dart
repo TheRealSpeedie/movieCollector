@@ -7,13 +7,12 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/movie.dart';
-import '../../../shared/widgets/collection_completeness_view.dart';
 import '../../../shared/widgets/confirm_dialog.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../../shared/widgets/status_chip.dart';
-import '../../collections/application/collections_providers.dart';
+import '../../collections/presentation/franchise_section.dart';
 import '../../movies/application/movie_providers.dart';
 import '../../scanner/application/barcode_providers.dart';
 
@@ -139,29 +138,9 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
           onSelectionChanged: (selection) =>
               _changeStatus(selection.first, movie),
         ),
-        if (movie.tmdbCollectionId != null) ...[
+        if (movie.tmdbId != null) ...[
           const SizedBox(height: 24),
-          Consumer(
-            builder: (context, ref, _) {
-              final collectionAsync = ref.watch(
-                collectionByTmdbIdProvider(movie.tmdbCollectionId!),
-              );
-              return collectionAsync.when(
-                loading: () => const SizedBox.shrink(),
-                error: (error, stack) => const SizedBox.shrink(),
-                data: (collection) {
-                  if (collection == null) return const SizedBox.shrink();
-                  return GestureDetector(
-                    onTap: () => context.push('/collections/${collection.id}'),
-                    child: CollectionCompletenessView(
-                      collection: collection,
-                      highlightTmdbMovieId: movie.tmdbId,
-                    ),
-                  );
-                },
-              );
-            },
-          ),
+          FranchiseSection(tmdbMovieId: movie.tmdbId!),
         ],
         const SizedBox(height: 24),
         Row(

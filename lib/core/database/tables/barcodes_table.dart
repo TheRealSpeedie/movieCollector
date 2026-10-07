@@ -20,5 +20,11 @@ class Barcodes extends Table {
   TextColumn get barcodeType => text()();
   TextColumn get productTitle => text().nullable()();
   TextColumn get editionName => text().nullable()();
+  TextColumn get physicalFormat => text().nullable()();
+  TextColumn get region => text().nullable()();
+  TextColumn get imdbId => text().nullable()();
+  TextColumn get source => text().nullable()();
+  BoolColumn get verified => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get updatedAt => dateTime().nullable()();
 }

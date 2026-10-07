@@ -34,6 +34,7 @@ void main() {
       'Supernatural Complete Series',
       'Supernatural Komplettbox',
       'Breaking Bad komplette Serie',
+      'Breaking Bad Complete Series',
     ]) {
       final result = parser.parse(title);
       expect(result.kind, MediaKindHint.completeTvSeries, reason: title);

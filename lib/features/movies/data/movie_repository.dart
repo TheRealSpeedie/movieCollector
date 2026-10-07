@@ -160,6 +160,17 @@ class MovieRepository {
     );
   }
 
+  Future<void> setCollectionStatus(int tmdbId, CollectionStatus status) async {
+    final existing = await getMovieByTmdbId(tmdbId);
+    if (existing == null) {
+      if (status == CollectionStatus.open) return;
+      await addFromTmdb(tmdbId, status: status, syncCollection: false);
+      return;
+    }
+    if (existing.status == status) return;
+    await updateStatus(existing.id, status);
+  }
+
   Future<Movie> refreshMetadata(int movieId) async {
     final row = await (_db.select(
       _db.movies,

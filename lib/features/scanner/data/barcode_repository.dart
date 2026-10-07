@@ -55,6 +55,10 @@ class BarcodeRepository {
     required int movieId,
     String? productTitle,
     String? editionName,
+    String? physicalFormat,
+    String? region,
+    String? imdbId,
+    String source = 'user',
     bool allowRemap = false,
   }) async {
     final existing = await (_db.select(
@@ -84,6 +88,12 @@ class BarcodeRepository {
           barcodeType: Value(barcodeType),
           productTitle: Value(productTitle),
           editionName: Value(editionName),
+          physicalFormat: Value(physicalFormat),
+          region: Value(region),
+          imdbId: Value(imdbId),
+          source: Value(source),
+          verified: const Value(true),
+          updatedAt: Value(DateTime.now()),
         ),
       );
       return;
@@ -99,6 +109,12 @@ class BarcodeRepository {
             barcodeType: barcodeType,
             productTitle: Value(productTitle),
             editionName: Value(editionName),
+            physicalFormat: Value(physicalFormat),
+            region: Value(region),
+            imdbId: Value(imdbId),
+            source: Value(source),
+            verified: const Value(true),
+            updatedAt: Value(DateTime.now()),
           ),
         );
   }
@@ -110,6 +126,10 @@ class BarcodeRepository {
     int? movieId,
     String? productTitle,
     String? editionName,
+    String? physicalFormat,
+    String? region,
+    String? imdbId,
+    String source = 'user',
     bool allowRemap = false,
   }) async {
     final existing = await (_db.select(
@@ -131,6 +151,12 @@ class BarcodeRepository {
           barcodeType: Value(barcodeType),
           productTitle: Value(productTitle),
           editionName: Value(editionName),
+          physicalFormat: Value(physicalFormat),
+          region: Value(region),
+          imdbId: Value(imdbId),
+          source: Value(source),
+          verified: const Value(true),
+          updatedAt: Value(DateTime.now()),
         ),
       );
       return;
@@ -145,6 +171,12 @@ class BarcodeRepository {
             barcodeType: barcodeType,
             productTitle: Value(productTitle),
             editionName: Value(editionName),
+            physicalFormat: Value(physicalFormat),
+            region: Value(region),
+            imdbId: Value(imdbId),
+            source: Value(source),
+            verified: const Value(true),
+            updatedAt: Value(DateTime.now()),
           ),
         );
   }

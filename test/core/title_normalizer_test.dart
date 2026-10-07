@@ -36,6 +36,71 @@ void main() {
       );
     });
 
+    test('separates a trailing home-entertainment suffix', () {
+      final described = TitleNormalizer.describe(
+        'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+      );
+      expect(
+        described.searchTitle,
+        'Pirates Of The Caribbean - Am Ende Der Welt',
+      );
+      expect(described.publisher, 'Buena Vista Home Entertainment');
+    });
+
+    test('separates other distributor suffixes', () {
+      final samples = [
+        (
+          'Heat by Warner Home Video',
+          'Heat',
+          'Warner Home Video',
+        ),
+        (
+          'Jaws by Universal Pictures Home Entertainment',
+          'Jaws',
+          'Universal Pictures Home Entertainment',
+        ),
+        (
+          'Top Gun by Paramount Home Entertainment.',
+          'Top Gun',
+          'Paramount Home Entertainment',
+        ),
+        (
+          'Der Pate von Paramount Home Entertainment',
+          'Der Pate',
+          'Paramount Home Entertainment',
+        ),
+      ];
+      for (final sample in samples) {
+        final described = TitleNormalizer.describe(sample.$1);
+        expect(described.searchTitle, sample.$2, reason: sample.$1);
+        expect(described.publisher, sample.$3, reason: sample.$1);
+      }
+    });
+
+    test('leaves an ordinary by phrase in the title', () {
+      final described = TitleNormalizer.describe('Stand by Me');
+      expect(described.searchTitle, 'Stand by Me');
+      expect(described.publisher, isNull);
+    });
+
+    test('uses a structured publisher field to clean the title', () {
+      final described = TitleNormalizer.describe(
+        'The Matrix By Warner Bros. Home Entertainment',
+        publisher: 'Warner Bros. Home Entertainment',
+      );
+      expect(described.searchTitle, 'The Matrix');
+      expect(described.publisher, 'Warner Bros. Home Entertainment');
+    });
+
+    test('keeps the movie title and splits format and edition', () {
+      final described = TitleNormalizer.describe(
+        'Interstellar Steelbook 4K UHD + Blu-ray',
+      );
+      expect(described.searchTitle, 'Interstellar');
+      expect(described.physicalFormat, 'uhd_4k');
+      expect(described.edition?.toLowerCase(), 'steelbook');
+    });
+
     test('collapses whitespace and is case-insensitive', () {
       expect(TitleNormalizer.normalize('  Der   Pate   '), 'der pate');
     });
@@ -49,6 +114,16 @@ void main() {
   });
 
   group('TitleNormalizer.similarity', () {
+    test('ignores a distributor suffix when comparing a localized title', () {
+      expect(
+        TitleNormalizer.similarity(
+          'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+          'Pirates of the Caribbean - Am Ende der Welt',
+        ),
+        1,
+      );
+    });
+
     test('is 1.0 for identical normalized titles', () {
       expect(TitleNormalizer.similarity('Der Pate', 'DER PATE (DVD)'), 1.0);
     });

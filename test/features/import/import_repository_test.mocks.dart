@@ -47,37 +47,43 @@ class _FakeTmdbCollectionDetails_1 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeTmdbTvDetails_2 extends _i1.SmartFake implements _i2.TmdbTvDetails {
-  _FakeTmdbTvDetails_2(Object parent, Invocation parentInvocation)
+class _FakeTmdbExternalMatch_2 extends _i1.SmartFake
+    implements _i2.TmdbExternalMatch {
+  _FakeTmdbExternalMatch_2(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMovie_3 extends _i1.SmartFake implements _i3.Movie {
-  _FakeMovie_3(Object parent, Invocation parentInvocation)
+class _FakeTmdbTvDetails_3 extends _i1.SmartFake implements _i2.TmdbTvDetails {
+  _FakeTmdbTvDetails_3(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMovieUpsertResult_4 extends _i1.SmartFake
+class _FakeMovie_4 extends _i1.SmartFake implements _i3.Movie {
+  _FakeMovie_4(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeMovieUpsertResult_5 extends _i1.SmartFake
     implements _i4.MovieUpsertResult {
-  _FakeMovieUpsertResult_4(Object parent, Invocation parentInvocation)
+  _FakeMovieUpsertResult_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTvSeriesWithSeasons_5 extends _i1.SmartFake
+class _FakeTvSeriesWithSeasons_6 extends _i1.SmartFake
     implements _i5.TvSeriesWithSeasons {
-  _FakeTvSeriesWithSeasons_5(Object parent, Invocation parentInvocation)
+  _FakeTvSeriesWithSeasons_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTvUpsertResult_6 extends _i1.SmartFake
+class _FakeTvUpsertResult_7 extends _i1.SmartFake
     implements _i6.TvUpsertResult {
-  _FakeTvUpsertResult_6(Object parent, Invocation parentInvocation)
+  _FakeTvUpsertResult_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakePhysicalEditionContents_7 extends _i1.SmartFake
+class _FakePhysicalEditionContents_8 extends _i1.SmartFake
     implements _i7.PhysicalEditionContents {
-  _FakePhysicalEditionContents_7(Object parent, Invocation parentInvocation)
+  _FakePhysicalEditionContents_8(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -93,9 +99,14 @@ class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
   _i9.Future<List<_i2.TmdbSearchResult>> searchMovies(
     String? query, {
     int? page = 1,
+    int? year,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#searchMovies, [query], {#page: page}),
+            Invocation.method(
+              #searchMovies,
+              [query],
+              {#page: page, #year: year},
+            ),
             returnValue: _i9.Future<List<_i2.TmdbSearchResult>>.value(
               <_i2.TmdbSearchResult>[],
             ),
@@ -142,12 +153,26 @@ class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
           as _i9.Future<List<_i2.TmdbCollectionSearchResult>>);
 
   @override
+  _i9.Future<_i2.TmdbExternalMatch> findByImdbId(String? imdbId) =>
+      (super.noSuchMethod(
+            Invocation.method(#findByImdbId, [imdbId]),
+            returnValue: _i9.Future<_i2.TmdbExternalMatch>.value(
+              _FakeTmdbExternalMatch_2(
+                this,
+                Invocation.method(#findByImdbId, [imdbId]),
+              ),
+            ),
+          )
+          as _i9.Future<_i2.TmdbExternalMatch>);
+
+  @override
   _i9.Future<List<_i2.TmdbTvSearchResult>> searchTv(
     String? query, {
     int? page = 1,
+    int? year,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#searchTv, [query], {#page: page}),
+            Invocation.method(#searchTv, [query], {#page: page, #year: year}),
             returnValue: _i9.Future<List<_i2.TmdbTvSearchResult>>.value(
               <_i2.TmdbTvSearchResult>[],
             ),
@@ -159,7 +184,7 @@ class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
       (super.noSuchMethod(
             Invocation.method(#getTvDetails, [tmdbId]),
             returnValue: _i9.Future<_i2.TmdbTvDetails>.value(
-              _FakeTmdbTvDetails_2(
+              _FakeTmdbTvDetails_3(
                 this,
                 Invocation.method(#getTvDetails, [tmdbId]),
               ),
@@ -213,7 +238,7 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               {#status: status, #syncCollection: syncCollection},
             ),
             returnValue: _i9.Future<_i3.Movie>.value(
-              _FakeMovie_3(
+              _FakeMovie_4(
                 this,
                 Invocation.method(
                   #addFromTmdb,
@@ -238,7 +263,7 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               {#status: status, #syncCollection: syncCollection},
             ),
             returnValue: _i9.Future<_i4.MovieUpsertResult>.value(
-              _FakeMovieUpsertResult_4(
+              _FakeMovieUpsertResult_5(
                 this,
                 Invocation.method(
                   #upsertFromDetails,
@@ -258,7 +283,7 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
       (super.noSuchMethod(
             Invocation.method(#applyImportedStatus, [existing, incoming]),
             returnValue: _i9.Future<_i4.MovieUpsertResult>.value(
-              _FakeMovieUpsertResult_4(
+              _FakeMovieUpsertResult_5(
                 this,
                 Invocation.method(#applyImportedStatus, [existing, incoming]),
               ),
@@ -280,7 +305,7 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
       (super.noSuchMethod(
             Invocation.method(#refreshMetadata, [movieId]),
             returnValue: _i9.Future<_i3.Movie>.value(
-              _FakeMovie_3(
+              _FakeMovie_4(
                 this,
                 Invocation.method(#refreshMetadata, [movieId]),
               ),
@@ -371,7 +396,7 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               {#seasonStatuses: seasonStatuses},
             ),
             returnValue: _i9.Future<_i5.TvSeriesWithSeasons>.value(
-              _FakeTvSeriesWithSeasons_5(
+              _FakeTvSeriesWithSeasons_6(
                 this,
                 Invocation.method(
                   #addOrUpdateFromTmdb,
@@ -395,7 +420,7 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               {#seasonStatuses: seasonStatuses},
             ),
             returnValue: _i9.Future<_i6.TvUpsertResult>.value(
-              _FakeTvUpsertResult_6(
+              _FakeTvUpsertResult_7(
                 this,
                 Invocation.method(
                   #upsertFromDetails,
@@ -462,7 +487,7 @@ class MockPhysicalEditionRepository extends _i1.Mock
               #seasonIds: seasonIds,
             }),
             returnValue: _i9.Future<_i7.PhysicalEditionContents>.value(
-              _FakePhysicalEditionContents_7(
+              _FakePhysicalEditionContents_8(
                 this,
                 Invocation.method(#createEdition, [], {
                   #kind: kind,

@@ -21,6 +21,22 @@ void main() {
     expect(matcher.bestMatch('Irgendein Titel', const []), isNull);
   });
 
+  test('ranks a localized title above the original English title', () {
+    final ranked = matcher.rank(
+      'Pirates Of The Caribbean - Am Ende Der Welt',
+      const [
+        TmdbSearchResult(
+          id: 285,
+          title: 'Pirates of the Caribbean - Am Ende der Welt',
+          originalTitle: "Pirates of the Caribbean: At World's End",
+        ),
+        TmdbSearchResult(id: 22, title: 'Fluch der Karibik'),
+      ],
+    );
+    expect(ranked.first.result.id, 285);
+    expect(ranked.first.confidence, greaterThan(0.9));
+  });
+
   test('boosts confidence when the release year matches', () {
     final withYear = [
       TmdbSearchResult(id: 10, title: 'Dune', releaseDate: DateTime(2021)),

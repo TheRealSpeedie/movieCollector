@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/matching/movie_matcher.dart';
@@ -14,6 +15,7 @@ import '../../tv/data/tv_repository.dart';
 import '../data/barcode_repository.dart';
 import '../domain/barcode_lookup_result.dart';
 import '../domain/barcode_resolver.dart';
+import '../domain/scan_trace.dart';
 
 class FundstueckController
     extends StateNotifier<AsyncValue<BarcodeLookupResult?>> {
@@ -24,6 +26,8 @@ class FundstueckController
     required BarcodeRepository barcodeRepository,
     required TvRepository tvRepository,
     required PhysicalEditionRepository editionRepository,
+    this.onTrace,
+    this.onPhase,
   }) : _resolver = resolver,
        _tmdb = tmdbApiClient,
        _movieRepository = movieRepository,
@@ -39,15 +43,33 @@ class FundstueckController
   final TvRepository _tvRepository;
   final PhysicalEditionRepository _editionRepository;
   final MovieMatcher _matcher = const MovieMatcher();
+  final void Function(String text)? onTrace;
+  final void Function(String message)? onPhase;
 
-  Future<void> scanBarcode(String barcode) async {
+  Future<void> scanBarcode(String barcode, {String? formatName}) async {
+    if (!mounted) return;
+    onPhase?.call('Barcode wird geprüft …');
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _resolver.resolve(barcode));
+    final trace = ScanTrace();
+    final result = await AsyncValue.guard(
+      () => _resolver.resolve(
+        barcode,
+        formatName: formatName,
+        trace: trace,
+        onProgress: onPhase,
+      ),
+    );
+    onTrace?.call(trace.text);
+    if (kDebugMode) debugPrint(trace.text);
+    if (!mounted) return;
+    state = result;
   }
 
   Future<void> searchTitleFallback(String title) async {
+    if (!mounted) return;
+    onPhase?.call('Film oder Serie wird zugeordnet …');
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() async {
+    final result = await AsyncValue.guard(() async {
       final results = await _tmdb.searchMovies(title);
       if (results.isEmpty) {
         return BarcodeNoMatch(barcode: '', productTitle: title);
@@ -62,6 +84,8 @@ class FundstueckController
         candidates: _matcher.rank(title, results),
       );
     });
+    if (!mounted) return;
+    state = result;
   }
 
   Future<Movie> confirmAndSave({
@@ -69,6 +93,10 @@ class FundstueckController
     required CollectionStatus status,
     String? barcode,
     String barcodeType = 'EAN',
+    String? physicalFormat,
+    String? imdbId,
+    String? edition,
+    String? region,
   }) async {
     var movie = await _movieRepository.getMovieByTmdbId(candidate.id);
     if (movie == null) {
@@ -84,11 +112,15 @@ class FundstueckController
         barcodeType: barcodeType,
         movieId: movie.id,
         productTitle: candidate.title,
+        editionName: edition,
+        physicalFormat: physicalFormat,
+        imdbId: imdbId,
+        region: region,
         allowRemap: true,
       );
     }
 
-    state = AsyncValue.data(BarcodeKnownMovie(movie));
+    if (mounted) state = AsyncValue.data(BarcodeKnownMovie(movie));
     return movie;
   }
 
@@ -129,7 +161,7 @@ class FundstueckController
         allowRemap: true,
       );
     }
-    state = AsyncValue.data(BarcodeKnownEdition(edition));
+    if (mounted) state = AsyncValue.data(BarcodeKnownEdition(edition));
   }
 
   Future<void> confirmTvSeasons({
@@ -165,13 +197,19 @@ class FundstueckController
         allowRemap: true,
       );
     }
-    state = AsyncValue.data(BarcodeKnownEdition(edition));
+    if (mounted) state = AsyncValue.data(BarcodeKnownEdition(edition));
   }
 
   void reset() {
     state = const AsyncValue.data(null);
   }
 }
+
+final scanTraceProvider = StateProvider<String?>((ref) => null);
+
+final lookupStatusProvider = StateProvider<String>(
+  (ref) => 'Veröffentlichung wird gesucht …',
+);
 
 final fundstueckControllerProvider =
     StateNotifierProvider.autoDispose<
@@ -185,5 +223,8 @@ final fundstueckControllerProvider =
         barcodeRepository: ref.watch(barcodeRepositoryProvider),
         tvRepository: ref.watch(tvRepositoryProvider),
         editionRepository: ref.watch(physicalEditionRepositoryProvider),
+        onTrace: (text) => ref.read(scanTraceProvider.notifier).state = text,
+        onPhase: (message) =>
+            ref.read(lookupStatusProvider.notifier).state = message,
       );
     });

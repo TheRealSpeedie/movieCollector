@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/error_view.dart' show ErrorView, describeError;
@@ -10,12 +11,18 @@ import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../movies/application/movie_providers.dart';
+import '../../scanner/domain/barcode_search_context.dart';
 import '../application/search_providers.dart';
 
 class AddMovieScreen extends ConsumerStatefulWidget {
-  const AddMovieScreen({super.key, required this.tmdbId});
+  const AddMovieScreen({
+    super.key,
+    required this.tmdbId,
+    this.scan = const BarcodeSearchContext(),
+  });
 
   final int tmdbId;
+  final BarcodeSearchContext scan;
 
   @override
   ConsumerState<AddMovieScreen> createState() => _AddMovieScreenState();
@@ -175,8 +182,19 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
       final movie = await ref
           .read(movieRepositoryProvider)
           .addFromTmdb(tmdbId, status: _status);
+      await _rememberBarcode(movie.id);
       if (!mounted) return;
       context.go('/movie/${movie.id}');
+    } on DuplicateMovieException {
+      final existing = await ref
+          .read(movieRepositoryProvider)
+          .getMovieByTmdbId(tmdbId);
+      if (existing != null) await _rememberBarcode(existing.id);
+      if (!mounted) return;
+      if (existing != null) {
+        context.go('/movie/${existing.id}');
+        return;
+      }
     } catch (error) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -185,5 +203,20 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
     } finally {
       if (mounted) setState(() => _saving = false);
     }
+  }
+
+  Future<void> _rememberBarcode(int movieId) async {
+    final barcode = widget.scan.barcode;
+    if (barcode == null || barcode.isEmpty) return;
+    await ref.read(barcodeRepositoryProvider).saveMapping(
+      barcode: barcode,
+      barcodeType: widget.scan.barcodeType,
+      movieId: movieId,
+      productTitle: widget.scan.productTitle,
+      editionName: widget.scan.edition,
+      physicalFormat: widget.scan.physicalFormat,
+      imdbId: widget.scan.imdbId,
+      allowRemap: true,
+    );
   }
 }

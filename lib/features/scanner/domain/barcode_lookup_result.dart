@@ -25,11 +25,23 @@ class BarcodeNeedsConfirmation extends BarcodeLookupResult {
     required this.barcode,
     required this.productTitle,
     required this.candidates,
+    this.physicalFormat,
+    this.imdbId,
+    this.edition,
+    this.source,
+    this.searchTitle,
+    this.barcodeType = 'EAN',
   });
 
   final String barcode;
   final String productTitle;
   final List<MatchCandidate> candidates;
+  final String? physicalFormat;
+  final String? imdbId;
+  final String? edition;
+  final String? source;
+  final String? searchTitle;
+  final String barcodeType;
 }
 
 class BarcodeNeedsTvConfirmation extends BarcodeLookupResult {
@@ -77,4 +89,43 @@ class BarcodeUnresolvedOffline extends BarcodeLookupResult {
   const BarcodeUnresolvedOffline(this.barcode);
 
   final String barcode;
+}
+
+class BarcodeNotAProductCode extends BarcodeLookupResult {
+  const BarcodeNotAProductCode(this.raw);
+
+  final String raw;
+}
+
+class BarcodeProductUnknown extends BarcodeLookupResult {
+  const BarcodeProductUnknown(this.barcode);
+
+  final String barcode;
+}
+
+class BarcodeLookupFailed extends BarcodeLookupResult {
+  const BarcodeLookupFailed({required this.barcode, required this.message});
+
+  final String barcode;
+  final String message;
+}
+
+class BarcodeWeakMatch extends BarcodeLookupResult {
+  const BarcodeWeakMatch({
+    required this.barcode,
+    required this.productTitle,
+    required this.searchTitle,
+    this.physicalFormat,
+    this.imdbId,
+    this.edition,
+    this.barcodeType = 'EAN',
+  });
+
+  final String barcode;
+  final String productTitle;
+  final String searchTitle;
+  final String? physicalFormat;
+  final String? imdbId;
+  final String? edition;
+  final String barcodeType;
 }

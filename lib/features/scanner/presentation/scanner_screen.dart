@@ -8,6 +8,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../app/theme/app_colors.dart';
+import '../../../shared/widgets/loading_view.dart';
 import '../application/fundstueck_controller.dart';
 
 class ScannerScreen extends ConsumerStatefulWidget {
@@ -25,6 +26,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       BarcodeFormat.ean8,
       BarcodeFormat.upcA,
       BarcodeFormat.upcE,
+      BarcodeFormat.qrCode,
     ],
     detectionSpeed: DetectionSpeed.noDuplicates,
   );
@@ -32,6 +34,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
   PermissionStatus _permission = PermissionStatus.denied;
   bool _checkingPermission = true;
   bool _handledDetection = false;
+  bool _resolving = false;
 
   @override
   void initState() {
@@ -57,16 +60,27 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
   }
 
   Future<void> _onDetect(BarcodeCapture capture) async {
-    if (_handledDetection) return;
-    final code = capture.barcodes.firstOrNull?.rawValue;
+    if (_handledDetection || _resolving) return;
+    final barcode = capture.barcodes.firstOrNull;
+    final code = barcode?.rawValue;
     if (code == null || code.isEmpty) return;
     _handledDetection = true;
-    await _controller.stop();
-    await ref.read(fundstueckControllerProvider.notifier).scanBarcode(code);
-    if (!mounted) return;
-    await context.push('/fundstueck/result');
-    _handledDetection = false;
-    if (mounted) unawaited(_controller.start());
+    setState(() => _resolving = true);
+    try {
+      await _controller.stop();
+      final pending = ref
+          .read(fundstueckControllerProvider.notifier)
+          .scanBarcode(code, formatName: barcode?.format.name);
+      if (!mounted) return;
+      await context.push('/fundstueck/result');
+      await pending;
+    } finally {
+      _handledDetection = false;
+      if (mounted) {
+        setState(() => _resolving = false);
+        unawaited(_controller.start());
+      }
+    }
   }
 
   Future<void> _showTitleFallback() async {
@@ -75,20 +89,27 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       isScrollControlled: true,
       builder: (context) => const _TitleFallbackSheet(),
     );
-    if (title == null || title.trim().isEmpty) return;
-    await ref
-        .read(fundstueckControllerProvider.notifier)
-        .searchTitleFallback(title.trim());
-    if (!mounted) return;
-    await context.push('/fundstueck/result');
+    if (title == null || title.trim().isEmpty || _resolving) return;
+    setState(() => _resolving = true);
+    try {
+      final pending = ref
+          .read(fundstueckControllerProvider.notifier)
+          .searchTitleFallback(title.trim());
+      if (!mounted) return;
+      await context.push('/fundstueck/result');
+      await pending;
+    } finally {
+      if (mounted) setState(() => _resolving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    ref.listen(fundstueckControllerProvider, (_, _) {});
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: _resolving ? AppColors.background : Colors.black,
       appBar: AppBar(
-        backgroundColor: Colors.black,
+        backgroundColor: _resolving ? AppColors.background : Colors.black,
         foregroundColor: Colors.white,
         title: const Text('Fundstück-Check'),
         actions: [
@@ -107,13 +128,17 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
           ),
         ],
       ),
-      body: _checkingPermission
+      body: _resolving
+          ? LoadingView(message: ref.watch(lookupStatusProvider))
+          : _checkingPermission
           ? const Center(child: CircularProgressIndicator(color: Colors.white))
           : _permission.isGranted
           ? _buildScanner(context)
           : _buildPermissionDenied(context),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: _resolving
+          ? null
+          : FloatingActionButton.extended(
         onPressed: _showTitleFallback,
         icon: const Icon(Icons.keyboard),
         label: const Text('Titel eingeben'),
@@ -132,7 +157,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
           right: 0,
           bottom: 110,
           child: Text(
-            'Richte die Kamera auf den Barcode der DVD/Blu-ray',
+            'Scanne den gestreiften Barcode auf der Rückseite\nder DVD-, Blu-ray- oder 4K-Hülle.\nEAN / UPC',
             textAlign: TextAlign.center,
             style: Theme.of(
               context,

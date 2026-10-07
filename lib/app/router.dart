@@ -11,6 +11,7 @@ import '../features/import/presentation/import_movie_search_screen.dart';
 import '../features/import/presentation/import_screen.dart';
 import '../features/import/presentation/import_selection_screen.dart';
 import '../features/movie_details/presentation/movie_details_screen.dart';
+import '../features/scanner/domain/barcode_search_context.dart';
 import '../features/scanner/presentation/fundstueck_result_screen.dart';
 import '../features/scanner/presentation/scanner_screen.dart';
 import '../features/search/presentation/add_movie_screen.dart';
@@ -81,13 +82,18 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/search',
       parentNavigatorKey: rootNavigatorKey,
-      builder: (context, state) => const MovieSearchScreen(),
+      builder: (context, state) {
+        final scan = BarcodeSearchContext.fromQuery(state.uri.queryParameters);
+        return MovieSearchScreen(scan: scan);
+      },
     ),
     GoRoute(
       path: '/search/add/:tmdbId',
       parentNavigatorKey: rootNavigatorKey,
-      builder: (context, state) =>
-          AddMovieScreen(tmdbId: int.parse(state.pathParameters['tmdbId']!)),
+      builder: (context, state) => AddMovieScreen(
+        tmdbId: int.parse(state.pathParameters['tmdbId']!),
+        scan: BarcodeSearchContext.fromQuery(state.uri.queryParameters),
+      ),
     ),
     GoRoute(
       path: '/fundstueck/result',

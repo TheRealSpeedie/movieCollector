@@ -114,8 +114,8 @@ class MediaTitleParser {
 
   static final _movieBox = RegExp(
     r"\b(collector'?s?\s+box|collectors?\s+box|sammlerbox|sammelbox|"
-    r'box[\s-]?set|filmreihe|complete\s+collection|\d+[\s-]?film\s+collection|'
-    r'\d+[\s-]?film[\s-]?collection)\b',
+    r'box[\s-]?set|filmreihe|trilog(?:y|ie)|complete\s+collection|'
+    r'\d+[\s-]?film\s+collection|\d+[\s-]?film[\s-]?collection)\b',
     caseSensitive: false,
   );
   static final _genericCollection = RegExp(

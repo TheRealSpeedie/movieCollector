@@ -11,8 +11,10 @@ class Env {
     'UPCITEMDB_KEY_TYPE',
     defaultValue: '3scale',
   );
+  static const String upcmdbApiKey = String.fromEnvironment('UPCMDB_API_KEY');
 
   static bool get isTmdbConfigured => tmdbAccessToken.trim().isNotEmpty;
   static bool get isUpcItemDbProConfigured =>
       upcItemDbUserKey.trim().isNotEmpty;
+  static bool get isUpcmdbConfigured => upcmdbApiKey.trim().isNotEmpty;
 }

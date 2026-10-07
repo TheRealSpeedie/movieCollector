@@ -14,6 +14,8 @@ class ApiConstants {
   static const String upcItemDbTrialBaseUrl =
       'https://api.upcitemdb.com/prod/trial';
   static const String upcItemDbProBaseUrl = 'https://api.upcitemdb.com/prod/v1';
+  static const String upcmdbBaseUrl =
+      'https://us-central1-upcmdb-cbae5.cloudfunctions.net/api';
 
   static const Duration connectTimeout = Duration(seconds: 10);
   static const Duration receiveTimeout = Duration(seconds: 15);

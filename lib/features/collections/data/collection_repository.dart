@@ -1,16 +1,78 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
 
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/mappers/movie_mapper.dart';
 import '../../../core/network/tmdb/tmdb_api_client.dart';
 import '../../../shared/models/collection_with_entries.dart';
+import '../domain/movie_collection_info.dart';
 
 class CollectionRepository {
   CollectionRepository(this._db, this._tmdb);
 
   final AppDatabase _db;
   final TmdbApiClient _tmdb;
+  final _withoutFranchise = <int>{};
+
+  Future<int?> resolveFranchiseId(int tmdbMovieId) async {
+    if (_withoutFranchise.contains(tmdbMovieId)) return null;
+    final cached = await _cachedCollectionIdForMovie(tmdbMovieId);
+    if (cached != null) {
+      await _syncQuietly(cached);
+      return cached;
+    }
+    try {
+      final details = await _tmdb.getMovieDetails(tmdbMovieId);
+      final collectionId = details.collection?.id;
+      if (collectionId == null) {
+        _withoutFranchise.add(tmdbMovieId);
+        return null;
+      }
+      await _syncQuietly(collectionId);
+      return collectionId;
+    } catch (error) {
+      if (kDebugMode) debugPrint('franchise lookup failed: $error');
+      return null;
+    }
+  }
+
+  Stream<MovieCollectionInfo?> watchFranchise(
+    int tmdbCollectionId,
+    int currentTmdbMovieId,
+  ) {
+    return _db.select(_db.movies).watch().asyncMap((_) async {
+      final row = await (_db.select(
+        _db.collections,
+      )..where((t) => t.tmdbCollectionId.equals(tmdbCollectionId))).getSingleOrNull();
+      if (row == null) return null;
+      final built = await _buildCollectionWithEntries(row);
+      return MovieCollectionInfo.fromCollection(
+        built,
+        currentTmdbMovieId: currentTmdbMovieId,
+      );
+    });
+  }
+
+  Future<void> _syncQuietly(int tmdbCollectionId) async {
+    try {
+      await syncCollection(tmdbCollectionId);
+    } catch (error) {
+      if (kDebugMode) debugPrint('franchise sync failed: $error');
+    }
+  }
+
+  Future<int?> _cachedCollectionIdForMovie(int tmdbMovieId) async {
+    final query = _db.select(_db.collectionMovies).join([
+      innerJoin(
+        _db.collections,
+        _db.collections.id.equalsExp(_db.collectionMovies.collectionId),
+      ),
+    ])..where(_db.collectionMovies.tmdbMovieId.equals(tmdbMovieId));
+    final rows = await query.get();
+    if (rows.isEmpty) return null;
+    return rows.first.readTable(_db.collections).tmdbCollectionId;
+  }
 
   Future<void> syncCollection(
     int tmdbCollectionId, {
@@ -135,6 +197,14 @@ class CollectionRepository {
         ),
       );
     }
+    entries.sort(
+      (a, b) => compareReleaseDates(
+        a.releaseDate,
+        b.releaseDate,
+        a.title,
+        b.title,
+      ),
+    );
 
     return CollectionWithEntries(
       id: row.id,

@@ -2039,6 +2039,59 @@ class $BarcodesTable extends Barcodes
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _physicalFormatMeta = const VerificationMeta(
+    'physicalFormat',
+  );
+  @override
+  late final GeneratedColumn<String> physicalFormat = GeneratedColumn<String>(
+    'physical_format',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _regionMeta = const VerificationMeta('region');
+  @override
+  late final GeneratedColumn<String> region = GeneratedColumn<String>(
+    'region',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imdbIdMeta = const VerificationMeta('imdbId');
+  @override
+  late final GeneratedColumn<String> imdbId = GeneratedColumn<String>(
+    'imdb_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _verifiedMeta = const VerificationMeta(
+    'verified',
+  );
+  @override
+  late final GeneratedColumn<bool> verified = GeneratedColumn<bool>(
+    'verified',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("verified" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -2051,6 +2104,17 @@ class $BarcodesTable extends Barcodes
     requiredDuringInsert: false,
     defaultValue: currentDateAndTime,
   );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2060,7 +2124,13 @@ class $BarcodesTable extends Barcodes
     barcodeType,
     productTitle,
     editionName,
+    physicalFormat,
+    region,
+    imdbId,
+    source,
+    verified,
     createdAt,
+    updatedAt,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2129,10 +2199,49 @@ class $BarcodesTable extends Barcodes
         ),
       );
     }
+    if (data.containsKey('physical_format')) {
+      context.handle(
+        _physicalFormatMeta,
+        physicalFormat.isAcceptableOrUnknown(
+          data['physical_format']!,
+          _physicalFormatMeta,
+        ),
+      );
+    }
+    if (data.containsKey('region')) {
+      context.handle(
+        _regionMeta,
+        region.isAcceptableOrUnknown(data['region']!, _regionMeta),
+      );
+    }
+    if (data.containsKey('imdb_id')) {
+      context.handle(
+        _imdbIdMeta,
+        imdbId.isAcceptableOrUnknown(data['imdb_id']!, _imdbIdMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
+    if (data.containsKey('verified')) {
+      context.handle(
+        _verifiedMeta,
+        verified.isAcceptableOrUnknown(data['verified']!, _verifiedMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
         createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
       );
     }
     return context;
@@ -2172,10 +2281,34 @@ class $BarcodesTable extends Barcodes
         DriftSqlType.string,
         data['${effectivePrefix}edition_name'],
       ),
+      physicalFormat: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}physical_format'],
+      ),
+      region: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}region'],
+      ),
+      imdbId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}imdb_id'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
+      verified: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}verified'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
       )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}updated_at'],
+      ),
     );
   }
 
@@ -2193,7 +2326,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
   final String barcodeType;
   final String? productTitle;
   final String? editionName;
+  final String? physicalFormat;
+  final String? region;
+  final String? imdbId;
+  final String? source;
+  final bool verified;
   final DateTime createdAt;
+  final DateTime? updatedAt;
   const BarcodeRow({
     required this.id,
     this.movieId,
@@ -2202,7 +2341,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
     required this.barcodeType,
     this.productTitle,
     this.editionName,
+    this.physicalFormat,
+    this.region,
+    this.imdbId,
+    this.source,
+    required this.verified,
     required this.createdAt,
+    this.updatedAt,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2222,7 +2367,23 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
     if (!nullToAbsent || editionName != null) {
       map['edition_name'] = Variable<String>(editionName);
     }
+    if (!nullToAbsent || physicalFormat != null) {
+      map['physical_format'] = Variable<String>(physicalFormat);
+    }
+    if (!nullToAbsent || region != null) {
+      map['region'] = Variable<String>(region);
+    }
+    if (!nullToAbsent || imdbId != null) {
+      map['imdb_id'] = Variable<String>(imdbId);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
+    map['verified'] = Variable<bool>(verified);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || updatedAt != null) {
+      map['updated_at'] = Variable<DateTime>(updatedAt);
+    }
     return map;
   }
 
@@ -2243,7 +2404,23 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
       editionName: editionName == null && nullToAbsent
           ? const Value.absent()
           : Value(editionName),
+      physicalFormat: physicalFormat == null && nullToAbsent
+          ? const Value.absent()
+          : Value(physicalFormat),
+      region: region == null && nullToAbsent
+          ? const Value.absent()
+          : Value(region),
+      imdbId: imdbId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imdbId),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
+      verified: Value(verified),
       createdAt: Value(createdAt),
+      updatedAt: updatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(updatedAt),
     );
   }
 
@@ -2260,7 +2437,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
       barcodeType: serializer.fromJson<String>(json['barcodeType']),
       productTitle: serializer.fromJson<String?>(json['productTitle']),
       editionName: serializer.fromJson<String?>(json['editionName']),
+      physicalFormat: serializer.fromJson<String?>(json['physicalFormat']),
+      region: serializer.fromJson<String?>(json['region']),
+      imdbId: serializer.fromJson<String?>(json['imdbId']),
+      source: serializer.fromJson<String?>(json['source']),
+      verified: serializer.fromJson<bool>(json['verified']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime?>(json['updatedAt']),
     );
   }
   @override
@@ -2274,7 +2457,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
       'barcodeType': serializer.toJson<String>(barcodeType),
       'productTitle': serializer.toJson<String?>(productTitle),
       'editionName': serializer.toJson<String?>(editionName),
+      'physicalFormat': serializer.toJson<String?>(physicalFormat),
+      'region': serializer.toJson<String?>(region),
+      'imdbId': serializer.toJson<String?>(imdbId),
+      'source': serializer.toJson<String?>(source),
+      'verified': serializer.toJson<bool>(verified),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime?>(updatedAt),
     };
   }
 
@@ -2286,7 +2475,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
     String? barcodeType,
     Value<String?> productTitle = const Value.absent(),
     Value<String?> editionName = const Value.absent(),
+    Value<String?> physicalFormat = const Value.absent(),
+    Value<String?> region = const Value.absent(),
+    Value<String?> imdbId = const Value.absent(),
+    Value<String?> source = const Value.absent(),
+    bool? verified,
     DateTime? createdAt,
+    Value<DateTime?> updatedAt = const Value.absent(),
   }) => BarcodeRow(
     id: id ?? this.id,
     movieId: movieId.present ? movieId.value : this.movieId,
@@ -2297,7 +2492,15 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
     barcodeType: barcodeType ?? this.barcodeType,
     productTitle: productTitle.present ? productTitle.value : this.productTitle,
     editionName: editionName.present ? editionName.value : this.editionName,
+    physicalFormat: physicalFormat.present
+        ? physicalFormat.value
+        : this.physicalFormat,
+    region: region.present ? region.value : this.region,
+    imdbId: imdbId.present ? imdbId.value : this.imdbId,
+    source: source.present ? source.value : this.source,
+    verified: verified ?? this.verified,
     createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt.present ? updatedAt.value : this.updatedAt,
   );
   BarcodeRow copyWithCompanion(BarcodesCompanion data) {
     return BarcodeRow(
@@ -2316,7 +2519,15 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
       editionName: data.editionName.present
           ? data.editionName.value
           : this.editionName,
+      physicalFormat: data.physicalFormat.present
+          ? data.physicalFormat.value
+          : this.physicalFormat,
+      region: data.region.present ? data.region.value : this.region,
+      imdbId: data.imdbId.present ? data.imdbId.value : this.imdbId,
+      source: data.source.present ? data.source.value : this.source,
+      verified: data.verified.present ? data.verified.value : this.verified,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
   }
 
@@ -2330,7 +2541,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
           ..write('barcodeType: $barcodeType, ')
           ..write('productTitle: $productTitle, ')
           ..write('editionName: $editionName, ')
-          ..write('createdAt: $createdAt')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('region: $region, ')
+          ..write('imdbId: $imdbId, ')
+          ..write('source: $source, ')
+          ..write('verified: $verified, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
           ..write(')'))
         .toString();
   }
@@ -2344,7 +2561,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
     barcodeType,
     productTitle,
     editionName,
+    physicalFormat,
+    region,
+    imdbId,
+    source,
+    verified,
     createdAt,
+    updatedAt,
   );
   @override
   bool operator ==(Object other) =>
@@ -2357,7 +2580,13 @@ class BarcodeRow extends DataClass implements Insertable<BarcodeRow> {
           other.barcodeType == this.barcodeType &&
           other.productTitle == this.productTitle &&
           other.editionName == this.editionName &&
-          other.createdAt == this.createdAt);
+          other.physicalFormat == this.physicalFormat &&
+          other.region == this.region &&
+          other.imdbId == this.imdbId &&
+          other.source == this.source &&
+          other.verified == this.verified &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt);
 }
 
 class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
@@ -2368,7 +2597,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
   final Value<String> barcodeType;
   final Value<String?> productTitle;
   final Value<String?> editionName;
+  final Value<String?> physicalFormat;
+  final Value<String?> region;
+  final Value<String?> imdbId;
+  final Value<String?> source;
+  final Value<bool> verified;
   final Value<DateTime> createdAt;
+  final Value<DateTime?> updatedAt;
   const BarcodesCompanion({
     this.id = const Value.absent(),
     this.movieId = const Value.absent(),
@@ -2377,7 +2612,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
     this.barcodeType = const Value.absent(),
     this.productTitle = const Value.absent(),
     this.editionName = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.region = const Value.absent(),
+    this.imdbId = const Value.absent(),
+    this.source = const Value.absent(),
+    this.verified = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   });
   BarcodesCompanion.insert({
     this.id = const Value.absent(),
@@ -2387,7 +2628,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
     required String barcodeType,
     this.productTitle = const Value.absent(),
     this.editionName = const Value.absent(),
+    this.physicalFormat = const Value.absent(),
+    this.region = const Value.absent(),
+    this.imdbId = const Value.absent(),
+    this.source = const Value.absent(),
+    this.verified = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
   }) : barcode = Value(barcode),
        barcodeType = Value(barcodeType);
   static Insertable<BarcodeRow> custom({
@@ -2398,7 +2645,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
     Expression<String>? barcodeType,
     Expression<String>? productTitle,
     Expression<String>? editionName,
+    Expression<String>? physicalFormat,
+    Expression<String>? region,
+    Expression<String>? imdbId,
+    Expression<String>? source,
+    Expression<bool>? verified,
     Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2408,7 +2661,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
       if (barcodeType != null) 'barcode_type': barcodeType,
       if (productTitle != null) 'product_title': productTitle,
       if (editionName != null) 'edition_name': editionName,
+      if (physicalFormat != null) 'physical_format': physicalFormat,
+      if (region != null) 'region': region,
+      if (imdbId != null) 'imdb_id': imdbId,
+      if (source != null) 'source': source,
+      if (verified != null) 'verified': verified,
       if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
     });
   }
 
@@ -2420,7 +2679,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
     Value<String>? barcodeType,
     Value<String?>? productTitle,
     Value<String?>? editionName,
+    Value<String?>? physicalFormat,
+    Value<String?>? region,
+    Value<String?>? imdbId,
+    Value<String?>? source,
+    Value<bool>? verified,
     Value<DateTime>? createdAt,
+    Value<DateTime?>? updatedAt,
   }) {
     return BarcodesCompanion(
       id: id ?? this.id,
@@ -2430,7 +2695,13 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
       barcodeType: barcodeType ?? this.barcodeType,
       productTitle: productTitle ?? this.productTitle,
       editionName: editionName ?? this.editionName,
+      physicalFormat: physicalFormat ?? this.physicalFormat,
+      region: region ?? this.region,
+      imdbId: imdbId ?? this.imdbId,
+      source: source ?? this.source,
+      verified: verified ?? this.verified,
       createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
     );
   }
 
@@ -2458,8 +2729,26 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
     if (editionName.present) {
       map['edition_name'] = Variable<String>(editionName.value);
     }
+    if (physicalFormat.present) {
+      map['physical_format'] = Variable<String>(physicalFormat.value);
+    }
+    if (region.present) {
+      map['region'] = Variable<String>(region.value);
+    }
+    if (imdbId.present) {
+      map['imdb_id'] = Variable<String>(imdbId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (verified.present) {
+      map['verified'] = Variable<bool>(verified.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
     }
     return map;
   }
@@ -2474,7 +2763,474 @@ class BarcodesCompanion extends UpdateCompanion<BarcodeRow> {
           ..write('barcodeType: $barcodeType, ')
           ..write('productTitle: $productTitle, ')
           ..write('editionName: $editionName, ')
-          ..write('createdAt: $createdAt')
+          ..write('physicalFormat: $physicalFormat, ')
+          ..write('region: $region, ')
+          ..write('imdbId: $imdbId, ')
+          ..write('source: $source, ')
+          ..write('verified: $verified, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $BarcodeLookupCacheTable extends BarcodeLookupCache
+    with TableInfo<$BarcodeLookupCacheTable, BarcodeLookupCacheRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BarcodeLookupCacheTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _barcodeMeta = const VerificationMeta(
+    'barcode',
+  );
+  @override
+  late final GeneratedColumn<String> barcode = GeneratedColumn<String>(
+    'barcode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _providerMeta = const VerificationMeta(
+    'provider',
+  );
+  @override
+  late final GeneratedColumn<String> provider = GeneratedColumn<String>(
+    'provider',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _outcomeMeta = const VerificationMeta(
+    'outcome',
+  );
+  @override
+  late final GeneratedColumn<String> outcome = GeneratedColumn<String>(
+    'outcome',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _payloadMeta = const VerificationMeta(
+    'payload',
+  );
+  @override
+  late final GeneratedColumn<String> payload = GeneratedColumn<String>(
+    'payload',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _fetchedAtMeta = const VerificationMeta(
+    'fetchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> fetchedAt = GeneratedColumn<DateTime>(
+    'fetched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _expiresAtMeta = const VerificationMeta(
+    'expiresAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> expiresAt = GeneratedColumn<DateTime>(
+    'expires_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    barcode,
+    provider,
+    outcome,
+    payload,
+    fetchedAt,
+    expiresAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'barcode_lookup_cache';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BarcodeLookupCacheRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('barcode')) {
+      context.handle(
+        _barcodeMeta,
+        barcode.isAcceptableOrUnknown(data['barcode']!, _barcodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_barcodeMeta);
+    }
+    if (data.containsKey('provider')) {
+      context.handle(
+        _providerMeta,
+        provider.isAcceptableOrUnknown(data['provider']!, _providerMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_providerMeta);
+    }
+    if (data.containsKey('outcome')) {
+      context.handle(
+        _outcomeMeta,
+        outcome.isAcceptableOrUnknown(data['outcome']!, _outcomeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_outcomeMeta);
+    }
+    if (data.containsKey('payload')) {
+      context.handle(
+        _payloadMeta,
+        payload.isAcceptableOrUnknown(data['payload']!, _payloadMeta),
+      );
+    }
+    if (data.containsKey('fetched_at')) {
+      context.handle(
+        _fetchedAtMeta,
+        fetchedAt.isAcceptableOrUnknown(data['fetched_at']!, _fetchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_fetchedAtMeta);
+    }
+    if (data.containsKey('expires_at')) {
+      context.handle(
+        _expiresAtMeta,
+        expiresAt.isAcceptableOrUnknown(data['expires_at']!, _expiresAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_expiresAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {barcode, provider},
+  ];
+  @override
+  BarcodeLookupCacheRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BarcodeLookupCacheRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      barcode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}barcode'],
+      )!,
+      provider: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}provider'],
+      )!,
+      outcome: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}outcome'],
+      )!,
+      payload: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payload'],
+      ),
+      fetchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}fetched_at'],
+      )!,
+      expiresAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}expires_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BarcodeLookupCacheTable createAlias(String alias) {
+    return $BarcodeLookupCacheTable(attachedDatabase, alias);
+  }
+}
+
+class BarcodeLookupCacheRow extends DataClass
+    implements Insertable<BarcodeLookupCacheRow> {
+  final int id;
+  final String barcode;
+  final String provider;
+  final String outcome;
+  final String? payload;
+  final DateTime fetchedAt;
+  final DateTime expiresAt;
+  const BarcodeLookupCacheRow({
+    required this.id,
+    required this.barcode,
+    required this.provider,
+    required this.outcome,
+    this.payload,
+    required this.fetchedAt,
+    required this.expiresAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['barcode'] = Variable<String>(barcode);
+    map['provider'] = Variable<String>(provider);
+    map['outcome'] = Variable<String>(outcome);
+    if (!nullToAbsent || payload != null) {
+      map['payload'] = Variable<String>(payload);
+    }
+    map['fetched_at'] = Variable<DateTime>(fetchedAt);
+    map['expires_at'] = Variable<DateTime>(expiresAt);
+    return map;
+  }
+
+  BarcodeLookupCacheCompanion toCompanion(bool nullToAbsent) {
+    return BarcodeLookupCacheCompanion(
+      id: Value(id),
+      barcode: Value(barcode),
+      provider: Value(provider),
+      outcome: Value(outcome),
+      payload: payload == null && nullToAbsent
+          ? const Value.absent()
+          : Value(payload),
+      fetchedAt: Value(fetchedAt),
+      expiresAt: Value(expiresAt),
+    );
+  }
+
+  factory BarcodeLookupCacheRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BarcodeLookupCacheRow(
+      id: serializer.fromJson<int>(json['id']),
+      barcode: serializer.fromJson<String>(json['barcode']),
+      provider: serializer.fromJson<String>(json['provider']),
+      outcome: serializer.fromJson<String>(json['outcome']),
+      payload: serializer.fromJson<String?>(json['payload']),
+      fetchedAt: serializer.fromJson<DateTime>(json['fetchedAt']),
+      expiresAt: serializer.fromJson<DateTime>(json['expiresAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'barcode': serializer.toJson<String>(barcode),
+      'provider': serializer.toJson<String>(provider),
+      'outcome': serializer.toJson<String>(outcome),
+      'payload': serializer.toJson<String?>(payload),
+      'fetchedAt': serializer.toJson<DateTime>(fetchedAt),
+      'expiresAt': serializer.toJson<DateTime>(expiresAt),
+    };
+  }
+
+  BarcodeLookupCacheRow copyWith({
+    int? id,
+    String? barcode,
+    String? provider,
+    String? outcome,
+    Value<String?> payload = const Value.absent(),
+    DateTime? fetchedAt,
+    DateTime? expiresAt,
+  }) => BarcodeLookupCacheRow(
+    id: id ?? this.id,
+    barcode: barcode ?? this.barcode,
+    provider: provider ?? this.provider,
+    outcome: outcome ?? this.outcome,
+    payload: payload.present ? payload.value : this.payload,
+    fetchedAt: fetchedAt ?? this.fetchedAt,
+    expiresAt: expiresAt ?? this.expiresAt,
+  );
+  BarcodeLookupCacheRow copyWithCompanion(BarcodeLookupCacheCompanion data) {
+    return BarcodeLookupCacheRow(
+      id: data.id.present ? data.id.value : this.id,
+      barcode: data.barcode.present ? data.barcode.value : this.barcode,
+      provider: data.provider.present ? data.provider.value : this.provider,
+      outcome: data.outcome.present ? data.outcome.value : this.outcome,
+      payload: data.payload.present ? data.payload.value : this.payload,
+      fetchedAt: data.fetchedAt.present ? data.fetchedAt.value : this.fetchedAt,
+      expiresAt: data.expiresAt.present ? data.expiresAt.value : this.expiresAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BarcodeLookupCacheRow(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('provider: $provider, ')
+          ..write('outcome: $outcome, ')
+          ..write('payload: $payload, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    barcode,
+    provider,
+    outcome,
+    payload,
+    fetchedAt,
+    expiresAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BarcodeLookupCacheRow &&
+          other.id == this.id &&
+          other.barcode == this.barcode &&
+          other.provider == this.provider &&
+          other.outcome == this.outcome &&
+          other.payload == this.payload &&
+          other.fetchedAt == this.fetchedAt &&
+          other.expiresAt == this.expiresAt);
+}
+
+class BarcodeLookupCacheCompanion
+    extends UpdateCompanion<BarcodeLookupCacheRow> {
+  final Value<int> id;
+  final Value<String> barcode;
+  final Value<String> provider;
+  final Value<String> outcome;
+  final Value<String?> payload;
+  final Value<DateTime> fetchedAt;
+  final Value<DateTime> expiresAt;
+  const BarcodeLookupCacheCompanion({
+    this.id = const Value.absent(),
+    this.barcode = const Value.absent(),
+    this.provider = const Value.absent(),
+    this.outcome = const Value.absent(),
+    this.payload = const Value.absent(),
+    this.fetchedAt = const Value.absent(),
+    this.expiresAt = const Value.absent(),
+  });
+  BarcodeLookupCacheCompanion.insert({
+    this.id = const Value.absent(),
+    required String barcode,
+    required String provider,
+    required String outcome,
+    this.payload = const Value.absent(),
+    required DateTime fetchedAt,
+    required DateTime expiresAt,
+  }) : barcode = Value(barcode),
+       provider = Value(provider),
+       outcome = Value(outcome),
+       fetchedAt = Value(fetchedAt),
+       expiresAt = Value(expiresAt);
+  static Insertable<BarcodeLookupCacheRow> custom({
+    Expression<int>? id,
+    Expression<String>? barcode,
+    Expression<String>? provider,
+    Expression<String>? outcome,
+    Expression<String>? payload,
+    Expression<DateTime>? fetchedAt,
+    Expression<DateTime>? expiresAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (barcode != null) 'barcode': barcode,
+      if (provider != null) 'provider': provider,
+      if (outcome != null) 'outcome': outcome,
+      if (payload != null) 'payload': payload,
+      if (fetchedAt != null) 'fetched_at': fetchedAt,
+      if (expiresAt != null) 'expires_at': expiresAt,
+    });
+  }
+
+  BarcodeLookupCacheCompanion copyWith({
+    Value<int>? id,
+    Value<String>? barcode,
+    Value<String>? provider,
+    Value<String>? outcome,
+    Value<String?>? payload,
+    Value<DateTime>? fetchedAt,
+    Value<DateTime>? expiresAt,
+  }) {
+    return BarcodeLookupCacheCompanion(
+      id: id ?? this.id,
+      barcode: barcode ?? this.barcode,
+      provider: provider ?? this.provider,
+      outcome: outcome ?? this.outcome,
+      payload: payload ?? this.payload,
+      fetchedAt: fetchedAt ?? this.fetchedAt,
+      expiresAt: expiresAt ?? this.expiresAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (barcode.present) {
+      map['barcode'] = Variable<String>(barcode.value);
+    }
+    if (provider.present) {
+      map['provider'] = Variable<String>(provider.value);
+    }
+    if (outcome.present) {
+      map['outcome'] = Variable<String>(outcome.value);
+    }
+    if (payload.present) {
+      map['payload'] = Variable<String>(payload.value);
+    }
+    if (fetchedAt.present) {
+      map['fetched_at'] = Variable<DateTime>(fetchedAt.value);
+    }
+    if (expiresAt.present) {
+      map['expires_at'] = Variable<DateTime>(expiresAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BarcodeLookupCacheCompanion(')
+          ..write('id: $id, ')
+          ..write('barcode: $barcode, ')
+          ..write('provider: $provider, ')
+          ..write('outcome: $outcome, ')
+          ..write('payload: $payload, ')
+          ..write('fetchedAt: $fetchedAt, ')
+          ..write('expiresAt: $expiresAt')
           ..write(')'))
         .toString();
   }
@@ -5871,6 +6627,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $BarcodesTable barcodes = $BarcodesTable(this);
+  late final $BarcodeLookupCacheTable barcodeLookupCache =
+      $BarcodeLookupCacheTable(this);
   late final $CollectionsTable collections = $CollectionsTable(this);
   late final $CollectionMoviesTable collectionMovies = $CollectionMoviesTable(
     this,
@@ -5892,6 +6650,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     movieGenres,
     physicalEditions,
     barcodes,
+    barcodeLookupCache,
     collections,
     collectionMovies,
     tvSeriesTable,
@@ -8026,7 +8785,13 @@ typedef $$BarcodesTableCreateCompanionBuilder =
       required String barcodeType,
       Value<String?> productTitle,
       Value<String?> editionName,
+      Value<String?> physicalFormat,
+      Value<String?> region,
+      Value<String?> imdbId,
+      Value<String?> source,
+      Value<bool> verified,
       Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
     });
 typedef $$BarcodesTableUpdateCompanionBuilder =
     BarcodesCompanion Function({
@@ -8037,7 +8802,13 @@ typedef $$BarcodesTableUpdateCompanionBuilder =
       Value<String> barcodeType,
       Value<String?> productTitle,
       Value<String?> editionName,
+      Value<String?> physicalFormat,
+      Value<String?> region,
+      Value<String?> imdbId,
+      Value<String?> source,
+      Value<bool> verified,
       Value<DateTime> createdAt,
+      Value<DateTime?> updatedAt,
     });
 
 final class $$BarcodesTableReferences
@@ -8119,8 +8890,38 @@ class $$BarcodesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get physicalFormat => $composableBuilder(
+    column: $table.physicalFormat,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get region => $composableBuilder(
+    column: $table.region,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imdbId => $composableBuilder(
+    column: $table.imdbId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get verified => $composableBuilder(
+    column: $table.verified,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8205,8 +9006,38 @@ class $$BarcodesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get physicalFormat => $composableBuilder(
+    column: $table.physicalFormat,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get region => $composableBuilder(
+    column: $table.region,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imdbId => $composableBuilder(
+    column: $table.imdbId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get verified => $composableBuilder(
+    column: $table.verified,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -8287,8 +9118,28 @@ class $$BarcodesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get physicalFormat => $composableBuilder(
+    column: $table.physicalFormat,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get region =>
+      $composableBuilder(column: $table.region, builder: (column) => column);
+
+  GeneratedColumn<String> get imdbId =>
+      $composableBuilder(column: $table.imdbId, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get verified =>
+      $composableBuilder(column: $table.verified, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
 
   $$MoviesTableAnnotationComposer get movieId {
     final $$MoviesTableAnnotationComposer composer = $composerBuilder(
@@ -8372,7 +9223,13 @@ class $$BarcodesTableTableManager
                 Value<String> barcodeType = const Value.absent(),
                 Value<String?> productTitle = const Value.absent(),
                 Value<String?> editionName = const Value.absent(),
+                Value<String?> physicalFormat = const Value.absent(),
+                Value<String?> region = const Value.absent(),
+                Value<String?> imdbId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                Value<bool> verified = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
               }) => BarcodesCompanion(
                 id: id,
                 movieId: movieId,
@@ -8381,7 +9238,13 @@ class $$BarcodesTableTableManager
                 barcodeType: barcodeType,
                 productTitle: productTitle,
                 editionName: editionName,
+                physicalFormat: physicalFormat,
+                region: region,
+                imdbId: imdbId,
+                source: source,
+                verified: verified,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           createCompanionCallback:
               ({
@@ -8392,7 +9255,13 @@ class $$BarcodesTableTableManager
                 required String barcodeType,
                 Value<String?> productTitle = const Value.absent(),
                 Value<String?> editionName = const Value.absent(),
+                Value<String?> physicalFormat = const Value.absent(),
+                Value<String?> region = const Value.absent(),
+                Value<String?> imdbId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
+                Value<bool> verified = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime?> updatedAt = const Value.absent(),
               }) => BarcodesCompanion.insert(
                 id: id,
                 movieId: movieId,
@@ -8401,7 +9270,13 @@ class $$BarcodesTableTableManager
                 barcodeType: barcodeType,
                 productTitle: productTitle,
                 editionName: editionName,
+                physicalFormat: physicalFormat,
+                region: region,
+                imdbId: imdbId,
+                source: source,
+                verified: verified,
                 createdAt: createdAt,
+                updatedAt: updatedAt,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -8483,6 +9358,251 @@ typedef $$BarcodesTableProcessedTableManager =
       (BarcodeRow, $$BarcodesTableReferences),
       BarcodeRow,
       PrefetchHooks Function({bool movieId, bool physicalEditionId})
+    >;
+typedef $$BarcodeLookupCacheTableCreateCompanionBuilder =
+    BarcodeLookupCacheCompanion Function({
+      Value<int> id,
+      required String barcode,
+      required String provider,
+      required String outcome,
+      Value<String?> payload,
+      required DateTime fetchedAt,
+      required DateTime expiresAt,
+    });
+typedef $$BarcodeLookupCacheTableUpdateCompanionBuilder =
+    BarcodeLookupCacheCompanion Function({
+      Value<int> id,
+      Value<String> barcode,
+      Value<String> provider,
+      Value<String> outcome,
+      Value<String?> payload,
+      Value<DateTime> fetchedAt,
+      Value<DateTime> expiresAt,
+    });
+
+class $$BarcodeLookupCacheTableFilterComposer
+    extends Composer<_$AppDatabase, $BarcodeLookupCacheTable> {
+  $$BarcodeLookupCacheTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BarcodeLookupCacheTableOrderingComposer
+    extends Composer<_$AppDatabase, $BarcodeLookupCacheTable> {
+  $$BarcodeLookupCacheTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get barcode => $composableBuilder(
+    column: $table.barcode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get provider => $composableBuilder(
+    column: $table.provider,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get outcome => $composableBuilder(
+    column: $table.outcome,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get payload => $composableBuilder(
+    column: $table.payload,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get fetchedAt => $composableBuilder(
+    column: $table.fetchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get expiresAt => $composableBuilder(
+    column: $table.expiresAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BarcodeLookupCacheTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BarcodeLookupCacheTable> {
+  $$BarcodeLookupCacheTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get barcode =>
+      $composableBuilder(column: $table.barcode, builder: (column) => column);
+
+  GeneratedColumn<String> get provider =>
+      $composableBuilder(column: $table.provider, builder: (column) => column);
+
+  GeneratedColumn<String> get outcome =>
+      $composableBuilder(column: $table.outcome, builder: (column) => column);
+
+  GeneratedColumn<String> get payload =>
+      $composableBuilder(column: $table.payload, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get fetchedAt =>
+      $composableBuilder(column: $table.fetchedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get expiresAt =>
+      $composableBuilder(column: $table.expiresAt, builder: (column) => column);
+}
+
+class $$BarcodeLookupCacheTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BarcodeLookupCacheTable,
+          BarcodeLookupCacheRow,
+          $$BarcodeLookupCacheTableFilterComposer,
+          $$BarcodeLookupCacheTableOrderingComposer,
+          $$BarcodeLookupCacheTableAnnotationComposer,
+          $$BarcodeLookupCacheTableCreateCompanionBuilder,
+          $$BarcodeLookupCacheTableUpdateCompanionBuilder,
+          (
+            BarcodeLookupCacheRow,
+            BaseReferences<
+              _$AppDatabase,
+              $BarcodeLookupCacheTable,
+              BarcodeLookupCacheRow
+            >,
+          ),
+          BarcodeLookupCacheRow,
+          PrefetchHooks Function()
+        > {
+  $$BarcodeLookupCacheTableTableManager(
+    _$AppDatabase db,
+    $BarcodeLookupCacheTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BarcodeLookupCacheTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BarcodeLookupCacheTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$BarcodeLookupCacheTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> barcode = const Value.absent(),
+                Value<String> provider = const Value.absent(),
+                Value<String> outcome = const Value.absent(),
+                Value<String?> payload = const Value.absent(),
+                Value<DateTime> fetchedAt = const Value.absent(),
+                Value<DateTime> expiresAt = const Value.absent(),
+              }) => BarcodeLookupCacheCompanion(
+                id: id,
+                barcode: barcode,
+                provider: provider,
+                outcome: outcome,
+                payload: payload,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String barcode,
+                required String provider,
+                required String outcome,
+                Value<String?> payload = const Value.absent(),
+                required DateTime fetchedAt,
+                required DateTime expiresAt,
+              }) => BarcodeLookupCacheCompanion.insert(
+                id: id,
+                barcode: barcode,
+                provider: provider,
+                outcome: outcome,
+                payload: payload,
+                fetchedAt: fetchedAt,
+                expiresAt: expiresAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BarcodeLookupCacheTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BarcodeLookupCacheTable,
+      BarcodeLookupCacheRow,
+      $$BarcodeLookupCacheTableFilterComposer,
+      $$BarcodeLookupCacheTableOrderingComposer,
+      $$BarcodeLookupCacheTableAnnotationComposer,
+      $$BarcodeLookupCacheTableCreateCompanionBuilder,
+      $$BarcodeLookupCacheTableUpdateCompanionBuilder,
+      (
+        BarcodeLookupCacheRow,
+        BaseReferences<
+          _$AppDatabase,
+          $BarcodeLookupCacheTable,
+          BarcodeLookupCacheRow
+        >,
+      ),
+      BarcodeLookupCacheRow,
+      PrefetchHooks Function()
     >;
 typedef $$CollectionsTableCreateCompanionBuilder =
     CollectionsCompanion Function({
@@ -11568,6 +12688,8 @@ class $AppDatabaseManager {
       $$PhysicalEditionsTableTableManager(_db, _db.physicalEditions);
   $$BarcodesTableTableManager get barcodes =>
       $$BarcodesTableTableManager(_db, _db.barcodes);
+  $$BarcodeLookupCacheTableTableManager get barcodeLookupCache =>
+      $$BarcodeLookupCacheTableTableManager(_db, _db.barcodeLookupCache);
   $$CollectionsTableTableManager get collections =>
       $$CollectionsTableTableManager(_db, _db.collections);
   $$CollectionMoviesTableTableManager get collectionMovies =>

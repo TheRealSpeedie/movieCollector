@@ -45,8 +45,14 @@ class _FakeTmdbCollectionDetails_2 extends _i1.SmartFake
     : super(parent, parentInvocation);
 }
 
-class _FakeTmdbTvDetails_3 extends _i1.SmartFake implements _i3.TmdbTvDetails {
-  _FakeTmdbTvDetails_3(Object parent, Invocation parentInvocation)
+class _FakeTmdbExternalMatch_3 extends _i1.SmartFake
+    implements _i3.TmdbExternalMatch {
+  _FakeTmdbExternalMatch_3(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakeTmdbTvDetails_4 extends _i1.SmartFake implements _i3.TmdbTvDetails {
+  _FakeTmdbTvDetails_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
@@ -107,9 +113,14 @@ class MockTmdbApiClient extends _i1.Mock implements _i7.TmdbApiClient {
   _i5.Future<List<_i3.TmdbSearchResult>> searchMovies(
     String? query, {
     int? page = 1,
+    int? year,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#searchMovies, [query], {#page: page}),
+            Invocation.method(
+              #searchMovies,
+              [query],
+              {#page: page, #year: year},
+            ),
             returnValue: _i5.Future<List<_i3.TmdbSearchResult>>.value(
               <_i3.TmdbSearchResult>[],
             ),
@@ -156,12 +167,26 @@ class MockTmdbApiClient extends _i1.Mock implements _i7.TmdbApiClient {
           as _i5.Future<List<_i3.TmdbCollectionSearchResult>>);
 
   @override
+  _i5.Future<_i3.TmdbExternalMatch> findByImdbId(String? imdbId) =>
+      (super.noSuchMethod(
+            Invocation.method(#findByImdbId, [imdbId]),
+            returnValue: _i5.Future<_i3.TmdbExternalMatch>.value(
+              _FakeTmdbExternalMatch_3(
+                this,
+                Invocation.method(#findByImdbId, [imdbId]),
+              ),
+            ),
+          )
+          as _i5.Future<_i3.TmdbExternalMatch>);
+
+  @override
   _i5.Future<List<_i3.TmdbTvSearchResult>> searchTv(
     String? query, {
     int? page = 1,
+    int? year,
   }) =>
       (super.noSuchMethod(
-            Invocation.method(#searchTv, [query], {#page: page}),
+            Invocation.method(#searchTv, [query], {#page: page, #year: year}),
             returnValue: _i5.Future<List<_i3.TmdbTvSearchResult>>.value(
               <_i3.TmdbTvSearchResult>[],
             ),
@@ -173,7 +198,7 @@ class MockTmdbApiClient extends _i1.Mock implements _i7.TmdbApiClient {
       (super.noSuchMethod(
             Invocation.method(#getTvDetails, [tmdbId]),
             returnValue: _i5.Future<_i3.TmdbTvDetails>.value(
-              _FakeTmdbTvDetails_3(
+              _FakeTmdbTvDetails_4(
                 this,
                 Invocation.method(#getTvDetails, [tmdbId]),
               ),

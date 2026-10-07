@@ -9,6 +9,7 @@ import '../../shared/models/collection_status.dart';
 import '../../shared/models/physical_edition_kind.dart';
 import '../constants/app_constants.dart';
 import 'converters/collection_status_converter.dart';
+import 'tables/barcode_lookup_cache_table.dart';
 import 'tables/barcodes_table.dart';
 import 'tables/collection_movies_table.dart';
 import 'tables/collections_table.dart';
@@ -30,6 +31,7 @@ part 'app_database.g.dart';
     Genres,
     MovieGenres,
     Barcodes,
+    BarcodeLookupCache,
     Collections,
     CollectionMovies,
     TvSeriesTable,
@@ -44,7 +46,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -81,6 +83,20 @@ SELECT id, movie_id, barcode, barcode_type, product_title, edition_name, created
         await customStatement('ALTER TABLE barcodes_new RENAME TO barcodes');
         await customStatement('PRAGMA foreign_keys = ON');
         await _createIndexes(migrator);
+      }
+      if (from < 3) {
+        await migrator.addColumn(barcodes, barcodes.physicalFormat);
+        await migrator.addColumn(barcodes, barcodes.region);
+        await migrator.addColumn(barcodes, barcodes.imdbId);
+        await migrator.addColumn(barcodes, barcodes.source);
+        await migrator.addColumn(barcodes, barcodes.verified);
+        await migrator.addColumn(barcodes, barcodes.updatedAt);
+        await migrator.createTable(barcodeLookupCache);
+        await customStatement(
+          "UPDATE barcodes SET verified = 1, source = 'user' WHERE source IS NULL",
+        );
+      }
+      if (from < 2) {
         await _backfillPhysicalEditions();
       }
     },

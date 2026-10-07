@@ -7,6 +7,7 @@ import '../database/app_database.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../network/tmdb/tmdb_api_client.dart';
+import '../network/upcmdb/upcmdb_client.dart';
 import '../network/upcitemdb/upcitemdb_client.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -51,4 +52,20 @@ final upcItemDbDioClientProvider = Provider<DioClient>((ref) {
 
 final barcodeProviderProvider = Provider<BarcodeProvider>((ref) {
   return UpcItemDbClient(ref.watch(upcItemDbDioClientProvider));
+});
+
+final upcmdbDioProvider = Provider<Dio>((ref) {
+  return buildUpcmdbDio(Env.upcmdbApiKey);
+});
+
+final upcmdbDioClientProvider = Provider<DioClient>((ref) {
+  return DioClient(
+    dio: ref.watch(upcmdbDioProvider),
+    networkInfo: ref.watch(networkInfoProvider),
+  );
+});
+
+final upcmdbClientProvider = Provider<UpcmdbClient?>((ref) {
+  if (!Env.isUpcmdbConfigured) return null;
+  return UpcmdbClient(ref.watch(upcmdbDioClientProvider));
 });

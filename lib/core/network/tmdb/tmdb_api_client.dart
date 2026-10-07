@@ -10,6 +10,7 @@ class TmdbApiClient {
   Future<List<TmdbSearchResult>> searchMovies(
     String query, {
     int page = 1,
+    int? year,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/search/movie',
@@ -19,6 +20,7 @@ class TmdbApiClient {
         'region': ApiConstants.tmdbRegion,
         'include_adult': false,
         'page': page,
+        if (year != null) 'year': year,
       },
     );
     final results = response.data?['results'] as List<dynamic>? ?? const [];
@@ -87,9 +89,33 @@ class TmdbApiClient {
         .toList(growable: false);
   }
 
+  Future<TmdbExternalMatch> findByImdbId(String imdbId) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/find/$imdbId',
+      queryParameters: {
+        'external_source': 'imdb_id',
+        'language': ApiConstants.tmdbLanguage,
+      },
+    );
+    final data = response.data ?? const {};
+    final movies = (data['movie_results'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(TmdbSearchResult.fromJson)
+        .toList(growable: false);
+    final shows = (data['tv_results'] as List<dynamic>? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map(TmdbTvSearchResult.fromJson)
+        .toList(growable: false);
+    return TmdbExternalMatch(
+      movie: movies.isEmpty ? null : movies.first,
+      tv: shows.isEmpty ? null : shows.first,
+    );
+  }
+
   Future<List<TmdbTvSearchResult>> searchTv(
     String query, {
     int page = 1,
+    int? year,
   }) async {
     final response = await _client.get<Map<String, dynamic>>(
       '/search/tv',
@@ -98,6 +124,7 @@ class TmdbApiClient {
         'language': ApiConstants.tmdbLanguage,
         'include_adult': false,
         'page': page,
+        if (year != null) 'first_air_date_year': year,
       },
     );
     final results = response.data?['results'] as List<dynamic>? ?? const [];

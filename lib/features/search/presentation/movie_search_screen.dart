@@ -8,10 +8,13 @@ import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/movie_search_result_tile.dart';
+import '../../scanner/domain/barcode_search_context.dart';
 import '../application/search_providers.dart';
 
 class MovieSearchScreen extends ConsumerStatefulWidget {
-  const MovieSearchScreen({super.key});
+  const MovieSearchScreen({super.key, this.scan = const BarcodeSearchContext()});
+
+  final BarcodeSearchContext scan;
 
   @override
   ConsumerState<MovieSearchScreen> createState() => _MovieSearchScreenState();
@@ -20,6 +23,19 @@ class MovieSearchScreen extends ConsumerStatefulWidget {
 class _MovieSearchScreenState extends ConsumerState<MovieSearchScreen> {
   final _controller = TextEditingController();
   Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+    final query = widget.scan.query;
+    if (query != null && query.isNotEmpty) {
+      _controller.text = query;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        ref.read(movieSearchControllerProvider.notifier).search(query);
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -87,7 +103,11 @@ class _MovieSearchScreenState extends ConsumerState<MovieSearchScreen> {
               return MovieSearchResultTile.fromResult(
                 result,
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-                onTap: () => context.push('/search/add/${result.id}'),
+                onTap: () => context.push(
+                  widget.scan.copyForAdd(result.id).location(
+                    path: '/search/add/${result.id}',
+                  ),
+                ),
               );
             },
           );

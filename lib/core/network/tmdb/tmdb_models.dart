@@ -366,3 +366,10 @@ class TmdbTvDetails {
     );
   }
 }
+
+class TmdbExternalMatch {
+  const TmdbExternalMatch({this.movie, this.tv});
+
+  final TmdbSearchResult? movie;
+  final TmdbTvSearchResult? tv;
+}

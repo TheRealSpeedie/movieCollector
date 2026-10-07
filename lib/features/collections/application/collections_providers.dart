@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_with_entries.dart';
+import '../domain/movie_collection_info.dart';
 
 final allCollectionsProvider = StreamProvider<List<CollectionWithEntries>>((
   ref,
@@ -20,6 +21,19 @@ final collectionByTmdbIdProvider =
           .watch(collectionRepositoryProvider)
           .watchCollectionByTmdbId(tmdbCollectionId);
     });
+
+final franchiseProvider = StreamProvider.family<MovieCollectionInfo?, int>((
+  ref,
+  tmdbMovieId,
+) async* {
+  final repository = ref.watch(collectionRepositoryProvider);
+  final collectionId = await repository.resolveFranchiseId(tmdbMovieId);
+  if (collectionId == null) {
+    yield null;
+    return;
+  }
+  yield* repository.watchFranchise(collectionId, tmdbMovieId);
+});
 
 class MissingGroup {
   const MissingGroup({required this.collection, required this.missingEntries});

@@ -105,6 +105,12 @@ void main() {
 
     final resolved = await repository.resolveMovie('4001234567890');
     expect(resolved!.title, 'Der Pate 2');
+    final row = await (db.select(
+      db.barcodes,
+    )..where((t) => t.barcode.equals('4001234567890'))).getSingle();
+    expect(row.verified, isTrue);
+    expect(row.source, 'user');
+    expect(row.movieId, secondMovie);
   });
 
   test(

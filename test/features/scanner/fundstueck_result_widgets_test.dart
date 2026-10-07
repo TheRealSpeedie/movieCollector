@@ -1,16 +1,36 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:movie_shelf/app/theme/app_colors.dart';
+import 'package:movie_shelf/shared/widgets/action_button.dart';
 import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
+import 'package:movie_shelf/features/collections/application/collections_providers.dart';
+import 'package:movie_shelf/features/collections/domain/movie_collection_info.dart';
 import 'package:movie_shelf/features/scanner/presentation/fundstueck_result_screen.dart';
 import 'package:movie_shelf/shared/models/match_candidate.dart';
 
 import '../../fixtures/movie_fixtures.dart';
 
+void _noop() {}
+
+void _noopIndex(int index) {}
+
+Color _outlinedColor(WidgetTester tester, String label) {
+  final button = tester.widget<ActionButton>(
+    find.ancestor(of: find.text(label), matching: find.byType(ActionButton)),
+  );
+  return button.color;
+}
+
 void main() {
   Future<void> pump(WidgetTester tester, Widget child) {
     return tester.pumpWidget(
       ProviderScope(
+        overrides: [
+          franchiseProvider.overrideWith(
+            (ref, id) => Stream<MovieCollectionInfo?>.value(null),
+          ),
+        ],
         child: MaterialApp(home: Scaffold(body: child)),
       ),
     );
@@ -61,11 +81,108 @@ void main() {
           onSelect: (_) {},
         ),
       );
+      await tester.pumpAndSettle();
 
-      expect(find.text('Dieser Film fehlt dir'), findsOneWidget);
+      expect(
+        find.text('Diese Veröffentlichung wurde gefunden.'),
+        findsOneWidget,
+      );
       expect(find.text('Als gekauft speichern'), findsOneWidget);
       expect(find.text('Zur Wunschliste'), findsOneWidget);
       expect(find.text('Als offen speichern'), findsOneWidget);
+      expect(find.text('Manuell suchen'), findsOneWidget);
+      expect(find.text('Wie möchtest du diesen Film speichern?'), findsOneWidget);
+      expect(find.text('Falscher Film? Manuell suchen'), findsNothing);
+      expect(find.text('Speichern'), findsNothing);
+    });
+
+    testWidgets('a franchise replaces the single-movie status actions', (
+      tester,
+    ) async {
+      const candidate = MatchCandidate(
+        result: TmdbSearchResult(id: 3, title: "At World's End"),
+        confidence: 0.95,
+      );
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            franchiseProvider.overrideWith(
+              (ref, id) => Stream<MovieCollectionInfo?>.value(
+                const MovieCollectionInfo(
+                  localId: 7,
+                  tmdbCollectionId: 295,
+                  name: 'Pirates of the Caribbean',
+                  currentTmdbMovieId: 3,
+                  parts: [
+                    MovieCollectionPart(
+                      tmdbMovieId: 1,
+                      title: 'The Curse of the Black Pearl',
+                      isCurrent: false,
+                    ),
+                    MovieCollectionPart(
+                      tmdbMovieId: 3,
+                      title: "At World's End",
+                      year: 2007,
+                      isCurrent: true,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+          child: const MaterialApp(
+            home: Scaffold(
+              body: MissingMovieView(
+                barcode: '4001234567890',
+                productTitle: 'Pirates Blu-ray',
+                candidates: [candidate],
+                selected: candidate,
+                showAlternatives: false,
+                onToggleAlternatives: _noop,
+                onSelect: _noopIndex,
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Teil einer Filmreihe'), findsOneWidget);
+      expect(find.text('Aktuell gescannt'), findsOneWidget);
+      expect(find.text('Alle als gekauft'), findsOneWidget);
+      expect(find.text('Alle auf die Wunschliste'), findsOneWidget);
+      expect(find.text('Alle als offen'), findsOneWidget);
+      expect(find.text('Alle gekauft'), findsNothing);
+      expect(find.text('Alle offen'), findsNothing);
+      expect(find.text('Speichern'), findsOneWidget);
+      expect(
+        _outlinedColor(tester, 'Alle als gekauft'),
+        AppColors.sage,
+      );
+      expect(
+        _outlinedColor(tester, 'Alle auf die Wunschliste'),
+        AppColors.dustyRose,
+      );
+      expect(
+        _outlinedColor(tester, 'Alle als offen'),
+        AppColors.amber,
+      );
+      await tester.scrollUntilVisible(
+        find.text('Falscher Film? Manuell suchen'),
+        200,
+      );
+      expect(find.text('Falscher Film? Manuell suchen'), findsOneWidget);
+      expect(find.text('Wie möchtest du diesen Film speichern?'), findsNothing);
+      expect(find.text('Als gekauft speichern'), findsNothing);
+      expect(find.text('Zur Wunschliste'), findsNothing);
+      expect(find.text('Als offen speichern'), findsNothing);
+      expect(find.text('Manuell suchen'), findsNothing);
+      expect(
+        tester
+            .widget<FilledButton>(find.byKey(const Key('franchise-save')))
+            .onPressed,
+        isNotNull,
+      );
     });
   });
 

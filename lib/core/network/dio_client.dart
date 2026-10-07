@@ -74,6 +74,20 @@ Dio buildTmdbDio(String accessToken) {
   );
 }
 
+Dio buildUpcmdbDio(String apiKey) {
+  return Dio(
+    BaseOptions(
+      baseUrl: ApiConstants.upcmdbBaseUrl,
+      connectTimeout: ApiConstants.connectTimeout,
+      receiveTimeout: ApiConstants.receiveTimeout,
+      headers: {
+        'Accept': 'application/json',
+        if (apiKey.isNotEmpty) 'x-api-key': apiKey,
+      },
+    ),
+  );
+}
+
 Dio buildUpcItemDbDio({
   required String baseUrl,
   String? userKey,
