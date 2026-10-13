@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/collections_providers.dart';
+import '../../server/application/server_providers.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -14,11 +15,30 @@ class MoreScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final missingCount = ref.watch(totalMissingCountProvider);
 
+    final server = ref.watch(serverSessionProvider).valueOrNull;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Mehr')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          Card(
+            child: ListTile(
+              leading: Icon(
+                Icons.dns_outlined,
+                color: server == null ? AppColors.neutralGray : AppColors.sage,
+              ),
+              title: const Text('Heimserver'),
+              subtitle: Text(
+                server == null
+                    ? 'Nicht verbunden'
+                    : '${server.serverName} · ${server.username}',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () => context.push('/server'),
+            ),
+          ),
+          const SizedBox(height: 12),
           Card(
             child: ListTile(
               leading: const Icon(

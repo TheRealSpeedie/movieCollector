@@ -11,12 +11,21 @@ import '../features/import/presentation/import_movie_search_screen.dart';
 import '../features/import/presentation/import_screen.dart';
 import '../features/import/presentation/import_selection_screen.dart';
 import '../features/movie_details/presentation/movie_details_screen.dart';
+import '../features/playback/domain/play_request.dart';
+import '../features/playback/presentation/player_screen.dart';
+import '../features/remote/presentation/remote_screen.dart';
 import '../features/scanner/domain/barcode_search_context.dart';
 import '../features/scanner/presentation/fundstueck_result_screen.dart';
 import '../features/scanner/presentation/scanner_screen.dart';
 import '../features/search/presentation/add_movie_screen.dart';
 import '../features/search/presentation/movie_search_screen.dart';
+import '../features/server/presentation/connect_screen.dart';
+import '../features/server/presentation/pair_scan_screen.dart';
+import '../features/server/presentation/server_screen.dart';
+import '../features/server/presentation/server_title_screen.dart';
+import '../features/server/presentation/tv_approve_screen.dart';
 import '../features/settings/presentation/more_screen.dart';
+import '../features/sync/presentation/sync_screen.dart';
 import '../features/settings/presentation/settings_screen.dart';
 import '../features/tv/presentation/tv_series_details_screen.dart';
 import 'app_shell.dart';
@@ -151,6 +160,48 @@ final appRouter = GoRouter(
       path: '/settings',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const SettingsScreen(),
+    ),
+    GoRoute(
+      path: '/server',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const ServerScreen(),
+    ),
+    GoRoute(
+      path: '/server/connect',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const ConnectScreen(),
+    ),
+    GoRoute(
+      path: '/server/tv',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const TvApproveScreen(),
+    ),
+    GoRoute(
+      path: '/server/sync',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const SyncScreen(),
+    ),
+    GoRoute(
+      path: '/remote',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const RemoteScreen(),
+    ),
+    GoRoute(
+      path: '/server/scan',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const PairScanScreen(),
+    ),
+    GoRoute(
+      path: '/server/title/:id',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) =>
+          ServerTitleScreen(titleId: int.parse(state.pathParameters['id']!)),
+    ),
+    GoRoute(
+      path: '/play',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) =>
+          PlayerScreen(request: state.extra! as PlayRequest),
     ),
   ],
 );

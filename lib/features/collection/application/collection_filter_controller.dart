@@ -4,9 +4,22 @@ import '../../../core/providers/shared_preferences_provider.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/movie.dart';
 import '../../movies/application/movie_providers.dart';
+import '../../server/application/server_providers.dart';
 import '../../settings/data/settings_repository.dart';
+import '../../sync/application/sync_providers.dart';
 
 enum SortOption { title, recentlyAdded, releaseYear, status }
+
+enum Availability {
+  all('Alle'),
+  physical('Physisch'),
+  both('Beides'),
+  digital('Digital');
+
+  const Availability(this.label);
+
+  final String label;
+}
 
 class CollectionFilterState {
   const CollectionFilterState({
@@ -14,6 +27,7 @@ class CollectionFilterState {
     this.statusFilter,
     this.genreFilter,
     this.yearFilter,
+    this.availability = Availability.all,
     this.sort = SortOption.recentlyAdded,
     this.viewMode = CollectionViewMode.grid,
   });
@@ -22,11 +36,15 @@ class CollectionFilterState {
   final CollectionStatus? statusFilter;
   final String? genreFilter;
   final int? yearFilter;
+  final Availability availability;
   final SortOption sort;
   final CollectionViewMode viewMode;
 
   bool get hasActiveFilters =>
-      statusFilter != null || genreFilter != null || yearFilter != null;
+      statusFilter != null ||
+      genreFilter != null ||
+      yearFilter != null ||
+      availability != Availability.all;
 
   CollectionFilterState copyWith({
     String? query,
@@ -36,6 +54,7 @@ class CollectionFilterState {
     bool clearGenreFilter = false,
     int? yearFilter,
     bool clearYearFilter = false,
+    Availability? availability,
     SortOption? sort,
     CollectionViewMode? viewMode,
   }) {
@@ -46,6 +65,7 @@ class CollectionFilterState {
           : (statusFilter ?? this.statusFilter),
       genreFilter: clearGenreFilter ? null : (genreFilter ?? this.genreFilter),
       yearFilter: clearYearFilter ? null : (yearFilter ?? this.yearFilter),
+      availability: availability ?? this.availability,
       sort: sort ?? this.sort,
       viewMode: viewMode ?? this.viewMode,
     );
@@ -78,12 +98,16 @@ class CollectionFilterController extends StateNotifier<CollectionFilterState> {
         : state.copyWith(yearFilter: year);
   }
 
+  void setAvailability(Availability availability) =>
+      state = state.copyWith(availability: availability);
+
   void setSort(SortOption sort) => state = state.copyWith(sort: sort);
 
   void clearFilters() => state = state.copyWith(
     clearStatusFilter: true,
     clearGenreFilter: true,
     clearYearFilter: true,
+    availability: Availability.all,
   );
 
   Future<void> toggleViewMode() async {
@@ -107,9 +131,23 @@ final collectionFilterControllerProvider =
 final filteredMoviesProvider = Provider<AsyncValue<List<Movie>>>((ref) {
   final moviesAsync = ref.watch(allMoviesProvider);
   final filter = ref.watch(collectionFilterControllerProvider);
+  final availability = ref.watch(serverClientProvider) == null
+      ? Availability.all
+      : filter.availability;
+  final digital =
+      availability == Availability.physical || availability == Availability.both
+      ? ref.watch(serverTmdbIdsProvider)
+      : const <int>{};
 
   return moviesAsync.whenData((movies) {
     var result = movies.where((movie) {
+      final hasDigital = digital.contains(movie.tmdbId);
+      if (availability == Availability.physical && hasDigital) {
+        return false;
+      }
+      if (availability == Availability.both && !hasDigital) {
+        return false;
+      }
       if (filter.query.isNotEmpty &&
           !movie.title.toLowerCase().contains(filter.query.toLowerCase()) &&
           !(movie.originalTitle ?? '').toLowerCase().contains(

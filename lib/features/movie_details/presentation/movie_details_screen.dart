@@ -15,6 +15,7 @@ import '../../../shared/widgets/status_chip.dart';
 import '../../collections/presentation/franchise_section.dart';
 import '../../movies/application/movie_providers.dart';
 import '../../scanner/application/barcode_providers.dart';
+import '../../sync/presentation/digital_section.dart';
 
 class MovieDetailsScreen extends ConsumerStatefulWidget {
   const MovieDetailsScreen({super.key, required this.movieId});
@@ -141,6 +142,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
         if (movie.tmdbId != null) ...[
           const SizedBox(height: 24),
           FranchiseSection(tmdbMovieId: movie.tmdbId!),
+          DigitalSection(tmdbId: movie.tmdbId!),
         ],
         const SizedBox(height: 24),
         Row(

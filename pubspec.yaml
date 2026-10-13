@@ -32,6 +32,14 @@ dependencies:
   url_launcher: ^6.3.2
   file_picker: ^11.0.3
   flutter_cache_manager: ^3.4.2
+  cryptography: ^2.9.0
+  flutter_secure_storage: ^10.3.4
+  multicast_dns: ^0.3.3
+  media_kit: ^1.2.6
+  media_kit_video: ^2.0.1
+  media_kit_libs_video: ^1.0.7
+  signalr_netcore: ^1.4.4
+  qr_flutter: ^4.1.0
 
 dev_dependencies:
   flutter_test:
@@ -47,6 +55,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  default-flavor: phone
 
 flutter_launcher_icons:
   android: true

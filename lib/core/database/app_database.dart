@@ -19,6 +19,7 @@ import 'tables/movies_table.dart';
 import 'tables/physical_edition_movies_table.dart';
 import 'tables/physical_edition_tv_seasons_table.dart';
 import 'tables/physical_editions_table.dart';
+import 'tables/sync_states_table.dart';
 import 'tables/tv_seasons_table.dart';
 import 'tables/tv_series_genres_table.dart';
 import 'tables/tv_series_table.dart';
@@ -40,13 +41,14 @@ part 'app_database.g.dart';
     PhysicalEditions,
     PhysicalEditionMovies,
     PhysicalEditionTvSeasons,
+    SyncStates,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -95,6 +97,9 @@ SELECT id, movie_id, barcode, barcode_type, product_title, edition_name, created
         await customStatement(
           "UPDATE barcodes SET verified = 1, source = 'user' WHERE source IS NULL",
         );
+      }
+      if (from < 4) {
+        await migrator.createTable(syncStates);
       }
       if (from < 2) {
         await _backfillPhysicalEditions();

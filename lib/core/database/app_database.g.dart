@@ -6617,6 +6617,378 @@ class PhysicalEditionTvSeasonsCompanion
   }
 }
 
+class $SyncStatesTable extends SyncStates
+    with TableInfo<$SyncStatesTable, SyncStateRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStatesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _scopeMeta = const VerificationMeta('scope');
+  @override
+  late final GeneratedColumn<String> scope = GeneratedColumn<String>(
+    'scope',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _tmdbIdMeta = const VerificationMeta('tmdbId');
+  @override
+  late final GeneratedColumn<int> tmdbId = GeneratedColumn<int>(
+    'tmdb_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _revisionMeta = const VerificationMeta(
+    'revision',
+  );
+  @override
+  late final GeneratedColumn<int> revision = GeneratedColumn<int>(
+    'revision',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _syncedJsonMeta = const VerificationMeta(
+    'syncedJson',
+  );
+  @override
+  late final GeneratedColumn<String> syncedJson = GeneratedColumn<String>(
+    'synced_json',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _conflictJsonMeta = const VerificationMeta(
+    'conflictJson',
+  );
+  @override
+  late final GeneratedColumn<String> conflictJson = GeneratedColumn<String>(
+    'conflict_json',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    scope,
+    tmdbId,
+    revision,
+    syncedJson,
+    conflictJson,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_states';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncStateRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('scope')) {
+      context.handle(
+        _scopeMeta,
+        scope.isAcceptableOrUnknown(data['scope']!, _scopeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_scopeMeta);
+    }
+    if (data.containsKey('tmdb_id')) {
+      context.handle(
+        _tmdbIdMeta,
+        tmdbId.isAcceptableOrUnknown(data['tmdb_id']!, _tmdbIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tmdbIdMeta);
+    }
+    if (data.containsKey('revision')) {
+      context.handle(
+        _revisionMeta,
+        revision.isAcceptableOrUnknown(data['revision']!, _revisionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_revisionMeta);
+    }
+    if (data.containsKey('synced_json')) {
+      context.handle(
+        _syncedJsonMeta,
+        syncedJson.isAcceptableOrUnknown(data['synced_json']!, _syncedJsonMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_syncedJsonMeta);
+    }
+    if (data.containsKey('conflict_json')) {
+      context.handle(
+        _conflictJsonMeta,
+        conflictJson.isAcceptableOrUnknown(
+          data['conflict_json']!,
+          _conflictJsonMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {scope, tmdbId};
+  @override
+  SyncStateRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncStateRow(
+      scope: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}scope'],
+      )!,
+      tmdbId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}tmdb_id'],
+      )!,
+      revision: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}revision'],
+      )!,
+      syncedJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}synced_json'],
+      )!,
+      conflictJson: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}conflict_json'],
+      ),
+    );
+  }
+
+  @override
+  $SyncStatesTable createAlias(String alias) {
+    return $SyncStatesTable(attachedDatabase, alias);
+  }
+}
+
+class SyncStateRow extends DataClass implements Insertable<SyncStateRow> {
+  final String scope;
+  final int tmdbId;
+  final int revision;
+  final String syncedJson;
+  final String? conflictJson;
+  const SyncStateRow({
+    required this.scope,
+    required this.tmdbId,
+    required this.revision,
+    required this.syncedJson,
+    this.conflictJson,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['scope'] = Variable<String>(scope);
+    map['tmdb_id'] = Variable<int>(tmdbId);
+    map['revision'] = Variable<int>(revision);
+    map['synced_json'] = Variable<String>(syncedJson);
+    if (!nullToAbsent || conflictJson != null) {
+      map['conflict_json'] = Variable<String>(conflictJson);
+    }
+    return map;
+  }
+
+  SyncStatesCompanion toCompanion(bool nullToAbsent) {
+    return SyncStatesCompanion(
+      scope: Value(scope),
+      tmdbId: Value(tmdbId),
+      revision: Value(revision),
+      syncedJson: Value(syncedJson),
+      conflictJson: conflictJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(conflictJson),
+    );
+  }
+
+  factory SyncStateRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncStateRow(
+      scope: serializer.fromJson<String>(json['scope']),
+      tmdbId: serializer.fromJson<int>(json['tmdbId']),
+      revision: serializer.fromJson<int>(json['revision']),
+      syncedJson: serializer.fromJson<String>(json['syncedJson']),
+      conflictJson: serializer.fromJson<String?>(json['conflictJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'scope': serializer.toJson<String>(scope),
+      'tmdbId': serializer.toJson<int>(tmdbId),
+      'revision': serializer.toJson<int>(revision),
+      'syncedJson': serializer.toJson<String>(syncedJson),
+      'conflictJson': serializer.toJson<String?>(conflictJson),
+    };
+  }
+
+  SyncStateRow copyWith({
+    String? scope,
+    int? tmdbId,
+    int? revision,
+    String? syncedJson,
+    Value<String?> conflictJson = const Value.absent(),
+  }) => SyncStateRow(
+    scope: scope ?? this.scope,
+    tmdbId: tmdbId ?? this.tmdbId,
+    revision: revision ?? this.revision,
+    syncedJson: syncedJson ?? this.syncedJson,
+    conflictJson: conflictJson.present ? conflictJson.value : this.conflictJson,
+  );
+  SyncStateRow copyWithCompanion(SyncStatesCompanion data) {
+    return SyncStateRow(
+      scope: data.scope.present ? data.scope.value : this.scope,
+      tmdbId: data.tmdbId.present ? data.tmdbId.value : this.tmdbId,
+      revision: data.revision.present ? data.revision.value : this.revision,
+      syncedJson: data.syncedJson.present
+          ? data.syncedJson.value
+          : this.syncedJson,
+      conflictJson: data.conflictJson.present
+          ? data.conflictJson.value
+          : this.conflictJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateRow(')
+          ..write('scope: $scope, ')
+          ..write('tmdbId: $tmdbId, ')
+          ..write('revision: $revision, ')
+          ..write('syncedJson: $syncedJson, ')
+          ..write('conflictJson: $conflictJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(scope, tmdbId, revision, syncedJson, conflictJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncStateRow &&
+          other.scope == this.scope &&
+          other.tmdbId == this.tmdbId &&
+          other.revision == this.revision &&
+          other.syncedJson == this.syncedJson &&
+          other.conflictJson == this.conflictJson);
+}
+
+class SyncStatesCompanion extends UpdateCompanion<SyncStateRow> {
+  final Value<String> scope;
+  final Value<int> tmdbId;
+  final Value<int> revision;
+  final Value<String> syncedJson;
+  final Value<String?> conflictJson;
+  final Value<int> rowid;
+  const SyncStatesCompanion({
+    this.scope = const Value.absent(),
+    this.tmdbId = const Value.absent(),
+    this.revision = const Value.absent(),
+    this.syncedJson = const Value.absent(),
+    this.conflictJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncStatesCompanion.insert({
+    required String scope,
+    required int tmdbId,
+    required int revision,
+    required String syncedJson,
+    this.conflictJson = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : scope = Value(scope),
+       tmdbId = Value(tmdbId),
+       revision = Value(revision),
+       syncedJson = Value(syncedJson);
+  static Insertable<SyncStateRow> custom({
+    Expression<String>? scope,
+    Expression<int>? tmdbId,
+    Expression<int>? revision,
+    Expression<String>? syncedJson,
+    Expression<String>? conflictJson,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (scope != null) 'scope': scope,
+      if (tmdbId != null) 'tmdb_id': tmdbId,
+      if (revision != null) 'revision': revision,
+      if (syncedJson != null) 'synced_json': syncedJson,
+      if (conflictJson != null) 'conflict_json': conflictJson,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncStatesCompanion copyWith({
+    Value<String>? scope,
+    Value<int>? tmdbId,
+    Value<int>? revision,
+    Value<String>? syncedJson,
+    Value<String?>? conflictJson,
+    Value<int>? rowid,
+  }) {
+    return SyncStatesCompanion(
+      scope: scope ?? this.scope,
+      tmdbId: tmdbId ?? this.tmdbId,
+      revision: revision ?? this.revision,
+      syncedJson: syncedJson ?? this.syncedJson,
+      conflictJson: conflictJson ?? this.conflictJson,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (scope.present) {
+      map['scope'] = Variable<String>(scope.value);
+    }
+    if (tmdbId.present) {
+      map['tmdb_id'] = Variable<int>(tmdbId.value);
+    }
+    if (revision.present) {
+      map['revision'] = Variable<int>(revision.value);
+    }
+    if (syncedJson.present) {
+      map['synced_json'] = Variable<String>(syncedJson.value);
+    }
+    if (conflictJson.present) {
+      map['conflict_json'] = Variable<String>(conflictJson.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStatesCompanion(')
+          ..write('scope: $scope, ')
+          ..write('tmdbId: $tmdbId, ')
+          ..write('revision: $revision, ')
+          ..write('syncedJson: $syncedJson, ')
+          ..write('conflictJson: $conflictJson, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6640,6 +7012,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
       $PhysicalEditionMoviesTable(this);
   late final $PhysicalEditionTvSeasonsTable physicalEditionTvSeasons =
       $PhysicalEditionTvSeasonsTable(this);
+  late final $SyncStatesTable syncStates = $SyncStatesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6658,6 +7031,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     tvSeriesGenres,
     physicalEditionMovies,
     physicalEditionTvSeasons,
+    syncStates,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -12674,6 +13048,210 @@ typedef $$PhysicalEditionTvSeasonsTableProcessedTableManager =
       PhysicalEditionTvSeasonRow,
       PrefetchHooks Function({bool editionId, bool seasonId})
     >;
+typedef $$SyncStatesTableCreateCompanionBuilder =
+    SyncStatesCompanion Function({
+      required String scope,
+      required int tmdbId,
+      required int revision,
+      required String syncedJson,
+      Value<String?> conflictJson,
+      Value<int> rowid,
+    });
+typedef $$SyncStatesTableUpdateCompanionBuilder =
+    SyncStatesCompanion Function({
+      Value<String> scope,
+      Value<int> tmdbId,
+      Value<int> revision,
+      Value<String> syncedJson,
+      Value<String?> conflictJson,
+      Value<int> rowid,
+    });
+
+class $$SyncStatesTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get scope => $composableBuilder(
+    column: $table.scope,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get tmdbId => $composableBuilder(
+    column: $table.tmdbId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get syncedJson => $composableBuilder(
+    column: $table.syncedJson,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get conflictJson => $composableBuilder(
+    column: $table.conflictJson,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncStatesTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get scope => $composableBuilder(
+    column: $table.scope,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get tmdbId => $composableBuilder(
+    column: $table.tmdbId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get revision => $composableBuilder(
+    column: $table.revision,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get syncedJson => $composableBuilder(
+    column: $table.syncedJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get conflictJson => $composableBuilder(
+    column: $table.conflictJson,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncStatesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStatesTable> {
+  $$SyncStatesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get scope =>
+      $composableBuilder(column: $table.scope, builder: (column) => column);
+
+  GeneratedColumn<int> get tmdbId =>
+      $composableBuilder(column: $table.tmdbId, builder: (column) => column);
+
+  GeneratedColumn<int> get revision =>
+      $composableBuilder(column: $table.revision, builder: (column) => column);
+
+  GeneratedColumn<String> get syncedJson => $composableBuilder(
+    column: $table.syncedJson,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get conflictJson => $composableBuilder(
+    column: $table.conflictJson,
+    builder: (column) => column,
+  );
+}
+
+class $$SyncStatesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncStatesTable,
+          SyncStateRow,
+          $$SyncStatesTableFilterComposer,
+          $$SyncStatesTableOrderingComposer,
+          $$SyncStatesTableAnnotationComposer,
+          $$SyncStatesTableCreateCompanionBuilder,
+          $$SyncStatesTableUpdateCompanionBuilder,
+          (
+            SyncStateRow,
+            BaseReferences<_$AppDatabase, $SyncStatesTable, SyncStateRow>,
+          ),
+          SyncStateRow,
+          PrefetchHooks Function()
+        > {
+  $$SyncStatesTableTableManager(_$AppDatabase db, $SyncStatesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SyncStatesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SyncStatesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SyncStatesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> scope = const Value.absent(),
+                Value<int> tmdbId = const Value.absent(),
+                Value<int> revision = const Value.absent(),
+                Value<String> syncedJson = const Value.absent(),
+                Value<String?> conflictJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStatesCompanion(
+                scope: scope,
+                tmdbId: tmdbId,
+                revision: revision,
+                syncedJson: syncedJson,
+                conflictJson: conflictJson,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String scope,
+                required int tmdbId,
+                required int revision,
+                required String syncedJson,
+                Value<String?> conflictJson = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStatesCompanion.insert(
+                scope: scope,
+                tmdbId: tmdbId,
+                revision: revision,
+                syncedJson: syncedJson,
+                conflictJson: conflictJson,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncStatesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncStatesTable,
+      SyncStateRow,
+      $$SyncStatesTableFilterComposer,
+      $$SyncStatesTableOrderingComposer,
+      $$SyncStatesTableAnnotationComposer,
+      $$SyncStatesTableCreateCompanionBuilder,
+      $$SyncStatesTableUpdateCompanionBuilder,
+      (
+        SyncStateRow,
+        BaseReferences<_$AppDatabase, $SyncStatesTable, SyncStateRow>,
+      ),
+      SyncStateRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12707,4 +13285,6 @@ class $AppDatabaseManager {
         _db,
         _db.physicalEditionTvSeasons,
       );
+  $$SyncStatesTableTableManager get syncStates =>
+      $$SyncStatesTableTableManager(_db, _db.syncStates);
 }

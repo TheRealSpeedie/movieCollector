@@ -11,7 +11,11 @@ import '../../../shared/models/movie.dart';
 import '../../../shared/models/tv_series_with_seasons.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../../shared/widgets/status_chip.dart';
+import '../../movies/application/movie_providers.dart';
+import '../../server/application/server_providers.dart';
+import '../../server/presentation/title_card.dart';
 import '../../settings/data/settings_repository.dart';
+import '../../sync/application/sync_providers.dart';
 import '../../tv/application/tv_providers.dart';
 import '../application/collection_filter_controller.dart';
 
@@ -38,6 +42,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
     final moviesAsync = ref.watch(filteredMoviesProvider);
     final filter = ref.watch(collectionFilterControllerProvider);
     final notifier = ref.read(collectionFilterControllerProvider.notifier);
+    final connected = ref.watch(serverClientProvider) != null;
 
     return Scaffold(
       appBar: AppBar(
@@ -104,10 +109,14 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             ),
           ),
           _StatusFilterRow(filter: filter, notifier: notifier),
+          if (connected && !_showTv)
+            _AvailabilityRow(filter: filter, notifier: notifier),
           const Divider(height: 1),
           Expanded(
             child: _showTv
                 ? _TvCollectionBody(filter: filter)
+                : connected && filter.availability == Availability.digital
+                ? _DigitalOnlyGrid(query: filter.query)
                 : moviesAsync.when(
                     loading: () => const LoadingView(),
                     error: (error, stack) =>
@@ -174,6 +183,81 @@ class _StatusFilterRow extends StatelessWidget {
             ),
         ],
       ),
+    );
+  }
+}
+
+class _AvailabilityRow extends StatelessWidget {
+  const _AvailabilityRow({required this.filter, required this.notifier});
+
+  final CollectionFilterState filter;
+  final CollectionFilterController notifier;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+      child: Wrap(
+        spacing: 8,
+        children: [
+          for (final availability in Availability.values)
+            ChoiceChip(
+              label: Text(availability.label),
+              selected: filter.availability == availability,
+              onSelected: (_) => notifier.setAvailability(availability),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DigitalOnlyGrid extends ConsumerWidget {
+  const _DigitalOnlyGrid({required this.query});
+
+  final String query;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final library = ref.watch(serverMoviesProvider);
+    final owned = {
+      for (final movie in ref.watch(allMoviesProvider).valueOrNull ?? [])
+        movie.tmdbId,
+    };
+    return library.when(
+      loading: () => const LoadingView(),
+      error: (error, _) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(serverMoviesProvider),
+      ),
+      data: (titles) {
+        final digitalOnly = titles
+            .where(
+              (t) =>
+                  !owned.contains(t.tmdbId) &&
+                  t.name.toLowerCase().contains(query.toLowerCase()),
+            )
+            .toList();
+        if (digitalOnly.isEmpty) {
+          return const EmptyState(
+            icon: Icons.play_circle_outline,
+            title: 'Keine rein digitalen Filme',
+            message:
+                'Hier erscheinen Filme aus deiner Server-Bibliothek, die nicht in deiner Sammlung liegen.',
+          );
+        }
+        return GridView.builder(
+          padding: const EdgeInsets.all(16),
+          gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+            maxCrossAxisExtent: 130,
+            childAspectRatio: 0.52,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+          ),
+          itemCount: digitalOnly.length,
+          itemBuilder: (context, index) => TitleCard(title: digitalOnly[index]),
+        );
+      },
     );
   }
 }

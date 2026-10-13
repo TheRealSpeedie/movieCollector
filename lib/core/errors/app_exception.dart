@@ -58,3 +58,27 @@ class UnknownAppException extends AppException {
     super.message = 'Es ist ein unerwarteter Fehler aufgetreten.',
   ]);
 }
+
+class ServerUnreachableException extends AppException {
+  const ServerUnreachableException()
+    : super(
+        'Der Movie-Shelf-Server ist nicht erreichbar. Prüfe, ob er läuft und ihr im selben WLAN seid.',
+      );
+}
+
+class ServerRevokedException extends AppException {
+  const ServerRevokedException()
+    : super(
+        'Dieses Gerät wurde vom Server getrennt. Verbinde es erneut mit einem QR-Code.',
+      );
+}
+
+class ServerRejectedException extends AppException {
+  const ServerRejectedException(super.message, this.statusCode);
+
+  final int statusCode;
+}
+
+class PairingFailedException extends AppException {
+  const PairingFailedException(super.message);
+}

@@ -46,8 +46,8 @@ void main() {
     },
   );
 
-  test('schema version 3 creates TV, edition, and lookup cache tables', () async {
-    expect(db.schemaVersion, 3);
+  test('schema version 4 creates TV, edition, and lookup cache tables', () async {
+    expect(db.schemaVersion, 4);
     await db
         .into(db.tvSeriesTable)
         .insert(
