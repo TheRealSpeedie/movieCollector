@@ -36,6 +36,15 @@ test where practical — not just that a placeholder exists.
   per region with a "Stand" date; subscriptions are chosen under *Mehr → Streamingdienste*.
 - **"Was soll ich schauen?"** — rule-based suggestions with reasons, filtered by source,
   genre, length, language and watched state.
+- **Language and subtitles** — *Mehr → Sprache & Untertitel* sets audio languages, original
+  language, subtitle language and mode, hearing-impaired; the player applies the server's
+  choice, lists subtitle files, searches and downloads subtitles, shifts them and reports
+  wrong ones.
+- **One title, all sources** — movie details list copies, every server version with
+  languages, and streaming offers; seasons have their own copies.
+- **HTTPS** — the app pins the server's certificate and switches older pairings to HTTPS.
+- **TV app** — menu with Start, Filme, Serien, Weiterschauen, Suche, Profile (with PIN pad)
+  and Einstellungen.
 - **TV series** — season-level ownership, completeness `x / y Staffeln gekauft`, series
   details with per-season status and confirmed bulk actions. Season 0 / Specials stay
   optional.
