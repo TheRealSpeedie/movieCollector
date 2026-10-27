@@ -1,14 +1,16 @@
 # Database
 
 Movie Shelf uses [Drift](https://drift.simonbinder.eu/) over SQLite. The database class is
-`AppDatabase` (`lib/core/database/app_database.dart`), currently at **schema version 2**. The
+`AppDatabase` (`lib/core/database/app_database.dart`), currently at **schema version 6**. The
 database file is named `movie_shelf.sqlite` and lives in the platform's application
 documents directory (`getApplicationDocumentsDirectory()`), so it survives app restarts and
 updates but is removed if the user uninstalls the app or clears app data.
 
-Schema 2 adds TV series/seasons, physical editions (box sets), and a nullable `barcodes.movie_id`
-plus `barcodes.physical_edition_id`. Existing movie data is preserved: the v1→v2 migration
-creates one `singleMovie` physical edition per existing barcode mapping.
+Schema 5 introduces the canonical media model: ownership is stored as **copies of editions**
+(`owned_copies`), the wishlist and watch state as **personal state** (`personal_states`), and
+every synchronised record has a stable UUID. `movies.user_status` and `tv_seasons.user_status`
+remain as a derived cache that the rest of the app reads; only `OwnershipService` writes them.
+See [Ownership and sync tables](#ownership-and-sync-tables-schema-5).
 
 ## Entity-relationship diagram
 
@@ -174,6 +176,26 @@ A physical product (single disc or box) with `mediaKind`:
 Contents are linked by local movie ids and season ids. Barcodes point at the edition, not at
 every contained title.
 
+## Ownership and sync tables (schema 5)
+
+| Table | Purpose |
+|---|---|
+| `physical_editions` (extended) | `uuid`, `format` (`MediaFormat` name: `dvd`, `bluray`, `bluray3d`, `uhd4k`, `vhs`, `digital`, `unknown`), `region`, `release_country`, `audio_languages`, `subtitle_languages`, `publisher`, `notes` |
+| `owned_copies` | One physical item: edition, quantity, condition, purchase date and price, storage location, notes. A movie or season is owned when a copy of an edition containing it exists. |
+| `personal_states` | One per movie, series or season: `on_wishlist`, `max_price`, `watch_status`, `watch_count`, `last_watched_at`, `rating`, `favourite`, `tags`, `preferred_edition_uuid` |
+| `sync_shadow` | Per synced record the field values last agreed with the sync provider and the server sequence number. The difference between the collection and this shadow is what the next sync sends. |
+| `sync_conflicts` | Fields changed on two devices at once, with both values, until the user decides |
+| `sync_meta` | Provider scope, pull cursor, last sync time |
+| `pending_scans` | Barcodes scanned offline, looked up when the device is online again |
+| `scan_history` | Recent Fundstück scans with their verdict |
+| `streaming_offers`, `streaming_checks` (v6) | Cache of streaming, rental and purchase offers per title and region from TMDB watch providers, checked at most every 7 days. Never ownership. |
+| `streaming_subscriptions` (v6) | The user's streaming services; synced as record type `subscription` |
+
+Sync identities (`lib/core/sync/sync_ids.dart`): titles with a TMDB id, series, seasons,
+barcodes and personal state use UUIDv5 derived from what they describe; movies without a TMDB
+id (`movies.uuid`) and editions and copies use random UUIDv4. The namespace constant must
+never change.
+
 ## Collection statuses (column encoding)
 
 `CollectionStatus` is a plain Dart enum (`owned`, `wishlist`, `open`) with a `germanLabel`
@@ -186,12 +208,20 @@ of throwing).
 
 ## Migration strategy
 
-`AppDatabase.schemaVersion` is `2`.
+`AppDatabase.schemaVersion` is `6`.
 
 - **onCreate** creates all current tables and indexes.
 - **onUpgrade from < 2** creates the TV and physical-edition tables, makes `barcodes.movie_id`
   nullable, adds `barcodes.physical_edition_id`, and backfills one `singleMovie` edition per
   existing barcode so previous installs keep working.
+- **from < 3** adds barcode metadata columns and the lookup cache; **from < 4** added the old
+  projection `sync_states` table, which **v5 drops**.
+- **from < 5** adds UUID and edition columns (skipping columns that an earlier step of the same
+  upgrade already created), creates the ownership and sync tables, and converts status: each
+  owned movie or season gets a copy of every edition that holds only owned titles, or of a new
+  edition made for it; wishlist entries become `personal_states`. Format and region move from
+  barcodes to their edition. Covered by `test/core/database/migration_v5_test.dart`.
+- **from < 6** creates the streaming offer cache and the subscriptions table.
 
 Never wipe the database to ship a schema change. When the schema changes again:
 

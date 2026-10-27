@@ -30,9 +30,9 @@ class AppShell extends StatelessWidget {
             label: 'Sammlung',
           ),
           NavigationDestination(
-            icon: Icon(Icons.collections_bookmark_outlined),
-            selectedIcon: Icon(Icons.collections_bookmark),
-            label: 'Reihen',
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Entdecken',
           ),
           NavigationDestination(
             icon: Icon(Icons.qr_code_scanner, color: AppColors.dustyRose),

@@ -12,6 +12,9 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../../shared/widgets/status_chip.dart';
+import '../../personal/data/personal_state_repository.dart';
+import '../../personal/presentation/personal_section.dart';
+import '../../watch/presentation/where_to_watch_section.dart';
 import '../application/tv_providers.dart';
 
 class TvSeriesDetailsScreen extends ConsumerWidget {
@@ -132,6 +135,10 @@ class _SeriesBody extends ConsumerWidget {
           const SizedBox(height: 16),
           Text(series.overview!),
         ],
+        const SizedBox(height: 20),
+        PersonalSection(subject: seriesSubject(series.id)),
+        const SizedBox(height: 12),
+        WhereToWatchSection(mediaType: 'tv', tmdbId: series.tmdbId),
         const SizedBox(height: 20),
         FilledButton.tonal(
           onPressed: () => _setAll(context, ref, CollectionStatus.owned),

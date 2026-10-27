@@ -7,6 +7,9 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+import '../application/scan_providers.dart';
+import 'recent_scans_sheet.dart';
+
 import '../../../app/theme/app_colors.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../application/fundstueck_controller.dart';
@@ -41,6 +44,35 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _requestPermission();
+    // Barcodes scanned without a connection are looked up when possible.
+    unawaited(ref.read(pendingScanProcessorProvider).run());
+  }
+
+  Future<void> _showRecent() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) => RecentScansSheet(onOpen: _openCode),
+    );
+  }
+
+  Future<void> _openCode(String code) async {
+    if (_resolving) return;
+    setState(() => _resolving = true);
+    try {
+      await _controller.stop();
+      final pending = ref
+          .read(fundstueckControllerProvider.notifier)
+          .scanBarcode(code);
+      if (!mounted) return;
+      await context.push('/fundstueck/result');
+      await pending;
+    } finally {
+      if (mounted) {
+        setState(() => _resolving = false);
+        unawaited(_controller.start());
+      }
+    }
   }
 
   @override
@@ -114,6 +146,18 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
         title: const Text('Fundstück-Check'),
         actions: [
           IconButton(
+            tooltip: 'Zuletzt gescannt',
+            onPressed: _showRecent,
+            icon: Badge(
+              isLabelVisible:
+                  (ref.watch(pendingScanCountProvider).valueOrNull ?? 0) > 0,
+              label: Text(
+                '${ref.watch(pendingScanCountProvider).valueOrNull ?? 0}',
+              ),
+              child: const Icon(Icons.history),
+            ),
+          ),
+          IconButton(
             icon: ValueListenableBuilder(
               valueListenable: _controller,
               builder: (context, state, child) {
@@ -139,10 +183,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       floatingActionButton: _resolving
           ? null
           : FloatingActionButton.extended(
-        onPressed: _showTitleFallback,
-        icon: const Icon(Icons.keyboard),
-        label: const Text('Titel eingeben'),
-      ),
+              onPressed: _showTitleFallback,
+              icon: const Icon(Icons.keyboard),
+              label: const Text('Titel eingeben'),
+            ),
     );
   }
 

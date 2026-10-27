@@ -15,7 +15,13 @@ import '../../../shared/widgets/status_chip.dart';
 import '../../collections/presentation/franchise_section.dart';
 import '../../movies/application/movie_providers.dart';
 import '../../scanner/application/barcode_providers.dart';
+import '../../sync/application/sync_providers.dart';
 import '../../sync/presentation/digital_section.dart';
+import '../../editions/presentation/copies_section.dart';
+import '../../personal/data/personal_state_repository.dart';
+import '../../personal/presentation/personal_section.dart';
+import '../../watch/application/watch_providers.dart';
+import '../../watch/presentation/where_to_watch_section.dart';
 
 class MovieDetailsScreen extends ConsumerStatefulWidget {
   const MovieDetailsScreen({super.key, required this.movieId});
@@ -139,6 +145,27 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
           onSelectionChanged: (selection) =>
               _changeStatus(selection.first, movie),
         ),
+        const SizedBox(height: 24),
+        CopiesSection(movieId: movie.id),
+        const SizedBox(height: 24),
+        PersonalSection(
+          subject: movieSubject(movie.id),
+          onWishlist: movie.status == CollectionStatus.wishlist,
+          editions:
+              ref.watch(movieEditionsProvider(movie.id)).valueOrNull ??
+              const [],
+        ),
+        if (movie.tmdbId != null) ...[
+          const SizedBox(height: 24),
+          WhereToWatchSection(
+            mediaType: 'movie',
+            tmdbId: movie.tmdbId!,
+            onServer: ref.watch(serverTmdbIdsProvider).contains(movie.tmdbId),
+            ownedFormats:
+                ref.watch(ownedFormatsProvider).valueOrNull?[movie.id] ??
+                const [],
+          ),
+        ],
         if (movie.tmdbId != null) ...[
           const SizedBox(height: 24),
           FranchiseSection(tmdbMovieId: movie.tmdbId!),

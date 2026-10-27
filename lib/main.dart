@@ -5,11 +5,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
 import 'core/providers/shared_preferences_provider.dart';
+import 'features/onboarding/application/onboarding_gate.dart';
+import 'features/settings/data/settings_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
   final prefs = await SharedPreferences.getInstance();
+  onboardingGate.value = SettingsRepository(prefs).onboardingDone;
 
   runApp(
     ProviderScope(

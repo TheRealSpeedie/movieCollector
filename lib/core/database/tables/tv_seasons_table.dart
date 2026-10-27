@@ -17,6 +17,8 @@ class TvSeasonsTable extends Table {
   TextColumn get posterPath => text().nullable()();
   DateTimeColumn get airDate => dateTime().nullable()();
   IntColumn get episodeCount => integer().nullable()();
+
+  /// Derived from copies and personal state by OwnershipService. Do not write directly.
   TextColumn get userStatus =>
       text().nullable().map(const CollectionStatusConverter())();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();

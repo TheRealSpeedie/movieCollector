@@ -49,36 +49,45 @@ void main() {
     final editionId = await db
         .into(db.physicalEditions)
         .insert(PhysicalEditionsCompanion.insert(mediaKind: 'movie'));
-    await db.into(db.physicalEditionMovies).insert(
-      PhysicalEditionMoviesCompanion.insert(
-        editionId: editionId,
-        movieId: movie!.id,
-      ),
-    );
-    await db.into(db.barcodes).insert(
-      BarcodesCompanion.insert(
-        movieId: Value(movie.id),
-        physicalEditionId: Value(editionId),
-        barcode: '012345678905',
-        barcodeType: 'UPC-A',
-      ),
-    );
+    await db
+        .into(db.physicalEditionMovies)
+        .insert(
+          PhysicalEditionMoviesCompanion.insert(
+            editionId: editionId,
+            movieId: movie!.id,
+          ),
+        );
+    await db
+        .into(db.barcodes)
+        .insert(
+          BarcodesCompanion.insert(
+            movieId: Value(movie.id),
+            physicalEditionId: Value(editionId),
+            barcode: '012345678905',
+            barcodeType: 'UPC-A',
+          ),
+        );
 
     await movies.setCollectionStatus(1, CollectionStatus.open);
 
     final updated = await movies.getMovieByTmdbId(1);
     expect(updated!.status, CollectionStatus.open);
-    expect(await db.select(db.physicalEditions).get(), hasLength(1));
-    expect(await db.select(db.physicalEditionMovies).get(), hasLength(1));
+    // The edition created when the film was owned and the scanned one both stay.
+    expect(await db.select(db.physicalEditions).get(), hasLength(2));
+    expect(await db.select(db.physicalEditionMovies).get(), hasLength(2));
+    expect(await db.select(db.ownedCopies).get(), isEmpty);
     expect(await db.select(db.barcodes).get(), hasLength(1));
     expect((await db.select(db.movies).get()).length, 1);
   });
 
-  test('open does not create a movie row for a film that is not saved', () async {
-    await movies.setCollectionStatus(4, CollectionStatus.open);
-    expect(await movies.getMovieByTmdbId(4), isNull);
-    expect(await db.select(db.physicalEditions).get(), isEmpty);
-  });
+  test(
+    'open does not create a movie row for a film that is not saved',
+    () async {
+      await movies.setCollectionStatus(4, CollectionStatus.open);
+      expect(await movies.getMovieByTmdbId(4), isNull);
+      expect(await db.select(db.physicalEditions).get(), isEmpty);
+    },
+  );
 
   testWidgets('dropdown edits stay draft until save', (tester) async {
     await _pump(tester, db, tmdb);
@@ -108,7 +117,8 @@ void main() {
     expect(saved, hasLength(1));
     expect(saved.single.tmdbId, 3);
     expect(saved.single.userStatus, CollectionStatus.owned);
-    expect(await db.select(db.physicalEditions).get(), isEmpty);
+    expect(await db.select(db.physicalEditions).get(), hasLength(1));
+    expect(await db.select(db.ownedCopies).get(), hasLength(1));
 
     await _close(tester);
   });
@@ -269,7 +279,7 @@ void main() {
       saved.every((row) => row.userStatus == CollectionStatus.owned),
       isTrue,
     );
-    expect(await db.select(db.physicalEditions).get(), isEmpty);
+    expect(await db.select(db.ownedCopies).get(), hasLength(4));
 
     await _close(tester);
   });
@@ -280,20 +290,24 @@ void main() {
     final editionId = await db
         .into(db.physicalEditions)
         .insert(PhysicalEditionsCompanion.insert(mediaKind: 'movie'));
-    await db.into(db.physicalEditionMovies).insert(
-      PhysicalEditionMoviesCompanion.insert(
-        editionId: editionId,
-        movieId: movie!.id,
-      ),
-    );
-    await db.into(db.barcodes).insert(
-      BarcodesCompanion.insert(
-        movieId: Value(movie.id),
-        physicalEditionId: Value(editionId),
-        barcode: '012345678905',
-        barcodeType: 'UPC-A',
-      ),
-    );
+    await db
+        .into(db.physicalEditionMovies)
+        .insert(
+          PhysicalEditionMoviesCompanion.insert(
+            editionId: editionId,
+            movieId: movie!.id,
+          ),
+        );
+    await db
+        .into(db.barcodes)
+        .insert(
+          BarcodesCompanion.insert(
+            movieId: Value(movie.id),
+            physicalEditionId: Value(editionId),
+            barcode: '012345678905',
+            barcodeType: 'UPC-A',
+          ),
+        );
 
     await _pump(tester, db, tmdb);
     expect(_status(tester, 1), CollectionStatus.owned);
@@ -307,8 +321,9 @@ void main() {
     await tester.pumpAndSettle();
 
     expect((await movies.getMovieByTmdbId(1))!.status, CollectionStatus.open);
-    expect(await db.select(db.physicalEditions).get(), hasLength(1));
-    expect(await db.select(db.physicalEditionMovies).get(), hasLength(1));
+    expect(await db.select(db.physicalEditions).get(), hasLength(2));
+    expect(await db.select(db.physicalEditionMovies).get(), hasLength(2));
+    expect(await db.select(db.ownedCopies).get(), isEmpty);
     expect(await db.select(db.barcodes).get(), hasLength(1));
 
     await _close(tester);

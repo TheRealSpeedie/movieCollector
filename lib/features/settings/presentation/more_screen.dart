@@ -7,6 +7,8 @@ import '../../../shared/models/collection_status.dart';
 import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/collections_providers.dart';
 import '../../server/application/server_providers.dart';
+import '../../settings/application/settings_providers.dart';
+import '../../sync/application/sync_providers.dart';
 
 class MoreScreen extends ConsumerWidget {
   const MoreScreen({super.key});
@@ -16,6 +18,8 @@ class MoreScreen extends ConsumerWidget {
     final missingCount = ref.watch(totalMissingCountProvider);
 
     final server = ref.watch(serverSessionProvider).valueOrNull;
+    final storage = ref.watch(collectionStorageProvider);
+    final conflicts = ref.watch(syncConflictsProvider).valueOrNull?.length ?? 0;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Mehr')),
@@ -25,10 +29,27 @@ class MoreScreen extends ConsumerWidget {
           Card(
             child: ListTile(
               leading: Icon(
+                conflicts > 0 ? Icons.sync_problem : Icons.storage_outlined,
+                color: conflicts > 0 ? AppColors.amber : null,
+              ),
+              title: const Text('Daten & Synchronisation'),
+              subtitle: Text(
+                conflicts > 0
+                    ? '$conflicts Widersprüche warten auf dich'
+                    : '${storage.label} · Export & Sicherung',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () => context.push('/sync'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: Icon(
                 Icons.dns_outlined,
                 color: server == null ? AppColors.neutralGray : AppColors.sage,
               ),
-              title: const Text('Heimserver'),
+              title: const Text('Movie Shelf Server'),
               subtitle: Text(
                 server == null
                     ? 'Nicht verbunden'
@@ -65,6 +86,16 @@ class MoreScreen extends ConsumerWidget {
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/missing'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.subscriptions_outlined),
+              title: const Text('Streamingdienste'),
+              subtitle: const Text('Deine Abos für „Wo kann ich das schauen?“'),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () => context.push('/settings/streaming'),
             ),
           ),
           const SizedBox(height: 12),

@@ -1,6 +1,7 @@
 import '../../constants/api_constants.dart';
 import '../dio_client.dart';
 import 'tmdb_models.dart';
+import 'tmdb_watch_models.dart';
 
 class TmdbApiClient {
   TmdbApiClient(this._client);
@@ -166,6 +167,54 @@ class TmdbApiClient {
       data,
       contentRating: _extractGermanTvRating(data['content_ratings']),
     );
+  }
+
+  /// Streaming, rental and purchase offers in [region]. [mediaType] is
+  /// `movie` or `tv`. Data by JustWatch through TMDB.
+  Future<TmdbWatchProviders> getWatchProviders(
+    String mediaType,
+    int tmdbId,
+    String region,
+  ) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/$mediaType/$tmdbId/watch/providers',
+    );
+    final results = response.data?['results'] as Map<String, dynamic>?;
+    return TmdbWatchProviders.fromJson(
+      results?[region] as Map<String, dynamic>?,
+    );
+  }
+
+  /// Streaming services that offer movies in [region], most popular first.
+  Future<List<TmdbProvider>> getProviders(String region) async {
+    final response = await _client.get<Map<String, dynamic>>(
+      '/watch/providers/movie',
+      queryParameters: {
+        'watch_region': region,
+        'language': ApiConstants.tmdbLanguage,
+      },
+    );
+    final providers = <TmdbProvider>[];
+    for (final entry
+        in response.data?['results'] as List<dynamic>? ?? const []) {
+      if (entry is! Map<String, dynamic> || entry['provider_id'] is! int) {
+        continue;
+      }
+      final priorities = entry['display_priorities'] as Map<String, dynamic>?;
+      providers.add(
+        TmdbProvider(
+          id: entry['provider_id'] as int,
+          name: entry['provider_name'] as String? ?? '',
+          logoPath: entry['logo_path'] as String?,
+          priority:
+              priorities?[region] as int? ??
+              entry['display_priority'] as int? ??
+              999,
+        ),
+      );
+    }
+    providers.sort((a, b) => a.priority.compareTo(b.priority));
+    return providers;
   }
 
   String? _extractGermanTvRating(dynamic payload) {

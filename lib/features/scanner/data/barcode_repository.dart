@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/database/media_format.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/mappers/movie_mapper.dart';
 import '../../../core/errors/app_exception.dart';
@@ -49,7 +50,9 @@ class BarcodeRepository {
     return query.watch();
   }
 
-  Future<void> saveMapping({
+  /// Links [barcode] to a single-movie edition of [movieId] and returns that
+  /// edition, so the caller can record a copy of exactly what was scanned.
+  Future<int> saveMapping({
     required String barcode,
     required String barcodeType,
     required int movieId,
@@ -76,6 +79,11 @@ class BarcodeRepository {
       movieId: movieId,
       productTitle: productTitle,
       editionName: editionName,
+      physicalFormat: physicalFormat,
+      region: region,
+      reuseEditionId: existing?.movieId == movieId
+          ? existing?.physicalEditionId
+          : null,
     );
 
     if (existing != null) {
@@ -96,7 +104,7 @@ class BarcodeRepository {
           updatedAt: Value(DateTime.now()),
         ),
       );
-      return;
+      return editionId;
     }
 
     await _db
@@ -117,6 +125,7 @@ class BarcodeRepository {
             updatedAt: Value(DateTime.now()),
           ),
         );
+    return editionId;
   }
 
   Future<void> saveEditionMapping({
@@ -185,7 +194,29 @@ class BarcodeRepository {
     required int movieId,
     String? productTitle,
     String? editionName,
+    String? physicalFormat,
+    String? region,
+    int? reuseEditionId,
   }) async {
+    final format = MediaFormat.parse(physicalFormat).name;
+    if (reuseEditionId != null) {
+      final reused = await (_db.select(
+        _db.physicalEditions,
+      )..where((t) => t.id.equals(reuseEditionId))).getSingleOrNull();
+      if (reused != null) {
+        await (_db.update(
+          _db.physicalEditions,
+        )..where((t) => t.id.equals(reused.id))).write(
+          PhysicalEditionsCompanion(
+            format: reused.format == MediaFormat.unknown.name
+                ? Value(format)
+                : const Value.absent(),
+            region: Value(reused.region ?? region),
+          ),
+        );
+        return reused.id;
+      }
+    }
     final id = await _db
         .into(_db.physicalEditions)
         .insert(
@@ -193,6 +224,8 @@ class BarcodeRepository {
             productTitle: Value(productTitle),
             editionName: Value(editionName),
             mediaKind: PhysicalEditionKind.singleMovie.name,
+            format: Value(format),
+            region: Value(region),
           ),
         );
     await _db

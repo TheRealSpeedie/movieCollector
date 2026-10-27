@@ -5,7 +5,21 @@
 **SQLite is the source of truth for the user's collection.** TMDB and UPCitemdb are only
 used to *enrich* data (metadata, collection info) and to *resolve* unknown barcodes/titles.
 A failed API call must never delete, corrupt, or hide anything the user already saved
-locally.
+locally. A sync provider (the user's own server today, Movie Shelf Cloud later) holds a
+copy for other devices; it never replaces the local collection. See `../../ROADMAP.md`.
+
+## Ownership and sync
+
+- `lib/core/collection/ownership_service.dart` is the only writer of ownership and wishlist.
+  It adds or removes copies and personal state, then recomputes the `user_status` cache that
+  screens read.
+- `lib/core/sync/collection_records.dart` turns the database into sync records and writes
+  incoming records back in reference order.
+- `lib/core/sync/sync_engine.dart` pushes the difference between the collection and
+  `sync_shadow`, then pulls with a cursor. Conflicting fields are kept locally and held back
+  until resolved. `features/sync/data/self_hosted_sync_provider.dart` talks to `/api/sync`.
+- Connecting a server never changes where the collection is stored;
+  `features/sync/application/storage_migration.dart` is the only way to switch.
 
 ## Folder structure
 
@@ -194,7 +208,8 @@ title is already stored.
 ## Navigation
 
 `go_router` with `StatefulShellRoute.indexedStack` drives five persistent bottom-nav tabs
-(Home, Sammlung, Reihen, Fundstück/Scanner, Mehr), each keeping its own navigation state when
+(Home, Sammlung, Entdecken, Fundstück/Scanner, Mehr). Until onboarding is done, a redirect
+sends every route except server pairing to `/onboarding`, each keeping its own navigation state when
 switching tabs. Screens reached from *within* a tab (movie details, search, add-movie, import,
 settings, collection detail, missing movies, Fundstück result) are pushed on the root
 navigator via `parentNavigatorKey`, so they appear as full-screen pages above the bottom nav

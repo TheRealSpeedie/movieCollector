@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/constants/app_constants.dart';
+import '../features/sync/application/sync_providers.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 
-class MovieShelfApp extends StatelessWidget {
+class MovieShelfApp extends ConsumerWidget {
   const MovieShelfApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(syncSchedulerProvider);
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

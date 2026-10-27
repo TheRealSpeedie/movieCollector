@@ -292,9 +292,29 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
           as _i9.Future<_i4.MovieUpsertResult>);
 
   @override
-  _i9.Future<void> updateStatus(int? movieId, _i10.CollectionStatus? status) =>
+  _i9.Future<void> updateStatus(
+    int? movieId,
+    _i10.CollectionStatus? status, {
+    int? editionId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#updateStatus, [movieId, status]),
+            Invocation.method(
+              #updateStatus,
+              [movieId, status],
+              {#editionId: editionId},
+            ),
+            returnValue: _i9.Future<void>.value(),
+            returnValueForMissingStub: _i9.Future<void>.value(),
+          )
+          as _i9.Future<void>);
+
+  @override
+  _i9.Future<void> setCollectionStatus(
+    int? tmdbId,
+    _i10.CollectionStatus? status,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#setCollectionStatus, [tmdbId, status]),
             returnValue: _i9.Future<void>.value(),
             returnValueForMissingStub: _i9.Future<void>.value(),
           )
@@ -435,10 +455,15 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
   @override
   _i9.Future<void> setSeasonStatus(
     int? seasonId,
-    _i10.CollectionStatus? status,
-  ) =>
+    _i10.CollectionStatus? status, {
+    int? editionId,
+  }) =>
       (super.noSuchMethod(
-            Invocation.method(#setSeasonStatus, [seasonId, status]),
+            Invocation.method(
+              #setSeasonStatus,
+              [seasonId, status],
+              {#editionId: editionId},
+            ),
             returnValue: _i9.Future<void>.value(),
             returnValueForMissingStub: _i9.Future<void>.value(),
           )

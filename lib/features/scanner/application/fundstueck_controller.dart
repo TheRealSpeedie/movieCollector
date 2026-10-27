@@ -13,6 +13,9 @@ import '../../editions/data/physical_edition_repository.dart';
 import '../../movies/data/movie_repository.dart';
 import '../../tv/data/tv_repository.dart';
 import '../data/barcode_repository.dart';
+import '../data/scan_log_repository.dart';
+import 'scan_providers.dart';
+import '../domain/scan_assessment.dart';
 import '../domain/barcode_lookup_result.dart';
 import '../domain/barcode_resolver.dart';
 import '../domain/scan_trace.dart';
@@ -26,6 +29,8 @@ class FundstueckController
     required BarcodeRepository barcodeRepository,
     required TvRepository tvRepository,
     required PhysicalEditionRepository editionRepository,
+    this.scanLog,
+    this.assessor,
     this.onTrace,
     this.onPhase,
   }) : _resolver = resolver,
@@ -45,6 +50,8 @@ class FundstueckController
   final MovieMatcher _matcher = const MovieMatcher();
   final void Function(String text)? onTrace;
   final void Function(String message)? onPhase;
+  final ScanLogRepository? scanLog;
+  final ScanAssessor? assessor;
 
   Future<void> scanBarcode(String barcode, {String? formatName}) async {
     if (!mounted) return;
@@ -61,8 +68,43 @@ class FundstueckController
     );
     onTrace?.call(trace.text);
     if (kDebugMode) debugPrint(trace.text);
+    final value = result.valueOrNull;
+    if (value != null) await _remember(barcode, value);
     if (!mounted) return;
     state = result;
+  }
+
+  Future<void> _remember(String barcode, BarcodeLookupResult result) async {
+    final log = scanLog;
+    if (log == null || result is BarcodeNotAProductCode) return;
+    try {
+      if (result is BarcodeUnresolvedOffline) {
+        await log.queue(barcode);
+        await log.record(code: barcode, verdict: 'pending');
+        return;
+      }
+      final verdict = switch (result) {
+        BarcodeKnownEdition(:final edition) when edition.id != 0 =>
+          (await assessor?.forEdition(edition.id))?.primary.name,
+        BarcodeKnownMovie(:final movie) when movie.tmdbId != null =>
+          (await assessor?.forTitle(
+            tmdbId: movie.tmdbId!,
+            tmdbCollectionId: movie.tmdbCollectionId,
+            confidence: MatchConfidence.exact,
+          ))?.primary.name,
+        BarcodeNeedsConfirmation() => 'probable',
+        _ => 'unknown',
+      };
+      await log.record(
+        code: barcode,
+        verdict: verdict ?? 'unknown',
+        title: scanTitle(result),
+        movieId: result is BarcodeKnownMovie ? result.movie.id : null,
+      );
+    } catch (e) {
+      // The history is a convenience; a failure must not hide the result.
+      if (kDebugMode) debugPrint('Scan history: $e');
+    }
   }
 
   Future<void> searchTitleFallback(String title) async {
@@ -98,16 +140,18 @@ class FundstueckController
     String? edition,
     String? region,
   }) async {
+    final hasBarcode = barcode != null && barcode.isNotEmpty;
     var movie = await _movieRepository.getMovieByTmdbId(candidate.id);
-    if (movie == null) {
-      movie = await _movieRepository.addFromTmdb(candidate.id, status: status);
-    } else if (movie.status != status) {
-      await _movieRepository.updateStatus(movie.id, status);
-      movie = movie.copyWith(status: status);
-    }
+    // With a barcode the copy belongs to the scanned edition, which exists
+    // only after the mapping is saved.
+    movie ??= await _movieRepository.addFromTmdb(
+      candidate.id,
+      status: hasBarcode ? CollectionStatus.open : status,
+    );
 
-    if (barcode != null && barcode.isNotEmpty) {
-      await _barcodeRepository.saveMapping(
+    int? editionId;
+    if (hasBarcode) {
+      editionId = await _barcodeRepository.saveMapping(
         barcode: barcode,
         barcodeType: barcodeType,
         movieId: movie.id,
@@ -118,6 +162,14 @@ class FundstueckController
         region: region,
         allowRemap: true,
       );
+    }
+    if (hasBarcode || movie.status != status) {
+      await _movieRepository.updateStatus(
+        movie.id,
+        status,
+        editionId: status == CollectionStatus.owned ? editionId : null,
+      );
+      movie = (await _movieRepository.getMovieByTmdbId(candidate.id))!;
     }
 
     if (mounted) state = AsyncValue.data(BarcodeKnownMovie(movie));
@@ -132,15 +184,17 @@ class FundstueckController
     String? barcode,
     String barcodeType = 'EAN',
   }) async {
+    // An owned box set is one copy of the set, not one copy per film.
+    final owned = status == CollectionStatus.owned;
     final localIds = <int>[];
     for (final tmdbId in selectedTmdbIds.toSet()) {
       var movie = await _movieRepository.getMovieByTmdbId(tmdbId);
-      if (movie == null) {
-        movie = await _movieRepository.addFromTmdb(tmdbId, status: status);
-      } else if (movie.status != CollectionStatus.owned &&
-          status == CollectionStatus.owned) {
+      movie ??= await _movieRepository.addFromTmdb(
+        tmdbId,
+        status: owned ? CollectionStatus.open : status,
+      );
+      if (!owned && movie.status == CollectionStatus.open) {
         await _movieRepository.updateStatus(movie.id, status);
-        movie = movie.copyWith(status: status);
       }
       localIds.add(movie.id);
     }
@@ -151,6 +205,15 @@ class FundstueckController
       tmdbCollectionId: collection.id,
       movieIds: localIds,
     );
+    if (owned) {
+      for (final movieId in localIds) {
+        await _movieRepository.updateStatus(
+          movieId,
+          CollectionStatus.owned,
+          editionId: edition.id,
+        );
+      }
+    }
     if (barcode != null && barcode.isNotEmpty) {
       await _barcodeRepository.saveEditionMapping(
         barcode: barcode,
@@ -173,7 +236,11 @@ class FundstueckController
     String? barcode,
     String barcodeType = 'EAN',
   }) async {
-    final statuses = {for (final n in selectedSeasonNumbers) n: status};
+    final owned = status == CollectionStatus.owned;
+    final statuses = {
+      for (final n in selectedSeasonNumbers)
+        n: owned ? CollectionStatus.open : status,
+    };
     final saved = await _tvRepository.addOrUpdateFromTmdb(
       details.id,
       seasonStatuses: statuses,
@@ -188,6 +255,15 @@ class FundstueckController
       tmdbTvSeriesId: details.id,
       seasonIds: seasonIds,
     );
+    if (owned) {
+      for (final seasonId in seasonIds) {
+        await _tvRepository.setSeasonStatus(
+          seasonId,
+          CollectionStatus.owned,
+          editionId: edition.id,
+        );
+      }
+    }
     if (barcode != null && barcode.isNotEmpty) {
       await _barcodeRepository.saveEditionMapping(
         barcode: barcode,
@@ -223,6 +299,8 @@ final fundstueckControllerProvider =
         barcodeRepository: ref.watch(barcodeRepositoryProvider),
         tvRepository: ref.watch(tvRepositoryProvider),
         editionRepository: ref.watch(physicalEditionRepositoryProvider),
+        scanLog: ref.watch(scanLogRepositoryProvider),
+        assessor: ref.watch(scanAssessorProvider),
         onTrace: (text) => ref.read(scanTraceProvider.notifier).state = text,
         onPhase: (message) =>
             ref.read(lookupStatusProvider.notifier).state = message,

@@ -87,7 +87,7 @@ class MockBarcodeRepository extends _i1.Mock implements _i4.BarcodeRepository {
           as _i5.Stream<List<_i7.BarcodeRow>>);
 
   @override
-  _i5.Future<void> saveMapping({
+  _i5.Future<int> saveMapping({
     required String? barcode,
     required String? barcodeType,
     required int? movieId,
@@ -112,10 +112,9 @@ class MockBarcodeRepository extends _i1.Mock implements _i4.BarcodeRepository {
               #source: source,
               #allowRemap: allowRemap,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i5.Future<int>.value(0),
           )
-          as _i5.Future<void>);
+          as _i5.Future<int>);
 
   @override
   _i5.Future<void> saveEditionMapping({

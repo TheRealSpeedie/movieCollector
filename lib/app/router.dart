@@ -5,12 +5,18 @@ import '../features/collection/presentation/collection_screen.dart';
 import '../features/collections/presentation/collection_detail_screen.dart';
 import '../features/collections/presentation/collections_screen.dart';
 import '../features/collections/presentation/missing_movies_screen.dart';
+import '../features/discover/domain/watch_suggestions.dart';
+import '../features/discover/presentation/discover_screen.dart';
+import '../features/discover/presentation/what_to_watch_screen.dart';
+import '../features/watch/presentation/subscriptions_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/import/application/import_movie_search_controller.dart';
 import '../features/import/presentation/import_movie_search_screen.dart';
 import '../features/import/presentation/import_screen.dart';
 import '../features/import/presentation/import_selection_screen.dart';
 import '../features/movie_details/presentation/movie_details_screen.dart';
+import '../features/onboarding/application/onboarding_gate.dart';
+import '../features/onboarding/presentation/onboarding_screen.dart';
 import '../features/playback/domain/play_request.dart';
 import '../features/playback/presentation/player_screen.dart';
 import '../features/remote/presentation/remote_screen.dart';
@@ -35,7 +41,23 @@ final rootNavigatorKey = GlobalKey<NavigatorState>();
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/home',
+  refreshListenable: onboardingGate,
+  redirect: (context, state) {
+    final onboarding = state.matchedLocation == '/onboarding';
+    // Server pairing is reachable from inside onboarding.
+    if (!onboardingGate.value &&
+        !onboarding &&
+        !state.matchedLocation.startsWith('/server')) {
+      return '/onboarding';
+    }
+    return null;
+  },
   routes: [
+    GoRoute(
+      path: '/onboarding',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const OnboardingScreen(),
+    ),
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) =>
           AppShell(navigationShell: navigationShell),
@@ -59,8 +81,8 @@ final appRouter = GoRouter(
         StatefulShellBranch(
           routes: [
             GoRoute(
-              path: '/collections',
-              builder: (context, state) => const CollectionsScreen(),
+              path: '/discover',
+              builder: (context, state) => const DiscoverScreen(),
             ),
           ],
         ),
@@ -108,6 +130,36 @@ final appRouter = GoRouter(
       path: '/fundstueck/result',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const FundstueckResultScreen(),
+    ),
+    GoRoute(
+      path: '/collections',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const CollectionsScreen(),
+    ),
+    GoRoute(
+      path: '/discover/watch',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) {
+        final sources = state.uri.queryParameters['sources'];
+        return WhatToWatchScreen(
+          initialSources: sources == null
+              ? null
+              : {
+                  for (final name in sources.split(','))
+                    SuggestionSource.values.byName(name),
+                },
+        );
+      },
+    ),
+    GoRoute(
+      path: '/settings/streaming',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const SubscriptionsScreen(),
+    ),
+    GoRoute(
+      path: '/sync',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const SyncScreen(),
     ),
     GoRoute(
       path: '/collections/:id',

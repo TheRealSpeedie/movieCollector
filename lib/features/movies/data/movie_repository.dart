@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/collection/ownership_service.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/mappers/movie_mapper.dart';
@@ -20,9 +21,11 @@ class MovieUpsertResult {
 }
 
 class MovieRepository {
-  MovieRepository(this._db, this._tmdb, this._collectionRepository);
+  MovieRepository(this._db, this._tmdb, this._collectionRepository)
+    : _ownership = OwnershipService(_db);
 
   final AppDatabase _db;
+  final OwnershipService _ownership;
   final TmdbApiClient _tmdb;
   final CollectionRepository _collectionRepository;
 
@@ -135,13 +138,15 @@ class MovieRepository {
               certification: Value(details.certification),
               originalLanguage: Value(details.originalLanguage),
               tmdbCollectionId: Value(details.collection?.id),
-              userStatus: Value(status),
               createdAt: Value(now),
               updatedAt: Value(now),
               lastMetadataSyncAt: Value(now),
             ),
           );
       await _linkGenres(id, details.genres);
+      if (status != CollectionStatus.open) {
+        await _ownership.setMovieStatus(id, status);
+      }
       return id;
     });
 
@@ -151,12 +156,17 @@ class MovieRepository {
     return mapMovieRow(row, await _genreNames(movieId));
   }
 
-  Future<void> updateStatus(int movieId, CollectionStatus status) async {
+  /// Owned adds a copy (of [editionId] when the user scanned a specific
+  /// edition); wishlist and open remove single-movie copies. See
+  /// OwnershipService.
+  Future<void> updateStatus(
+    int movieId,
+    CollectionStatus status, {
+    int? editionId,
+  }) async {
+    await _ownership.setMovieStatus(movieId, status, editionId: editionId);
     await (_db.update(_db.movies)..where((t) => t.id.equals(movieId))).write(
-      MoviesCompanion(
-        userStatus: Value(status),
-        updatedAt: Value(DateTime.now()),
-      ),
+      MoviesCompanion(updatedAt: Value(DateTime.now())),
     );
   }
 

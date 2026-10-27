@@ -46,25 +46,30 @@ void main() {
     },
   );
 
-  test('schema version 4 creates TV, edition, and lookup cache tables', () async {
-    expect(db.schemaVersion, 4);
-    await db
-        .into(db.tvSeriesTable)
-        .insert(
-          TvSeriesTableCompanion.insert(tmdbId: 1622, name: 'Supernatural'),
-        );
-    final series = await db.select(db.tvSeriesTable).get();
-    expect(series, hasLength(1));
-    await db.into(db.barcodeLookupCache).insert(
-      BarcodeLookupCacheCompanion.insert(
-        barcode: '5000000000000',
-        provider: 'upcmdb',
-        outcome: 'not_found',
-        fetchedAt: DateTime.utc(2026, 1, 1),
-        expiresAt: DateTime.utc(2026, 1, 8),
-      ),
-    );
-    final cached = await db.select(db.barcodeLookupCache).get();
-    expect(cached, hasLength(1));
-  });
+  test(
+    'schema version 6 creates TV, edition, and lookup cache tables',
+    () async {
+      expect(db.schemaVersion, 6);
+      await db
+          .into(db.tvSeriesTable)
+          .insert(
+            TvSeriesTableCompanion.insert(tmdbId: 1622, name: 'Supernatural'),
+          );
+      final series = await db.select(db.tvSeriesTable).get();
+      expect(series, hasLength(1));
+      await db
+          .into(db.barcodeLookupCache)
+          .insert(
+            BarcodeLookupCacheCompanion.insert(
+              barcode: '5000000000000',
+              provider: 'upcmdb',
+              outcome: 'not_found',
+              fetchedAt: DateTime.utc(2026, 1, 1),
+              expiresAt: DateTime.utc(2026, 1, 8),
+            ),
+          );
+      final cached = await db.select(db.barcodeLookupCache).get();
+      expect(cached, hasLength(1));
+    },
+  );
 }

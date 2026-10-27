@@ -634,6 +634,14 @@ class ImportRepository {
       }
     }
 
+    // A new single film or any bundle is recorded as an edition. When it is
+    // owned, the copy belongs to that edition instead of one per film.
+    final createEdition =
+        _editionRepository != null &&
+        (kind != PhysicalEditionKind.singleMovie || detailsById.isNotEmpty);
+    final ownViaEdition = createEdition && status == CollectionStatus.owned;
+    final movieStatus = ownViaEdition ? CollectionStatus.open : status;
+
     return _inSourceRowTransaction(() async {
       var moviesAdded = 0;
       var moviesUpdated = 0;
@@ -648,13 +656,13 @@ class ImportRepository {
         if (details != null) {
           result = await _movieRepository.upsertFromDetails(
             details,
-            status: status,
+            status: movieStatus,
             syncCollection: false,
           );
         } else {
           result = await _movieRepository.applyImportedStatus(
             existingById[tmdbId]!,
-            status,
+            movieStatus,
           );
         }
         localIds.add(result.movie.id);
@@ -671,15 +679,22 @@ class ImportRepository {
         }
       }
 
-      final createEdition =
-          kind != PhysicalEditionKind.singleMovie || moviesAdded > 0;
       if (createEdition && localIds.isNotEmpty) {
-        await _editionRepository?.createEdition(
+        final edition = await _editionRepository.createEdition(
           kind: kind,
           productTitle: productTitle,
           tmdbCollectionId: tmdbCollectionId,
           movieIds: localIds,
         );
+        if (ownViaEdition) {
+          for (final movieId in localIds) {
+            await _movieRepository.updateStatus(
+              movieId,
+              CollectionStatus.owned,
+              editionId: edition.id,
+            );
+          }
+        }
       }
 
       return _SourcePersistResult(
@@ -703,7 +718,13 @@ class ImportRepository {
       throw const UnknownAppException('TV-Import ist nicht verfügbar.');
     }
     final selected = seasonNumbers.toSet();
-    final statuses = {for (final n in selected) n: status};
+    // Owned seasons get one copy of the imported edition, not one each.
+    final ownViaEdition =
+        _editionRepository != null && status == CollectionStatus.owned;
+    final statuses = {
+      for (final n in selected)
+        n: ownViaEdition ? CollectionStatus.open : status,
+    };
 
     return _inSourceRowTransaction(() async {
       final saved = await tv.upsertFromDetails(
@@ -715,13 +736,22 @@ class ImportRepository {
           .map((s) => s.id)
           .toList();
 
-      if (seasonIds.isNotEmpty) {
-        await _editionRepository?.createEdition(
+      if (seasonIds.isNotEmpty && _editionRepository != null) {
+        final edition = await _editionRepository.createEdition(
           kind: kind,
           productTitle: productTitle,
           tmdbTvSeriesId: details.id,
           seasonIds: seasonIds,
         );
+        if (ownViaEdition) {
+          for (final seasonId in seasonIds) {
+            await tv.setSeasonStatus(
+              seasonId,
+              CollectionStatus.owned,
+              editionId: edition.id,
+            );
+          }
+        }
       }
 
       return _SourcePersistResult(

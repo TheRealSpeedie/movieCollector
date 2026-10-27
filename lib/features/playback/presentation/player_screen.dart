@@ -12,7 +12,12 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../remote/application/remote_providers.dart';
 import '../../remote/domain/remote_models.dart';
+import '../../../core/database/app_database.dart';
+import '../../../core/providers/core_providers.dart';
+import '../../personal/data/personal_state_repository.dart';
 import '../../server/application/server_providers.dart';
+import '../../sync/application/sync_providers.dart';
+import '../../watch/application/watch_providers.dart';
 import '../../server/data/server_client.dart';
 import '../../server/domain/server_models.dart';
 import '../data/playback_api.dart';
@@ -54,10 +59,36 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   int? _requestedHeight;
   double _lastPosition = 0;
   late final _bridge = ref.read(playerBridgeProvider.notifier);
+  // Read in initState: ref cannot be used any more when dispose records the
+  // viewing.
+  late final PersonalStateRepository _personal;
+  late final AppDatabase _db;
+  int? _tmdbId;
+
+  /// A film watched to 90 % is recorded as seen in the collection too, so
+  /// suggestions and "unwatched" lists agree with the server.
+  Future<void> _recordViewing() async {
+    final tmdbId = _tmdbId;
+    if (widget.request.episodeId != null || tmdbId == null) return;
+    if (_totalSeconds <= 0 || _currentSeconds / _totalSeconds < 0.9) return;
+    final movie = await (_db.select(
+      _db.movies,
+    )..where((t) => t.tmdbId.equals(tmdbId))).getSingleOrNull();
+    if (movie != null) await _personal.recordViewing(movieSubject(movie.id));
+  }
 
   @override
   void initState() {
     super.initState();
+    _personal = ref.read(personalStateRepositoryProvider);
+    _db = ref.read(appDatabaseProvider);
+    // The server film list may still be loading; take the id once it is there.
+    ref.listenManual(serverMoviesProvider, (_, next) {
+      _tmdbId ??= next.valueOrNull
+          ?.where((t) => t.id == widget.request.titleId)
+          .firstOrNull
+          ?.tmdbId;
+    }, fireImmediately: true);
     final bridge = _bridge;
     Future.microtask(
       () => bridge.state = PlayerBridge(
@@ -112,6 +143,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     }
     final session = _session;
     if (session != null) {
+      unawaited(_recordViewing().catchError((_) {}));
       unawaited(
         _api
             .stop(

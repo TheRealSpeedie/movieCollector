@@ -12,6 +12,7 @@ import '../../movies/application/movie_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/presentation/server_screen.dart';
 import '../../sync/application/sync_providers.dart';
+import 'insights_card.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -48,6 +49,7 @@ class HomeScreen extends ConsumerWidget {
               _FundstueckCta(onTap: () => context.go('/scanner')),
               const SizedBox(height: 24),
               const _ServerResume(),
+              const InsightsCard(),
               _QuickActions(),
               const SizedBox(height: 24),
               if ((recent.valueOrNull ?? []).isNotEmpty) ...[
@@ -98,7 +100,7 @@ class HomeScreen extends ConsumerWidget {
               if ((collections.valueOrNull ?? []).isNotEmpty) ...[
                 _SectionHeader(
                   title: 'Deine Reihen',
-                  onSeeAll: () => context.go('/collections'),
+                  onSeeAll: () => context.push('/collections'),
                 ),
                 const SizedBox(height: 12),
                 ...collections.valueOrNull!
@@ -132,7 +134,7 @@ class _ServerResume extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     if (ref.watch(serverClientProvider) == null) return const SizedBox.shrink();
     final resume = ref.watch(serverHomeProvider).valueOrNull?.resume ?? [];
-    final pending = ref.watch(syncControllerProvider).valueOrNull?.pending ?? 0;
+    final pending = ref.watch(syncConflictsProvider).valueOrNull?.length ?? 0;
     if (resume.isEmpty && pending == 0) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -143,7 +145,7 @@ class _ServerResume extends ConsumerWidget {
               leading: const Icon(Icons.sync_problem),
               title: const Text('Abgleich nötig'),
               subtitle: Text(
-                '$pending Filme unterscheiden sich zwischen Handy und Server.',
+                '$pending Angaben wurden auf zwei Geräten verschieden geändert.',
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/server/sync'),

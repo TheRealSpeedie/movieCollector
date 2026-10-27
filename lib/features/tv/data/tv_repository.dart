@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../core/collection/ownership_service.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/mappers/tv_mapper.dart';
 import '../../../core/network/tmdb/tmdb_api_client.dart';
@@ -24,9 +25,10 @@ class TvUpsertResult {
 }
 
 class TvRepository {
-  TvRepository(this._db, this._tmdb);
+  TvRepository(this._db, this._tmdb) : _ownership = OwnershipService(_db);
 
   final AppDatabase _db;
+  final OwnershipService _ownership;
   final TmdbApiClient _tmdb;
 
   Stream<List<TvSeriesWithSeasons>> watchAllSeries() {
@@ -168,15 +170,14 @@ class TvRepository {
     );
   }
 
-  Future<void> setSeasonStatus(int seasonId, CollectionStatus? status) async {
-    await (_db.update(
-      _db.tvSeasonsTable,
-    )..where((t) => t.id.equals(seasonId))).write(
-      TvSeasonsTableCompanion(
-        userStatus: Value(status),
-        updatedAt: Value(DateTime.now()),
-      ),
-    );
+  Future<void> setSeasonStatus(
+    int seasonId,
+    CollectionStatus? status, {
+    int? editionId,
+  }) async {
+    await _ownership.setSeasonStatus(seasonId, status, editionId: editionId);
+    await (_db.update(_db.tvSeasonsTable)..where((t) => t.id.equals(seasonId)))
+        .write(TvSeasonsTableCompanion(updatedAt: Value(DateTime.now())));
   }
 
   Future<void> setRegularSeasonsStatus(
@@ -189,14 +190,10 @@ class TvRepository {
     final now = DateTime.now();
     for (final season in seasons) {
       if (season.seasonNumber <= 0) continue;
-      await (_db.update(
-        _db.tvSeasonsTable,
-      )..where((t) => t.id.equals(season.id))).write(
-        TvSeasonsTableCompanion(
-          userStatus: Value(status),
-          updatedAt: Value(now),
-        ),
-      );
+      await _ownership.setSeasonStatus(season.id, status);
+      await (_db.update(_db.tvSeasonsTable)
+            ..where((t) => t.id.equals(season.id)))
+          .write(TvSeasonsTableCompanion(updatedAt: Value(now)));
     }
   }
 
@@ -209,6 +206,7 @@ class TvRepository {
     var added = 0;
     var updated = 0;
     var existingCount = 0;
+    final statusChanges = <int, CollectionStatus?>{};
     for (final season in seasons) {
       final existing =
           await (_db.select(_db.tvSeasonsTable)..where(
@@ -220,7 +218,7 @@ class TvRepository {
       final incomingStatus = seasonStatuses[season.seasonNumber];
       final selected = seasonStatuses.containsKey(season.seasonNumber);
       if (existing == null) {
-        await _db
+        final seasonId = await _db
             .into(_db.tvSeasonsTable)
             .insert(
               TvSeasonsTableCompanion.insert(
@@ -232,12 +230,14 @@ class TvRepository {
                 posterPath: Value(season.posterPath),
                 airDate: Value(season.airDate),
                 episodeCount: Value(season.episodeCount),
-                userStatus: Value(incomingStatus),
                 createdAt: Value(now),
                 updatedAt: Value(now),
               ),
             );
-        if (selected && incomingStatus != null) added++;
+        if (selected && incomingStatus != null) {
+          statusChanges[seasonId] = incomingStatus;
+          added++;
+        }
       } else {
         final merged = CollectionStatus.mergeNullable(
           existing.userStatus,
@@ -253,10 +253,12 @@ class TvRepository {
             posterPath: Value(season.posterPath),
             airDate: Value(season.airDate),
             episodeCount: Value(season.episodeCount),
-            userStatus: selected ? Value(merged) : const Value.absent(),
             updatedAt: Value(now),
           ),
         );
+        if (selected && merged != existing.userStatus) {
+          statusChanges[existing.id] = merged;
+        }
         if (selected) {
           if (existing.userStatus == null && merged != null) {
             added++;
@@ -267,6 +269,9 @@ class TvRepository {
           }
         }
       }
+    }
+    for (final change in statusChanges.entries) {
+      await _ownership.setSeasonStatus(change.key, change.value);
     }
     return (added: added, updated: updated, existing: existingCount);
   }

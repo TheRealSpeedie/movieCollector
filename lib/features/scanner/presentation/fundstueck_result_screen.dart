@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'scan_insights_card.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';
@@ -166,6 +168,17 @@ class KnownMovieView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        if (movie.tmdbId != null)
+          ScanInsightsCard(
+            request: (
+              editionId: null,
+              tmdbId: movie.tmdbId,
+              tmdbCollectionId: movie.tmdbCollectionId,
+              format: null,
+              // A barcode that is already mapped identifies the release.
+              exact: barcodeToSave == null,
+            ),
+          ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -331,6 +344,15 @@ class MissingMovieView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
+        ScanInsightsCard(
+          request: (
+            editionId: null,
+            tmdbId: movie.id,
+            tmdbCollectionId: null,
+            format: physicalFormat,
+            exact: false,
+          ),
+        ),
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
@@ -523,15 +545,17 @@ class MissingMovieView extends ConsumerWidget {
   }
 
   Future<void> _confirm(WidgetRef ref, CollectionStatus status) {
-    return ref.read(fundstueckControllerProvider.notifier).confirmAndSave(
-      candidate: selected.result,
-      status: status,
-      barcode: barcode.isEmpty ? null : barcode,
-      barcodeType: barcodeType,
-      physicalFormat: physicalFormat,
-      imdbId: imdbId,
-      edition: edition,
-    );
+    return ref
+        .read(fundstueckControllerProvider.notifier)
+        .confirmAndSave(
+          candidate: selected.result,
+          status: status,
+          barcode: barcode.isEmpty ? null : barcode,
+          barcodeType: barcodeType,
+          physicalFormat: physicalFormat,
+          imdbId: imdbId,
+          edition: edition,
+        );
   }
 }
 
@@ -578,7 +602,9 @@ class NoMatchView extends StatelessWidget {
             const SizedBox(height: 20),
             FilledButton.icon(
               onPressed: () => context.push(
-                BarcodeSearchContext(query: searchQuery ?? productTitle).location(),
+                BarcodeSearchContext(
+                  query: searchQuery ?? productTitle,
+                ).location(),
               ),
               icon: const Icon(Icons.search),
               label: const Text('Manuell suchen'),
@@ -606,7 +632,9 @@ class OfflineView extends ConsumerWidget {
             const Icon(Icons.wifi_off, size: 48, color: AppColors.neutralGray),
             const SizedBox(height: 16),
             const Text(
-              'Dieser Barcode ist auf diesem Gerät noch nicht bekannt. Stelle eine Internetverbindung her, um die Veröffentlichung zu erkennen.',
+              'Dieser Barcode ist auf diesem Gerät noch nicht bekannt. '
+              'Er ist gespeichert und wird erkannt, sobald du wieder online bist. '
+              'Du kannst den Film auch gleich von Hand hinzufügen.',
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -640,24 +668,26 @@ class KnownEditionView extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.sage.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          alignment: Alignment.center,
-          child: const Text(
-            '✓ Bereits in deiner Sammlung',
-            style: TextStyle(
-              color: AppColors.sage,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
+        if (edition.id != 0)
+          ScanInsightsCard(
+            request: (
+              editionId: edition.id,
+              tmdbId: null,
+              tmdbCollectionId: null,
+              format: null,
+              exact: true,
+            ),
+          )
+        else if (edition.movies.firstOrNull?.tmdbId != null)
+          ScanInsightsCard(
+            request: (
+              editionId: null,
+              tmdbId: edition.movies.first.tmdbId,
+              tmdbCollectionId: edition.movies.first.tmdbCollectionId,
+              format: null,
+              exact: true,
             ),
           ),
-        ),
-        const SizedBox(height: 16),
         Text(
           edition.productTitle ?? edition.series?.name ?? 'Box Set',
           style: Theme.of(context).textTheme.titleLarge,

@@ -6,9 +6,36 @@ test where practical — not just that a placeholder exists.
 
 ## Fully implemented
 
-- **Offline-first local database** — Drift/SQLite schema version 2 for movies, TV series,
-  seasons, physical editions, barcodes, genres, and collections. Existing v1 movie data is
-  migrated in place. SQLite is the only source of truth for ownership status.
+- **Offline-first local database** — Drift/SQLite schema version 5 for titles, seasons,
+  editions, owned copies, personal state, barcodes, genres, collections and sync state.
+  Existing data from v1 to v4 is migrated in place. The device always holds the complete
+  collection.
+- **Canonical ownership model** — ownership is copies of editions, the wishlist is personal
+  state; scanning a disc records a copy of exactly that edition, an owned box set is one copy.
+- **Storage modes and sync** — onboarding and *Mehr → Daten & Synchronisation* choose between
+  "Nur auf diesem Gerät" and "Eigener Movie Shelf Server" (Movie Shelf Cloud is shown as coming
+  soon). Sync uses the record protocol of the server (`/api/sync`), merges per field, lists
+  real conflicts with both values, and runs after changes and on resume. Moving between storage
+  modes saves a snapshot, previews, transfers and verifies counts first.
+- **Backup and export** — encrypted backup file (Argon2id + AES-256-GCM), JSON export, CSV of
+  owned copies, restore by merge or replace, automatic snapshots before migrations and
+  restores.
+- **Onboarding** — welcome, storage, preferences (region, audio, subtitles, formats), optional
+  server, first action. Existing installs skip it.
+- **Fundstück 2.0** — verdicts for already owned, other edition, upgrade, wishlist (with
+  maximum price), franchise gap, missing season, digital duplicate and new titles, each marked
+  as exact edition or probable title; recent scans; barcodes scanned offline are queued and
+  looked up later.
+- **Entdecken tab** — "Was soll ich schauen?", missing franchise parts, missing seasons,
+  wishlist, franchises.
+- **Copies and editions** — movie details list every edition with its copies; format, region,
+  languages, condition, location, price and purchase date can be edited.
+- **Watch history and ratings** — watched with count and date, rating, wishlist price limit
+  and preferred edition; films played to the end on the home server count as watched.
+- **Where to Watch** — server, subscriptions, free offers, shelf (player needed), rent or buy,
+  per region with a "Stand" date; subscriptions are chosen under *Mehr → Streamingdienste*.
+- **"Was soll ich schauen?"** — rule-based suggestions with reasons, filtered by source,
+  genre, length, language and watched state.
 - **TV series** — season-level ownership, completeness `x / y Staffeln gekauft`, series
   details with per-season status and confirmed bulk actions. Season 0 / Specials stay
   optional.
@@ -123,14 +150,11 @@ test where practical — not just that a placeholder exists.
 ## Not implemented / future (explicitly out of scope for v1, per the brief)
 
 - Manual/custom collection creation and editing UI.
-- Backup/export and cloud synchronization.
-- Multiple-edition ownership distinctions beyond the free-text `editionName` field (e.g. no
-  dedicated "DVD vs. Blu-ray" ownership toggle).
+- Movie Shelf Cloud (planned, see `../../ROADMAP.md`, phase 4).
 - Statistics/analytics screens.
 - Lending-to-friends tracking.
-- Watched/unwatched tracking (the status enum models collection status, not watch status, by
-  design).
-- User accounts, login, or any backend/cloud database — intentionally absent.
+- Notifications for collection insights (shown on Home only).
+- Copies on season details (seasons keep a status picker).
 
 ## Known limitations
 
