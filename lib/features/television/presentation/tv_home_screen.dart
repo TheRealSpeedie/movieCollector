@@ -35,7 +35,7 @@ class TvHomeScreen extends ConsumerWidget {
                 height: 190,
                 children: [
                   for (final (i, item) in data.resume.indexed)
-                    _ResumeTile(item: item, autofocus: i == 0),
+                    TvResumeTile(item: item, autofocus: i == 0),
                 ],
               ),
             if (data.recent.isNotEmpty)
@@ -44,7 +44,7 @@ class TvHomeScreen extends ConsumerWidget {
                 height: 300,
                 children: [
                   for (final (i, title) in data.recent.indexed)
-                    _PosterTile(
+                    TvPosterTile(
                       title: title,
                       autofocus: i == 0 && data.resume.isEmpty,
                     ),
@@ -167,14 +167,14 @@ class _TitleRow extends ConsumerWidget {
           : _Row(
               title: title,
               height: 300,
-              children: [for (final item in items) _PosterTile(title: item)],
+              children: [for (final item in items) TvPosterTile(title: item)],
             ),
     );
   }
 }
 
-class _PosterTile extends StatelessWidget {
-  const _PosterTile({required this.title, this.autofocus = false});
+class TvPosterTile extends StatelessWidget {
+  const TvPosterTile({super.key, required this.title, this.autofocus = false});
 
   final ServerTitle title;
   final bool autofocus;
@@ -249,8 +249,8 @@ class _PosterTile extends StatelessWidget {
   }
 }
 
-class _ResumeTile extends StatelessWidget {
-  const _ResumeTile({required this.item, required this.autofocus});
+class TvResumeTile extends StatelessWidget {
+  const TvResumeTile({super.key, required this.item, required this.autofocus});
 
   final ResumeItem item;
   final bool autofocus;

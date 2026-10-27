@@ -13,6 +13,8 @@ class ServerCredentials {
     required this.userId,
     required this.username,
     required this.role,
+    this.securePort,
+    this.certificateSha256,
   });
 
   final String serverId;
@@ -27,22 +29,40 @@ class ServerCredentials {
   final String username;
   final String role;
 
-  String get baseUrl => '${tls ? 'https' : 'http'}://$host:$port';
+  /// HTTPS port and certificate SHA-256 of the server; with both known all
+  /// traffic is encrypted and the certificate is pinned (CertificatePins).
+  final int? securePort;
+  final String? certificateSha256;
 
-  ServerCredentials copyWith({String? host, int? port, String? refreshToken}) =>
-      ServerCredentials(
-        serverId: serverId,
-        serverName: serverName,
-        host: host ?? this.host,
-        port: port ?? this.port,
-        tls: tls,
-        fingerprint: fingerprint,
-        deviceId: deviceId,
-        refreshToken: refreshToken ?? this.refreshToken,
-        userId: userId,
-        username: username,
-        role: role,
-      );
+  bool get secure => securePort != null && certificateSha256 != null;
+
+  String get baseUrl =>
+      secure ? 'https://$host:$securePort' : 'http://$host:$port';
+
+  ServerCredentials copyWith({
+    String? host,
+    int? port,
+    String? refreshToken,
+    int? securePort,
+    String? certificateSha256,
+    int? userId,
+    String? username,
+    String? role,
+  }) => ServerCredentials(
+    serverId: serverId,
+    serverName: serverName,
+    host: host ?? this.host,
+    port: port ?? this.port,
+    tls: tls,
+    fingerprint: fingerprint,
+    deviceId: deviceId,
+    refreshToken: refreshToken ?? this.refreshToken,
+    userId: userId ?? this.userId,
+    username: username ?? this.username,
+    role: role ?? this.role,
+    securePort: securePort ?? this.securePort,
+    certificateSha256: certificateSha256 ?? this.certificateSha256,
+  );
 
   String encode() => jsonEncode({
     'serverId': serverId,
@@ -56,6 +76,8 @@ class ServerCredentials {
     'userId': userId,
     'username': username,
     'role': role,
+    'securePort': securePort,
+    'certificateSha256': certificateSha256,
   });
 
   static ServerCredentials? decode(String? raw) {
@@ -74,6 +96,8 @@ class ServerCredentials {
         userId: json['userId'] as int,
         username: json['username'] as String,
         role: json['role'] as String,
+        securePort: json['securePort'] as int?,
+        certificateSha256: json['certificateSha256'] as String?,
       );
     } on FormatException {
       return null;

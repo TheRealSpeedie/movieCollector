@@ -20,10 +20,15 @@ void main() {
       expect(link.tls, isFalse);
     });
 
-    test('uses https when the server announces tls', () {
+    test('uses https on the secure port when the code names a certificate', () {
+      final certificate = 'ab' * 32;
+      final link = PairingLink.parse('$valid&sp=8097&cfp=$certificate');
+      expect(link.baseUrl, 'https://192.168.1.20:8097');
+      expect(link.certificateSha256, certificate);
+      // Without a certificate to pin, the connection stays plain HTTP.
       expect(
         PairingLink.parse(valid.replaceAll('tls=0', 'tls=1')).baseUrl,
-        startsWith('https://'),
+        'http://192.168.1.20:8096',
       );
     });
 

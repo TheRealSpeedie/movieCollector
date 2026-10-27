@@ -130,6 +130,46 @@ class CopyRepository {
     });
   }
 
+  /// A new edition of one season, for example a Blu-ray box of season 3.
+  Future<int> addSeasonEdition(
+    int seasonId, {
+    required MediaFormat format,
+    String? editionName,
+    bool owned = true,
+  }) async {
+    return _db.transaction(() async {
+      final season = await (_db.select(
+        _db.tvSeasonsTable,
+      )..where((t) => t.id.equals(seasonId))).getSingle();
+      final series = await (_db.select(
+        _db.tvSeriesTable,
+      )..where((t) => t.id.equals(season.seriesId))).getSingle();
+      final id = await _db
+          .into(_db.physicalEditions)
+          .insert(
+            PhysicalEditionsCompanion.insert(
+              mediaKind: PhysicalEditionKind.singleTvSeason.name,
+              format: Value(format.name),
+              editionName: Value(editionName),
+              productTitle: Value(
+                '${series.name} – Staffel ${season.seasonNumber}',
+              ),
+              tmdbTvSeriesId: Value(series.tmdbId),
+            ),
+          );
+      await _db
+          .into(_db.physicalEditionTvSeasons)
+          .insert(
+            PhysicalEditionTvSeasonsCompanion.insert(
+              editionId: id,
+              seasonId: seasonId,
+            ),
+          );
+      if (owned) await addCopy(id);
+      return id;
+    });
+  }
+
   Future<void> updateEdition(int editionId, PhysicalEditionsCompanion values) =>
       (_db.update(
         _db.physicalEditions,

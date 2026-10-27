@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/constants/app_constants.dart';
+import '../features/playback/application/preferences_upload.dart';
 import '../features/sync/application/sync_providers.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
@@ -13,6 +14,7 @@ class MovieShelfApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(syncSchedulerProvider);
+    ref.watch(preferencesUploadProvider);
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,

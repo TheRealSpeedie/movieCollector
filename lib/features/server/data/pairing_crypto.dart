@@ -85,10 +85,14 @@ class PairingCrypto {
     required List<int> signature,
     required String nonce,
     required String expectedFingerprint,
+    String? certificateSha256,
   }) async {
     if (await fingerprint(publicKey) != expectedFingerprint) return false;
+    final signed = certificateSha256 == null
+        ? nonce
+        : '$nonce|$certificateSha256';
     return Ed25519().verify(
-      utf8.encode('movieshelf-identity|$nonce'),
+      utf8.encode('movieshelf-identity|$signed'),
       signature: Signature(
         signature,
         publicKey: SimplePublicKey(publicKey, type: KeyPairType.ed25519),

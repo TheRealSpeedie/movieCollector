@@ -91,6 +91,18 @@ class MoreScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Card(
             child: ListTile(
+              leading: const Icon(Icons.translate),
+              title: const Text('Sprache & Untertitel'),
+              subtitle: const Text(
+                'Welche Tonspur und Untertitel der Player wählt',
+              ),
+              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+              onTap: () => context.push('/settings/language'),
+            ),
+          ),
+          const SizedBox(height: 12),
+          Card(
+            child: ListTile(
               leading: const Icon(Icons.subscriptions_outlined),
               title: const Text('Streamingdienste'),
               subtitle: const Text('Deine Abos für „Wo kann ich das schauen?“'),

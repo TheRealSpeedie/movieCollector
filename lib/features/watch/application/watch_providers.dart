@@ -29,6 +29,19 @@ final copyRepositoryProvider = Provider<CopyRepository>(
   (ref) => CopyRepository(ref.watch(appDatabaseProvider)),
 );
 
+/// Marks a film played to the end on the home server as watched in the
+/// collection. Installed into the player by the phone app (playback_hooks).
+Future<void> Function(int tmdbId) phoneViewingRecorder(Ref ref) {
+  final db = ref.watch(appDatabaseProvider);
+  final personal = ref.watch(personalStateRepositoryProvider);
+  return (tmdbId) async {
+    final movie = await (db.select(
+      db.movies,
+    )..where((t) => t.tmdbId.equals(tmdbId))).getSingleOrNull();
+    if (movie != null) await personal.recordViewing(movieSubject(movie.id));
+  };
+}
+
 final regionProvider = Provider<String>(
   (ref) => ref.watch(userPreferencesProvider).region,
 );
@@ -72,6 +85,12 @@ final movieEditionsProvider = StreamProvider.autoDispose
     .family<List<EditionWithCopies>, int>(
       (ref, movieId) =>
           ref.watch(copyRepositoryProvider).watchForMovie(movieId),
+    );
+
+final seasonEditionsProvider = StreamProvider.autoDispose
+    .family<List<EditionWithCopies>, int>(
+      (ref, seasonId) =>
+          ref.watch(copyRepositoryProvider).watchForSeason(seasonId),
     );
 
 /// Formats of the copies the user owns, per local movie id.

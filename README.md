@@ -121,5 +121,5 @@ of what is verified vs. what still needs manual/device verification.
 No account is needed and there are no analytics. Your whole collection always lives in a local
 SQLite file on your device. If you want it on several devices, choose your own Movie Shelf
 Server under *Mehr → Daten & Synchronisation* (Movie Shelf Cloud is planned). Encrypted
-backups and exports are available in the same place. See [../ROADMAP.md](../ROADMAP.md) for
+backups and exports are available in the same place. See the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md) for
 what comes next.

@@ -11,8 +11,12 @@ import '../../playback/presentation/player_screen.dart';
 import '../../remote/application/remote_providers.dart';
 import '../../remote/domain/remote_models.dart';
 import '../../server/application/server_providers.dart';
+import 'tv_browse_screens.dart';
 import 'tv_connect_screen.dart';
 import 'tv_home_screen.dart';
+import 'tv_profiles_screen.dart';
+import 'tv_settings_screen.dart';
+import 'tv_shell.dart';
 import 'tv_title_screen.dart';
 
 final tvRouterProvider = Provider<GoRouter>((ref) {
@@ -41,7 +45,40 @@ final tvRouterProvider = Provider<GoRouter>((ref) {
         path: '/connect',
         builder: (context, state) => const TvConnectScreen(),
       ),
-      GoRoute(path: '/home', builder: (context, state) => const TvHomeScreen()),
+      ShellRoute(
+        builder: (context, state, child) =>
+            TvShell(location: state.matchedLocation, child: child),
+        routes: [
+          GoRoute(
+            path: '/home',
+            builder: (context, state) => const TvHomeScreen(),
+          ),
+          GoRoute(
+            path: '/movies',
+            builder: (context, state) => const TvLibraryScreen(kind: 'Movie'),
+          ),
+          GoRoute(
+            path: '/series',
+            builder: (context, state) => const TvLibraryScreen(kind: 'Series'),
+          ),
+          GoRoute(
+            path: '/continue',
+            builder: (context, state) => const TvContinueScreen(),
+          ),
+          GoRoute(
+            path: '/search',
+            builder: (context, state) => const TvSearchScreen(),
+          ),
+          GoRoute(
+            path: '/profiles',
+            builder: (context, state) => const TvProfilesScreen(),
+          ),
+          GoRoute(
+            path: '/settings',
+            builder: (context, state) => const TvSettingsScreen(),
+          ),
+        ],
+      ),
       GoRoute(
         path: '/title/:id',
         builder: (context, state) =>

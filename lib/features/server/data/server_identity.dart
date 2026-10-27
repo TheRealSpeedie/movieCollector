@@ -12,12 +12,18 @@ class ServerIdentityInfo {
     required this.name,
     required this.fingerprint,
     required this.setupComplete,
+    this.securePort,
+    this.certificateSha256,
   });
 
   final String serverId;
   final String name;
   final String fingerprint;
   final bool setupComplete;
+
+  /// Confirmed by the server's signature.
+  final int? securePort;
+  final String? certificateSha256;
 }
 
 Future<ServerIdentityInfo> verifyServerIdentity(
@@ -42,11 +48,14 @@ Future<ServerIdentityInfo> verifyServerIdentity(
   final publicKey = base64.decode(body['publicKey'] as String);
   final fingerprint =
       expectedFingerprint ?? await PairingCrypto.fingerprint(publicKey);
+  final tls = body['tls'] as Map<String, dynamic>?;
+  final certificate = tls?['certificateSha256'] as String?;
   final trusted = await PairingCrypto.verifyIdentity(
     publicKey: publicKey,
     signature: base64.decode(body['signature'] as String),
     nonce: nonce,
     expectedFingerprint: fingerprint,
+    certificateSha256: certificate,
   );
   if (!trusted) {
     throw const PairingFailedException(
@@ -58,5 +67,7 @@ Future<ServerIdentityInfo> verifyServerIdentity(
     name: body['name'] as String,
     fingerprint: fingerprint,
     setupComplete: body['setupComplete'] as bool,
+    securePort: tls?['port'] as int?,
+    certificateSha256: certificate,
   );
 }

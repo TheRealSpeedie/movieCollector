@@ -62,12 +62,14 @@ final serverSessionProvider =
 final serverClientProvider = Provider<ServerClient?>((ref) {
   final credentials = ref.watch(serverSessionProvider).valueOrNull;
   if (credentials == null) return null;
-  return ServerClient(
+  final client = ServerClient(
     credentials: credentials,
     store: ref.watch(credentialStoreProvider),
     discovery: ref.watch(serverDiscoveryProvider),
     onRevoked: () => ref.read(serverSessionProvider.notifier).revoked(),
   );
+  client.upgradeToHttps();
+  return client;
 });
 
 final libraryRepositoryProvider = Provider<LibraryRepository?>((ref) {

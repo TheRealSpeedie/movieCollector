@@ -8,6 +8,7 @@ import '../features/collections/presentation/missing_movies_screen.dart';
 import '../features/discover/domain/watch_suggestions.dart';
 import '../features/discover/presentation/discover_screen.dart';
 import '../features/discover/presentation/what_to_watch_screen.dart';
+import '../features/settings/presentation/language_screen.dart';
 import '../features/watch/presentation/subscriptions_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/import/application/import_movie_search_controller.dart';
@@ -150,6 +151,11 @@ final appRouter = GoRouter(
                 },
         );
       },
+    ),
+    GoRoute(
+      path: '/settings/language',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const LanguageScreen(),
     ),
     GoRoute(
       path: '/settings/streaming',

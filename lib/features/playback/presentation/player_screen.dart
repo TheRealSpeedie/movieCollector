@@ -12,18 +12,16 @@ import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../remote/application/remote_providers.dart';
 import '../../remote/domain/remote_models.dart';
-import '../../../core/database/app_database.dart';
-import '../../../core/providers/core_providers.dart';
-import '../../personal/data/personal_state_repository.dart';
 import '../../server/application/server_providers.dart';
 import '../../sync/application/sync_providers.dart';
-import '../../watch/application/watch_providers.dart';
+import '../application/playback_hooks.dart';
 import '../../server/data/server_client.dart';
 import '../../server/domain/server_models.dart';
 import '../data/playback_api.dart';
 import '../domain/play_request.dart';
 import '../domain/playback_session.dart';
 import 'player_controls.dart';
+import 'subtitle_sheets.dart';
 
 class PlayerScreen extends ConsumerStatefulWidget {
   const PlayerScreen({super.key, required this.request});
@@ -61,27 +59,34 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   late final _bridge = ref.read(playerBridgeProvider.notifier);
   // Read in initState: ref cannot be used any more when dispose records the
   // viewing.
-  late final PersonalStateRepository _personal;
-  late final AppDatabase _db;
+  Future<void> Function(int tmdbId)? _recordViewingOf;
+  Map<String, Object?>? _preferences;
   int? _tmdbId;
+
+  /// The subtitle chosen by the server or the user; re-applied after a
+  /// restart (quality or audio change). "none" turns subtitles off.
+  String? _subtitleKey;
+  bool _tracksChosen = false;
+  ExternalSubtitle? _currentExternal;
+  double _subtitleDelay = 0;
 
   /// A film watched to 90 % is recorded as seen in the collection too, so
   /// suggestions and "unwatched" lists agree with the server.
   Future<void> _recordViewing() async {
     final tmdbId = _tmdbId;
-    if (widget.request.episodeId != null || tmdbId == null) return;
+    final record = _recordViewingOf;
+    if (widget.request.episodeId != null || tmdbId == null || record == null) {
+      return;
+    }
     if (_totalSeconds <= 0 || _currentSeconds / _totalSeconds < 0.9) return;
-    final movie = await (_db.select(
-      _db.movies,
-    )..where((t) => t.tmdbId.equals(tmdbId))).getSingleOrNull();
-    if (movie != null) await _personal.recordViewing(movieSubject(movie.id));
+    await record(tmdbId);
   }
 
   @override
   void initState() {
     super.initState();
-    _personal = ref.read(personalStateRepositoryProvider);
-    _db = ref.read(appDatabaseProvider);
+    _recordViewingOf = ref.read(viewingRecorderProvider);
+    _preferences = ref.read(playbackPreferencesProvider);
     // The server film list may still be loading; take the id once it is there.
     ref.listenManual(serverMoviesProvider, (_, next) {
       _tmdbId ??= next.valueOrNull
@@ -207,6 +212,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         startSeconds: startSeconds,
         audioStream: _audioStream,
         requestedHeight: _requestedHeight,
+        preferences: _preferences,
       );
       _session = session;
       final headers = await _client.authHeaders();
@@ -219,7 +225,8 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
               : null,
         ),
       );
-      await _setProperty('sub-delay', (-session.offsetSeconds).toString());
+      await _applyDelay();
+      await _applyTracks(session);
       _startTimers();
       if (mounted) setState(() => _loading = false);
       _scheduleHide();
@@ -357,6 +364,8 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         selectedAudio: _player.state.track.audio,
         selectedSubtitle: _player.state.track.subtitle,
         audioStream: _audioStream,
+        currentExternal: _currentExternal,
+        reason: session.trackReason,
       ),
     );
     if (choice == null) return;
@@ -364,22 +373,147 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
       case EmbeddedAudio(:final track):
         await _player.setAudioTrack(track);
       case EmbeddedSubtitle(:final track):
+        _currentExternal = null;
+        _subtitleKey = track.id == 'no' ? 'none' : null;
         await _player.setSubtitleTrack(track);
       case ServerAudio(:final stream):
         _audioStream = stream;
         await _restart();
       case ServerSubtitle(:final stream):
-        await _player.setSubtitleTrack(
-          stream == null
-              ? mk.SubtitleTrack.no()
-              : mk.SubtitleTrack.uri(
-                  _client.url('/api/files/${file.id}/subtitles/$stream'),
-                  title: file.subtitleTracks
-                      .firstWhere((t) => t.index == stream)
-                      .label,
-                ),
+        _subtitleKey = stream == null ? 'none' : 's$stream';
+        await _applySubtitle(_subtitleKey);
+      case ExternalSubtitleChoice(:final subtitle):
+        _subtitleKey = 'x${subtitle.id}';
+        await _applySubtitle(_subtitleKey);
+      case SearchSubtitlesChoice():
+        await _searchSubtitles(file);
+      case SubtitleDelayChoice():
+        if (!mounted) return;
+        final delay = await showModalBottomSheet<double>(
+          context: context,
+          builder: (_) => SubtitleDelaySheet(delay: _subtitleDelay),
         );
+        if (delay == null) return;
+        _subtitleDelay = delay;
+        await _applyDelay();
+      case ReportSubtitleChoice(:final subtitle):
+        await _api.reportSubtitle(file.id, subtitle.id);
+        _file = await _loadFile();
+        _subtitleKey = 'none';
+        await _applySubtitle(_subtitleKey);
     }
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _applyDelay() => _setProperty(
+    'sub-delay',
+    (_subtitleDelay - (_session?.offsetSeconds ?? 0)).toString(),
+  );
+
+  /// Applies the server's choice on the first start and the user's choice
+  /// after a restart.
+  Future<void> _applyTracks(PlaybackSession session) async {
+    final file = _file;
+    if (file == null) return;
+    if (!_tracksChosen) {
+      _tracksChosen = true;
+      _subtitleKey = session.subtitleKey ?? 'none';
+      final audio = session.audioKey;
+      if (audio != null && audio.startsWith('s')) {
+        final index = int.parse(audio.substring(1));
+        if (session.isDirect) {
+          final position = file.audioTracks.indexWhere((t) => t.index == index);
+          final tracks = await _embedded((t) => t.audio, (t) => t.id);
+          if (position >= 0 && position < tracks.length) {
+            await _player.setAudioTrack(tracks[position]);
+          }
+        } else {
+          _audioStream = index;
+        }
+      }
+    }
+    await _applySubtitle(_subtitleKey);
+  }
+
+  /// Waits briefly until the player knows the file's own tracks.
+  Future<List<T>> _embedded<T>(
+    List<T> Function(mk.Tracks t) pick,
+    String Function(T track) id,
+  ) async {
+    List<T> real(mk.Tracks tracks) =>
+        pick(tracks).where((t) => id(t) != 'auto' && id(t) != 'no').toList();
+
+    final tracks = real(_player.state.tracks);
+    if (tracks.isNotEmpty) return tracks;
+    try {
+      return await _player.stream.tracks
+          .map(real)
+          .firstWhere((list) => list.isNotEmpty)
+          .timeout(const Duration(seconds: 3));
+    } on TimeoutException {
+      return const [];
+    }
+  }
+
+  Future<void> _applySubtitle(String? key) async {
+    final file = _file;
+    final session = _session;
+    if (file == null || session == null || key == null) return;
+    _currentExternal = null;
+    if (key == 'none') {
+      await _player.setSubtitleTrack(mk.SubtitleTrack.no());
+      return;
+    }
+    final id = int.parse(key.substring(1));
+    if (key.startsWith('x')) {
+      final subtitle = file.externalSubtitles
+          .where((s) => s.id == id)
+          .firstOrNull;
+      if (subtitle == null) return;
+      _currentExternal = subtitle;
+      await _player.setSubtitleTrack(
+        mk.SubtitleTrack.uri(
+          _client.url('/api/files/${file.id}/external-subtitles/$id'),
+          title: subtitle.label,
+        ),
+      );
+      return;
+    }
+    final track = file.subtitleTracks.where((t) => t.index == id).firstOrNull;
+    if (track == null) return;
+    if (track.text) {
+      await _player.setSubtitleTrack(
+        mk.SubtitleTrack.uri(
+          _client.url('/api/files/${file.id}/subtitles/$id'),
+          title: track.label,
+        ),
+      );
+    } else if (session.isDirect) {
+      // Picture subtitles only play from the file itself.
+      final position = file.subtitleTracks.indexOf(track);
+      final tracks = await _embedded((t) => t.subtitle, (t) => t.id);
+      if (position < tracks.length) {
+        await _player.setSubtitleTrack(tracks[position]);
+      }
+    }
+  }
+
+  Future<void> _searchSubtitles(MediaFileInfo file) async {
+    final language =
+        (_preferences?['subtitleLanguage'] as String?) ??
+        ((_preferences?['audioLanguages'] as List?)?.firstOrNull as String?) ??
+        'de';
+    final subtitle = await showModalBottomSheet<ExternalSubtitle>(
+      context: context,
+      isScrollControlled: true,
+      builder: (_) =>
+          SubtitleSearchSheet(api: _api, fileId: file.id, language: language),
+    );
+    if (subtitle == null) return;
+    _file = await _loadFile();
+    _subtitleKey = 'x${subtitle.id}';
+    await _applySubtitle(_subtitleKey);
+    if (mounted) setState(() {});
   }
 
   Future<void> _chooseQuality() async {

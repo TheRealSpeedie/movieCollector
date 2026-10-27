@@ -85,6 +85,44 @@ class SubtitleTrack {
   }
 }
 
+/// A subtitle file next to the video or downloaded from a provider.
+class ExternalSubtitle {
+  const ExternalSubtitle({
+    required this.id,
+    required this.language,
+    required this.forced,
+    required this.hearingImpaired,
+    required this.source,
+    required this.fileName,
+  });
+
+  factory ExternalSubtitle.fromJson(Map<String, dynamic> json) =>
+      ExternalSubtitle(
+        id: json['id'] as int,
+        language: json['language'] as String?,
+        forced: json['forced'] as bool? ?? false,
+        hearingImpaired: json['hearingImpaired'] as bool? ?? false,
+        source: json['source'] as String? ?? 'sidecar',
+        fileName: json['fileName'] as String? ?? '',
+      );
+
+  final int id;
+  final String? language;
+  final bool forced;
+  final bool hearingImpaired;
+  final String source;
+  final String fileName;
+
+  bool get downloaded => source != 'sidecar';
+
+  String get label => [
+    language ?? 'Untertitel',
+    if (forced) '(erzwungen)',
+    if (hearingImpaired) '(für Hörgeschädigte)',
+    downloaded ? '· heruntergeladen' : '· Datei',
+  ].join(' ');
+}
+
 class MediaFileInfo {
   const MediaFileInfo({
     required this.id,
@@ -99,6 +137,7 @@ class MediaFileInfo {
     required this.durationSeconds,
     required this.audioTracks,
     required this.subtitleTracks,
+    this.externalSubtitles = const [],
   });
 
   factory MediaFileInfo.fromJson(Map<String, dynamic> json) => MediaFileInfo(
@@ -120,6 +159,10 @@ class MediaFileInfo {
       for (final t in json['subtitleTracks'] as List? ?? [])
         SubtitleTrack.fromJson(t as Map<String, dynamic>),
     ],
+    externalSubtitles: [
+      for (final t in json['externalSubtitles'] as List? ?? [])
+        ExternalSubtitle.fromJson(t as Map<String, dynamic>),
+    ],
   );
 
   final int id;
@@ -134,6 +177,7 @@ class MediaFileInfo {
   final double durationSeconds;
   final List<AudioTrack> audioTracks;
   final List<SubtitleTrack> subtitleTracks;
+  final List<ExternalSubtitle> externalSubtitles;
 
   String get label => [
     if (quality.isNotEmpty) quality,
