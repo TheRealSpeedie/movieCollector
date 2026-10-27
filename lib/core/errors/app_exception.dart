@@ -82,3 +82,16 @@ class ServerRejectedException extends AppException {
 class PairingFailedException extends AppException {
   const PairingFailedException(super.message);
 }
+
+class CloudUnreachableException extends AppException {
+  const CloudUnreachableException()
+    : super(
+        'Movie Shelf Cloud ist gerade nicht erreichbar. Deine Änderungen bleiben auf dem Gerät und werden später übertragen.',
+      );
+}
+
+/// The Movie Shelf Cloud subscription ended: changes stay on the device until
+/// it is renewed. Reading and export keep working.
+class CloudSubscriptionException extends AppException {
+  const CloudSubscriptionException(super.message);
+}

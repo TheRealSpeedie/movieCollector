@@ -126,6 +126,12 @@ test where practical — not just that a placeholder exists.
   code and plugin registration. See the note under "Known limitations" regarding running on
   an actual device/emulator.
 
+- **Movie Shelf Cloud** — `lib/features/cloud/`: account screen (`/cloud`) for sign-up,
+  sign-in, email verification, password reset, subscription state, devices, export, sign-out
+  and deletion; `CloudSyncProvider` uses the same sync protocol as the home server. The Cloud
+  option in onboarding and Daten & Synchronisation appears when the build sets `CLOUD_URL`
+  in `env.json`. Tests: `test/features/cloud/`.
+
 ## Partially implemented
 
 - **Sammlung filters** — status filtering and sorting are fully wired into the UI.
@@ -159,7 +165,7 @@ test where practical — not just that a placeholder exists.
 ## Not implemented / future (explicitly out of scope for v1, per the brief)
 
 - Manual/custom collection creation and editing UI.
-- Movie Shelf Cloud (planned, see the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md), phase 4).
+- Buying a Movie Shelf Cloud subscription in the app (store purchases are not implemented; the operator sets subscriptions, see the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md), phase 4).
 - Statistics/analytics screens.
 - Lending-to-friends tracking.
 - Notifications for collection insights (shown on Home only).

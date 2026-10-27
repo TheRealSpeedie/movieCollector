@@ -13,8 +13,13 @@ class Env {
   );
   static const String upcmdbApiKey = String.fromEnvironment('UPCMDB_API_KEY');
 
+  /// Address of Movie Shelf Cloud, for example https://cloud.example.org.
+  /// Builds without it offer only local storage and the own server.
+  static const String cloudUrl = String.fromEnvironment('CLOUD_URL');
+
   static bool get isTmdbConfigured => tmdbAccessToken.trim().isNotEmpty;
   static bool get isUpcItemDbProConfigured =>
       upcItemDbUserKey.trim().isNotEmpty;
   static bool get isUpcmdbConfigured => upcmdbApiKey.trim().isNotEmpty;
+  static bool get isCloudConfigured => cloudUrl.trim().isNotEmpty;
 }

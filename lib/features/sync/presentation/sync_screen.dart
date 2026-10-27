@@ -11,11 +11,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../../core/database/app_database.dart';
+import '../../../core/errors/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/collection_records.dart';
 import '../../../core/sync/sync_provider.dart';
 import '../../backup/application/backup_providers.dart';
 import '../../backup/data/backup_service.dart';
+import '../../cloud/application/cloud_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
@@ -36,7 +38,7 @@ class SyncScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         children: [
           _StorageSection(current: storage),
-          if (storage == CollectionStorage.selfHosted) ...[
+          if (storage != CollectionStorage.local) ...[
             const SizedBox(height: 24),
             const _SyncStatusSection(),
           ],
@@ -57,6 +59,8 @@ class _StorageSection extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final hasServer = ref.watch(serverClientProvider) != null;
+    final cloud = ref.watch(cloudAvailableProvider);
+    final cloudSession = ref.watch(cloudAccountProvider).valueOrNull;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -84,21 +88,46 @@ class _StorageSection extends ConsumerWidget {
                       ? 'Abgleich über deinen Heimserver im eigenen Netzwerk.'
                       : 'Verbinde zuerst einen Movie Shelf Server.',
                 CollectionStorage.cloud =>
-                  'Bald verfügbar: Abgleich ohne eigenen Server.',
+                  !cloud
+                      ? 'In dieser Version nicht verfügbar.'
+                      : cloudSession == null
+                      ? 'Abgleich ohne eigenen Server. Anmelden oder Konto erstellen.'
+                      : 'Abgleich über Movie Shelf Cloud als ${cloudSession.email}.',
               }),
               enabled:
                   option != current &&
-                  option != CollectionStorage.cloud &&
+                  (option != CollectionStorage.cloud || cloud) &&
                   (option != CollectionStorage.selfHosted || hasServer),
-              onTap: () => _confirmMove(context, ref, option),
+              onTap: () async {
+                if (option == CollectionStorage.cloud && cloudSession == null) {
+                  final signedIn = await context.push<bool>('/cloud');
+                  if (signedIn != true || !context.mounted) return;
+                }
+                await _confirmMove(context, ref, option);
+              },
             ),
           ),
-        if (!hasServer)
-          TextButton.icon(
-            onPressed: () => context.push('/server'),
-            icon: const Icon(Icons.dns_outlined),
-            label: const Text('Server verbinden'),
-          ),
+        Wrap(
+          spacing: 8,
+          children: [
+            if (!hasServer)
+              TextButton.icon(
+                onPressed: () => context.push('/server'),
+                icon: const Icon(Icons.dns_outlined),
+                label: const Text('Server verbinden'),
+              ),
+            if (cloud)
+              TextButton.icon(
+                onPressed: () => context.push('/cloud'),
+                icon: const Icon(Icons.cloud_outlined),
+                label: Text(
+                  cloudSession == null
+                      ? 'Cloud-Konto'
+                      : 'Cloud-Konto verwalten',
+                ),
+              ),
+          ],
+        ),
       ],
     );
   }
@@ -193,14 +222,18 @@ class _SyncStatusSection extends ConsumerWidget {
               )
             : Icon(sync.hasError ? Icons.cloud_off : Icons.cloud_done_outlined),
         title: Text(
-          sync.hasError
-              ? 'Server gerade nicht erreichbar'
+          sync.error is CloudSubscriptionException
+              ? 'Cloud-Abo abgelaufen'
+              : sync.hasError
+              ? 'Gerade nicht erreichbar'
               : report == null
               ? 'Noch nicht abgeglichen'
               : 'Abgeglichen ${DateFormat.Hm().format(report.at)}',
         ),
         subtitle: Text(
-          sync.hasError
+          sync.error is CloudSubscriptionException
+              ? 'Deine Sammlung bleibt hier und lässt sich exportieren. Neue Änderungen werden nach einer Verlängerung abgeglichen.'
+              : sync.hasError
               ? 'Änderungen bleiben auf dem Gerät und werden später übertragen.'
               : report == null
               ? ''

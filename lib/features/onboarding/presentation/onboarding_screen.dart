@@ -6,6 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/media_format.dart';
 import '../../../core/providers/core_providers.dart';
+import '../../cloud/application/cloud_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
@@ -73,12 +74,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Future<void> _start(String location) async {
-    if (_storage == CollectionStorage.selfHosted &&
-        ref.read(serverClientProvider) != null) {
+    final ready = switch (_storage) {
+      CollectionStorage.selfHosted => ref.read(serverClientProvider) != null,
+      CollectionStorage.cloud => ref.read(cloudSyncProvider) != null,
+      CollectionStorage.local => false,
+    };
+    if (ready) {
       try {
-        await ref
-            .read(storageMigrationProvider)
-            .migrate(CollectionStorage.selfHosted);
+        await ref.read(storageMigrationProvider).migrate(_storage);
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(
@@ -88,6 +91,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       }
     }
     await _finish(location);
+  }
+
+  /// Cloud needs an account first; the move itself happens in [_start].
+  Future<void> _chooseCloud() async {
+    if (ref.read(cloudAccountProvider).valueOrNull == null) {
+      await context.push<bool>('/cloud');
+      if (!mounted || ref.read(cloudAccountProvider).valueOrNull == null) {
+        return;
+      }
+    }
+    setState(() => _storage = CollectionStorage.cloud);
   }
 
   @override
@@ -186,9 +200,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         title: Text(value.label),
         subtitle: Text(text),
-        onTap: () => setState(() => _storage = value),
+        onTap: () => value == CollectionStorage.cloud
+            ? _chooseCloud()
+            : setState(() => _storage = value),
       ),
     );
+    final cloud = ref.watch(cloudAvailableProvider);
     return _step(
       title: 'Wo soll deine Sammlung liegen?',
       text:
@@ -200,8 +217,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         option(
           CollectionStorage.cloud,
-          'Bald verfügbar: automatischer Abgleich zwischen deinen Geräten.',
-          enabled: false,
+          cloud
+              ? 'Automatischer Abgleich zwischen deinen Geräten, ohne eigenen '
+                    'Server. 30 Tage kostenlos.'
+              : 'In dieser Version nicht verfügbar.',
+          enabled: cloud,
         ),
         option(
           CollectionStorage.selfHosted,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/cloud/presentation/cloud_account_screen.dart';
 import '../features/collection/presentation/collection_screen.dart';
 import '../features/collections/presentation/collection_detail_screen.dart';
 import '../features/collections/presentation/collections_screen.dart';
@@ -166,6 +167,11 @@ final appRouter = GoRouter(
       path: '/sync',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const SyncScreen(),
+    ),
+    GoRoute(
+      path: '/cloud',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const CloudAccountScreen(),
     ),
     GoRoute(
       path: '/collections/:id',

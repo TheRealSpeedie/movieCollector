@@ -8,6 +8,7 @@ import '../../../core/database/app_database.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/sync_provider.dart';
+import '../../cloud/application/cloud_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/data/library_repository.dart';
 import '../../server/domain/server_models.dart';
@@ -21,12 +22,12 @@ final selfHostedSyncProvider = Provider<CollectionSyncProvider?>((ref) {
   return client == null ? null : SelfHostedSyncProvider(client);
 });
 
-/// The provider the collection syncs with now. Local only has none; Movie
-/// Shelf Cloud is not available yet.
+/// The provider the collection syncs with now. Local only has none.
 final activeSyncProvider = Provider<CollectionSyncProvider?>((ref) {
   return switch (ref.watch(collectionStorageProvider)) {
     CollectionStorage.selfHosted => ref.watch(selfHostedSyncProvider),
-    CollectionStorage.local || CollectionStorage.cloud => null,
+    CollectionStorage.cloud => ref.watch(cloudSyncProvider),
+    CollectionStorage.local => null,
   };
 });
 
