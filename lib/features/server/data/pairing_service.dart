@@ -31,6 +31,7 @@ class PairingService {
     bool Function()? isCancelled,
   }) async {
     onProgress?.call(PairingProgress.verifying);
+    link.pinCertificate();
     final identity = await verifyServerIdentity(
       dio,
       link.baseUrl,
@@ -95,6 +96,14 @@ class PairingService {
       );
       final data = response.data!;
       final link = PairingLink.parse(data['link'] as String);
+      // This link arrived over plain HTTP; its certificate is only trusted
+      // when the signed identity response names the same one.
+      if (link.certificateSha256 != identity.certificateSha256) {
+        throw const PairingFailedException(
+          'Das Zertifikat des Servers stimmt nicht mit seiner Kennung überein.',
+        );
+      }
+      link.pinCertificate();
       if (link.fingerprint != identity.fingerprint) {
         throw const PairingFailedException(
           'Die Server-Kennung stimmt nicht mit dem Kopplungscode überein.',
@@ -159,6 +168,8 @@ class PairingService {
       userId: bundle['userId'] as int,
       username: bundle['username'] as String,
       role: bundle['role'] as String,
+      securePort: link.securePort,
+      certificateSha256: link.certificateSha256,
     );
   }
 

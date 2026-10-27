@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:movie_shelf/features/server/data/certificate_pins.dart';
 import 'package:movie_shelf/features/server/data/pairing_link.dart';
 import 'package:movie_shelf/features/server/data/pairing_service.dart';
 import 'package:movie_shelf/features/server/data/server_client.dart';
@@ -22,6 +23,8 @@ class Admin {
   final _dio = Dio(BaseOptions(validateStatus: (_) => true));
 
   static Future<Admin> login() async {
+    // Like the apps: trust the server certificate named in pairing codes.
+    CertificatePins.install();
     final dio = Dio();
     final response = await dio.post<dynamic>(
       '$serverUrl/api/auth/login',

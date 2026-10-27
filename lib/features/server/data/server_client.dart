@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 
 import '../../../core/errors/app_exception.dart';
 import 'credential_store.dart';
+import 'certificate_pins.dart';
 import 'server_credentials.dart';
 import 'server_discovery.dart';
 import 'server_identity.dart';
@@ -28,7 +29,39 @@ class ServerClient {
        _store = store,
        _discovery = discovery,
        _dio = dio ?? buildServerDio(),
-       _now = now ?? DateTime.now;
+       _now = now ?? DateTime.now {
+    _pin(credentials);
+  }
+
+  static void _pin(ServerCredentials c) {
+    if (c.secure) {
+      CertificatePins.instance.pin(c.host, c.securePort!, c.certificateSha256!);
+    }
+  }
+
+  /// Pairings made before the server offered HTTPS learn its certificate from
+  /// the signed identity response and switch to HTTPS. Best effort.
+  Future<void> upgradeToHttps() async {
+    if (_credentials.secure) return;
+    try {
+      final identity = await verifyServerIdentity(
+        _dio,
+        _credentials.baseUrl,
+        _credentials.fingerprint,
+      );
+      if (identity.securePort == null || identity.certificateSha256 == null) {
+        return;
+      }
+      _credentials = _credentials.copyWith(
+        securePort: identity.securePort,
+        certificateSha256: identity.certificateSha256,
+      );
+      _pin(_credentials);
+      await _store.save(_credentials);
+    } on AppException {
+      return;
+    }
+  }
 
   static const _margin = Duration(seconds: 30);
 
@@ -154,12 +187,23 @@ class ServerClient {
         (match.host == _credentials.host && match.port == _credentials.port)) {
       return false;
     }
+    ServerIdentityInfo identity;
     try {
-      await verifyServerIdentity(_dio, match.baseUrl, _credentials.fingerprint);
+      identity = await verifyServerIdentity(
+        _dio,
+        match.baseUrl,
+        _credentials.fingerprint,
+      );
     } on AppException {
       return false;
     }
-    _credentials = _credentials.copyWith(host: match.host, port: match.port);
+    _credentials = _credentials.copyWith(
+      host: match.host,
+      port: match.port,
+      securePort: identity.securePort,
+      certificateSha256: identity.certificateSha256,
+    );
+    _pin(_credentials);
     _accessToken = null;
     await _store.save(_credentials);
     return true;

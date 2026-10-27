@@ -1,4 +1,5 @@
 import '../../../core/errors/app_exception.dart';
+import 'certificate_pins.dart';
 import 'pairing_crypto.dart';
 
 class PairingLink {
@@ -12,6 +13,8 @@ class PairingLink {
     required this.fingerprint,
     required this.serverId,
     required this.serverName,
+    this.securePort,
+    this.certificateSha256,
   });
 
   final String mode;
@@ -24,7 +27,22 @@ class PairingLink {
   final String serverId;
   final String serverName;
 
-  String get baseUrl => '${tls ? 'https' : 'http'}://$host:$port';
+  /// HTTPS port and certificate from the QR code, which is the trusted
+  /// channel: pairing already runs encrypted when they are present.
+  final int? securePort;
+  final String? certificateSha256;
+
+  bool get secure => securePort != null && certificateSha256 != null;
+
+  String get baseUrl =>
+      secure ? 'https://$host:$securePort' : 'http://$host:$port';
+
+  /// Trusts the certificate named in the QR code for this server.
+  void pinCertificate() {
+    if (secure) {
+      CertificatePins.instance.pin(host, securePort!, certificateSha256!);
+    }
+  }
 
   static bool looksLikePairingLink(String value) =>
       value.trim().startsWith('movieshelf://pair');
@@ -66,6 +84,8 @@ class PairingLink {
         fingerprint: fingerprint,
         serverId: query['id'] ?? '',
         serverName: query['n'] ?? 'Movie Shelf',
+        securePort: int.tryParse(query['sp'] ?? ''),
+        certificateSha256: query['cfp'],
       );
     } on FormatException {
       throw const PairingFailedException(

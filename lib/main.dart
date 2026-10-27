@@ -7,6 +7,7 @@ import 'app/app.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'features/onboarding/application/onboarding_gate.dart';
 import 'features/playback/application/playback_hooks.dart';
+import 'features/server/data/certificate_pins.dart';
 import 'features/settings/application/settings_providers.dart';
 import 'features/settings/data/settings_repository.dart';
 import 'features/watch/application/watch_providers.dart';
@@ -14,6 +15,7 @@ import 'features/watch/application/watch_providers.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   MediaKit.ensureInitialized();
+  CertificatePins.install();
   final prefs = await SharedPreferences.getInstance();
   onboardingGate.value = SettingsRepository(prefs).onboardingDone;
 

@@ -12,6 +12,8 @@ class DiscoveredServer {
     required this.serverId,
     required this.fingerprint,
     required this.tls,
+    this.securePort,
+    this.certificateSha256,
   });
 
   final String name;
@@ -20,8 +22,12 @@ class DiscoveredServer {
   final String serverId;
   final String fingerprint;
   final bool tls;
+  final int? securePort;
+  final String? certificateSha256;
 
-  String get baseUrl => '${tls ? 'https' : 'http'}://$host:$port';
+  /// Plain HTTP: what mDNS says about the certificate is not trusted until
+  /// the signed identity response confirms it.
+  String get baseUrl => 'http://$host:$port';
 }
 
 abstract class ServerDiscovery {
@@ -100,6 +106,8 @@ class MdnsServerDiscovery implements ServerDiscovery {
       serverId: properties['id']!,
       fingerprint: properties['fp'] ?? '',
       tls: properties['tls'] == '1',
+      securePort: int.tryParse(properties['sp'] ?? ''),
+      certificateSha256: properties['cfp'],
     );
   }
 
