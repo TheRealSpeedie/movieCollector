@@ -5,6 +5,7 @@ import '../../../core/sync/collection_records.dart';
 import '../../../core/sync/sync_engine.dart';
 import '../../../core/sync/sync_provider.dart';
 import '../../backup/application/backup_providers.dart';
+import '../../cloud/application/cloud_providers.dart';
 import '../../backup/data/backup_service.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
@@ -59,11 +60,6 @@ class StorageMigration {
     final storage = _ref.read(collectionStorageProvider.notifier);
     final current = _ref.read(collectionStorageProvider);
     if (current == target) return;
-    if (target == CollectionStorage.cloud) {
-      throw const MigrationException(
-        'Movie Shelf Cloud ist noch nicht verfügbar.',
-      );
-    }
 
     await _backup.saveSnapshot('vor-umzug-${target.name}');
 
@@ -78,8 +74,10 @@ class StorageMigration {
 
     final destination = _provider(target);
     if (destination == null) {
-      throw const MigrationException(
-        'Verbinde zuerst einen Movie Shelf Server.',
+      throw MigrationException(
+        target == CollectionStorage.cloud
+            ? 'Melde dich zuerst bei Movie Shelf Cloud an.'
+            : 'Verbinde zuerst einen Movie Shelf Server.',
       );
     }
     final engine = SyncEngine(_ref.read(appDatabaseProvider), destination);
@@ -118,7 +116,8 @@ class StorageMigration {
   CollectionSyncProvider? _provider(CollectionStorage target) =>
       switch (target) {
         CollectionStorage.selfHosted => _ref.read(selfHostedSyncProvider),
-        _ => null,
+        CollectionStorage.cloud => _ref.read(cloudSyncProvider),
+        CollectionStorage.local => null,
       };
 }
 

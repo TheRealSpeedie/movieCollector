@@ -74,6 +74,9 @@ compile-time environment variables (`String.fromEnvironment`), supplied through 
    - `UPCITEMDB_USER_KEY` / `UPCITEMDB_KEY_TYPE` — optional. Leave empty to use UPCitemdb's
      free, rate-limited "trial" tier (no signup needed). Only fill these in if you've signed
      up for UPCitemdb's paid tier — see [docs/APIS.md](APIS.md).
+   - `CLOUD_URL` — optional. Address of a Movie Shelf Cloud service, for example
+     `https://cloud.example.org`. Without it the app offers only local storage and your own
+     server. Running the service is described in `movieshelf_server/docs/CLOUD.md`.
 
 `env.json` is already listed in `.gitignore`, so it will never be committed.
 

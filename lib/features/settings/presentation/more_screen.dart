@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_colors.dart';
 import '../../../shared/models/collection_status.dart';
+import '../../cloud/application/cloud_providers.dart';
 import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/collections_providers.dart';
 import '../../server/application/server_providers.dart';
@@ -18,6 +19,8 @@ class MoreScreen extends ConsumerWidget {
     final missingCount = ref.watch(totalMissingCountProvider);
 
     final server = ref.watch(serverSessionProvider).valueOrNull;
+    final cloud = ref.watch(cloudAvailableProvider);
+    final cloudSession = ref.watch(cloudAccountProvider).valueOrNull;
     final storage = ref.watch(collectionStorageProvider);
     final conflicts = ref.watch(syncConflictsProvider).valueOrNull?.length ?? 0;
 
@@ -42,6 +45,23 @@ class MoreScreen extends ConsumerWidget {
               onTap: () => context.push('/sync'),
             ),
           ),
+          if (cloud) ...[
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: Icon(
+                  Icons.cloud_outlined,
+                  color: cloudSession == null
+                      ? AppColors.neutralGray
+                      : AppColors.sage,
+                ),
+                title: const Text('Movie Shelf Cloud'),
+                subtitle: Text(cloudSession?.email ?? 'Nicht angemeldet'),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                onTap: () => context.push('/cloud'),
+              ),
+            ),
+          ],
           const SizedBox(height: 12),
           Card(
             child: ListTile(
