@@ -7,6 +7,9 @@ class PlaybackSession {
     required this.url,
     required this.offsetSeconds,
     required this.durationSeconds,
+    this.audioKey,
+    this.subtitleKey,
+    this.trackReason,
   });
 
   factory PlaybackSession.fromJson(Map<String, dynamic> json) =>
@@ -18,6 +21,9 @@ class PlaybackSession {
         url: json['url'] as String,
         offsetSeconds: (json['offsetSeconds'] as num).toDouble(),
         durationSeconds: (json['durationSeconds'] as num?)?.toDouble() ?? 0,
+        audioKey: (json['tracks'] as Map?)?['audio'] as String?,
+        subtitleKey: (json['tracks'] as Map?)?['subtitle'] as String?,
+        trackReason: (json['tracks'] as Map?)?['reason'] as String?,
       );
 
   final String id;
@@ -27,6 +33,12 @@ class PlaybackSession {
   final String url;
   final double offsetSeconds;
   final double durationSeconds;
+
+  /// Tracks the server chose from the language preferences: "s3" is stream
+  /// 3 of the file, "x12" the external subtitle 12.
+  final String? audioKey;
+  final String? subtitleKey;
+  final String? trackReason;
 
   bool get isDirect => mode == 'DirectPlay';
 

@@ -32,6 +32,27 @@ class ServerSubtitle extends TrackChoice {
   final int? stream;
 }
 
+class ExternalSubtitleChoice extends TrackChoice {
+  const ExternalSubtitleChoice(this.subtitle);
+
+  final ExternalSubtitle subtitle;
+}
+
+class SearchSubtitlesChoice extends TrackChoice {
+  const SearchSubtitlesChoice();
+}
+
+class SubtitleDelayChoice extends TrackChoice {
+  const SubtitleDelayChoice();
+}
+
+/// The shown subtitle file does not fit; hide it (and delete a download).
+class ReportSubtitleChoice extends TrackChoice {
+  const ReportSubtitleChoice(this.subtitle);
+
+  final ExternalSubtitle subtitle;
+}
+
 class QualityChoice {
   const QualityChoice(this.height);
 
@@ -202,6 +223,8 @@ class TrackSheet extends StatelessWidget {
     required this.selectedAudio,
     required this.selectedSubtitle,
     required this.audioStream,
+    this.currentExternal,
+    this.reason,
   });
 
   final MediaFileInfo file;
@@ -211,6 +234,12 @@ class TrackSheet extends StatelessWidget {
   final mk.AudioTrack selectedAudio;
   final mk.SubtitleTrack selectedSubtitle;
   final int? audioStream;
+
+  /// The subtitle file shown right now, if any.
+  final ExternalSubtitle? currentExternal;
+
+  /// Why the server chose the tracks it started with.
+  final String? reason;
 
   static String _embeddedLabel(String id, String? title, String? language) {
     final name = title?.isNotEmpty == true ? title! : language;
@@ -230,6 +259,7 @@ class TrackSheet extends StatelessWidget {
         shrinkWrap: true,
         padding: const EdgeInsets.symmetric(vertical: 8),
         children: [
+          if (reason != null) _SheetNote(reason!),
           const _SheetTitle('Ton'),
           if (direct && audio.isEmpty || !direct && file.audioTracks.isEmpty)
             const _SheetNote('Diese Datei hat nur eine Tonspur.'),
@@ -308,6 +338,43 @@ class TrackSheet extends StatelessWidget {
                 'Bildbasierte Untertitel sind bei umgewandelter Wiedergabe nicht verfügbar.',
               ),
           ],
+          for (final subtitle in file.externalSubtitles)
+            ListTile(
+              leading: Icon(
+                subtitle.id == currentExternal?.id
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_off,
+                color: AppColors.dustyRose,
+              ),
+              title: Text(subtitle.label),
+              onTap: () =>
+                  Navigator.of(context).pop(ExternalSubtitleChoice(subtitle)),
+            ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.search),
+            title: const Text('Untertitel suchen …'),
+            onTap: () =>
+                Navigator.of(context).pop(const SearchSubtitlesChoice()),
+          ),
+          ListTile(
+            leading: const Icon(Icons.timer_outlined),
+            title: const Text('Untertitel verschieben'),
+            onTap: () => Navigator.of(context).pop(const SubtitleDelayChoice()),
+          ),
+          if (currentExternal != null)
+            ListTile(
+              leading: const Icon(Icons.report_outlined),
+              title: const Text('Diese Untertitel passen nicht'),
+              subtitle: Text(
+                currentExternal!.downloaded
+                    ? 'Wird gelöscht und nicht mehr angeboten.'
+                    : 'Wird ausgeblendet. Die Datei bleibt erhalten.',
+              ),
+              onTap: () => Navigator.of(
+                context,
+              ).pop(ReportSubtitleChoice(currentExternal!)),
+            ),
         ],
       ),
     );
