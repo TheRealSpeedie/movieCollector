@@ -150,7 +150,7 @@ test where practical — not just that a placeholder exists.
 ## Not implemented / future (explicitly out of scope for v1, per the brief)
 
 - Manual/custom collection creation and editing UI.
-- Movie Shelf Cloud (planned, see `../../ROADMAP.md`, phase 4).
+- Movie Shelf Cloud (planned, see the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md), phase 4).
 - Statistics/analytics screens.
 - Lending-to-friends tracking.
 - Notifications for collection insights (shown on Home only).

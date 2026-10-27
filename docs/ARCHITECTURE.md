@@ -6,7 +6,7 @@
 used to *enrich* data (metadata, collection info) and to *resolve* unknown barcodes/titles.
 A failed API call must never delete, corrupt, or hide anything the user already saved
 locally. A sync provider (the user's own server today, Movie Shelf Cloud later) holds a
-copy for other devices; it never replaces the local collection. See `../../ROADMAP.md`.
+copy for other devices; it never replaces the local collection. See the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md).
 
 ## Ownership and sync
 
