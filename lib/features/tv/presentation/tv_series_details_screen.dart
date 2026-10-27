@@ -12,6 +12,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../../shared/widgets/status_chip.dart';
+import '../../editions/presentation/copies_section.dart';
 import '../../personal/data/personal_state_repository.dart';
 import '../../personal/presentation/personal_section.dart';
 import '../../watch/presentation/where_to_watch_section.dart';
@@ -185,9 +186,10 @@ class _SeriesBody extends ConsumerWidget {
   ) async {
     final selected = await showModalBottomSheet<String>(
       context: context,
+      isScrollControlled: true,
       builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
+        child: ListView(
+          shrinkWrap: true,
           children: [
             ListTile(
               title: Text(seasonLabel(season.seasonNumber)),
@@ -206,6 +208,11 @@ class _SeriesBody extends ConsumerWidget {
               leading: const Icon(Icons.remove_circle_outline),
               title: const Text('Fehlt'),
               onTap: () => Navigator.pop(context, 'missing'),
+            ),
+            const Divider(),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: CopiesSection.season(seasonId: season.id),
             ),
           ],
         ),

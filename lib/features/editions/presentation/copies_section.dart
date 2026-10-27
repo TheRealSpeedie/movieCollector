@@ -14,14 +14,22 @@ const _conditions = ['Neu', 'Sehr gut', 'Gut', 'Gebraucht', 'Beschädigt'];
 /// "Meine Exemplare": the editions of a film and the copies the user owns,
 /// with format, condition, location and price.
 class CopiesSection extends ConsumerWidget {
-  const CopiesSection({super.key, required this.movieId});
+  const CopiesSection({super.key, required int this.movieId}) : seasonId = null;
 
-  final int movieId;
+  const CopiesSection.season({super.key, required int this.seasonId})
+    : movieId = null;
+
+  final int? movieId;
+  final int? seasonId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final editions =
-        ref.watch(movieEditionsProvider(movieId)).valueOrNull ?? const [];
+        (movieId != null
+                ? ref.watch(movieEditionsProvider(movieId!))
+                : ref.watch(seasonEditionsProvider(seasonId!)))
+            .valueOrNull ??
+        const [];
     final repository = ref.read(copyRepositoryProvider);
 
     return Column(
@@ -208,11 +216,20 @@ class CopiesSection extends ConsumerWidget {
       ),
     );
     if (confirmed != true) return;
-    await repository.addMovieEdition(
-      movieId,
-      format: format,
-      editionName: name.text.trim().isEmpty ? null : name.text.trim(),
-    );
+    final editionName = name.text.trim().isEmpty ? null : name.text.trim();
+    if (movieId != null) {
+      await repository.addMovieEdition(
+        movieId!,
+        format: format,
+        editionName: editionName,
+      );
+    } else {
+      await repository.addSeasonEdition(
+        seasonId!,
+        format: format,
+        editionName: editionName,
+      );
+    }
   }
 
   Future<void> _editEdition(

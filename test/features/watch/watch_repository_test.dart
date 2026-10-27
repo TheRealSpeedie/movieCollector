@@ -181,6 +181,28 @@ void main() {
       },
     );
 
+    test('a season box makes that season owned', () async {
+      final series = await db
+          .into(db.tvSeriesTable)
+          .insert(TvSeriesTableCompanion.insert(tmdbId: 1399, name: 'Serie'));
+      final season = await db
+          .into(db.tvSeasonsTable)
+          .insert(
+            TvSeasonsTableCompanion.insert(
+              seriesId: series,
+              seasonNumber: 3,
+              name: 'Staffel 3',
+            ),
+          );
+      await repository.addSeasonEdition(season, format: MediaFormat.bluray);
+      final row = await (db.select(
+        db.tvSeasonsTable,
+      )..where((t) => t.id.equals(season))).getSingle();
+      expect(row.userStatus, CollectionStatus.owned);
+      final editions = await repository.watchForSeason(season).first;
+      expect(editions.single.edition.productTitle, 'Serie – Staffel 3');
+    });
+
     test('a second copy of the same edition is counted', () async {
       final edition = await repository.addMovieEdition(
         movie,

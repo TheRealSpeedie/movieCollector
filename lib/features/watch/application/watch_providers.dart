@@ -87,6 +87,12 @@ final movieEditionsProvider = StreamProvider.autoDispose
           ref.watch(copyRepositoryProvider).watchForMovie(movieId),
     );
 
+final seasonEditionsProvider = StreamProvider.autoDispose
+    .family<List<EditionWithCopies>, int>(
+      (ref, seasonId) =>
+          ref.watch(copyRepositoryProvider).watchForSeason(seasonId),
+    );
+
 /// Formats of the copies the user owns, per local movie id.
 final ownedFormatsProvider = StreamProvider<Map<int, List<MediaFormat>>>((ref) {
   final db = ref.watch(appDatabaseProvider);
