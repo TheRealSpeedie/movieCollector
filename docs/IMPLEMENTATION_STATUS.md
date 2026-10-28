@@ -141,6 +141,16 @@ test where practical — not just that a placeholder exists.
 - **Edition catalog** — `lib/features/editions/`: "Weitere Ausgaben" on movie details, take over, share with consent, catalog-first barcode lookup. Tests: `test/features/editions/edition_catalog_test.dart`.
 - **Discovery** — `lib/features/discover/domain/`: local query parser and rules; optional AI ranking (on-device interface, own server, Movie Shelf Cloud) with consent. Tests: `test/features/discover/discovery_test.dart`.
 
+- **Phase 5.5 stabilisation** — refused household changes are undone quietly
+  (`sync_engine.dart`); editions describe differences instead of ranking
+  (`lib/features/editions/domain/edition_compare.dart`); AI is asked only for wishes
+  the filters do not cover; the player keeps positions it could not send
+  (`lib/features/playback/data/pending_stops.dart`); sync status with waiting changes in
+  Mehr and Daten & Synchronisation; reduced motion in onboarding. Test results by category
+  (executed, skipped, needs a device) are in `movieshelf_server/docs/VERIFICATION.md`:
+  270 passed, 32 skipped (need a running server). Nothing was checked on a phone, TV or with
+  a screen reader in this phase.
+
 ## Partially implemented
 
 - **Sammlung filters** — status filtering and sorting are fully wired into the UI.
