@@ -173,6 +173,8 @@ class CloudClient {
   Future<dynamic> post(String path, {Object? body}) =>
       _send('POST', path, body);
 
+  Future<dynamic> delete(String path) => _send('DELETE', path);
+
   Future<dynamic> _send(String method, String path, [Object? body]) =>
       _request(method, path, body);
 

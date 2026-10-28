@@ -132,6 +132,11 @@ test where practical — not just that a placeholder exists.
   option in onboarding and Daten & Synchronisation appears when the build sets `CLOUD_URL`
   in `env.json`. Tests: `test/features/cloud/`.
 
+- **Households** — `lib/features/household/`: Haushalt screen (`/household`, from Daten &
+  Synchronisation) to invite with a code, join, leave and remove members, on the own server or
+  Movie Shelf Cloud. The sync engine starts over when the collection behind the provider
+  changes. Tests: `test/core/sync/collection_switch_test.dart`.
+
 ## Partially implemented
 
 - **Sammlung filters** — status filtering and sorting are fully wired into the UI.

@@ -27,6 +27,10 @@ class SyncReport {
 /// (the last agreed state) is sent. A run first pushes, then pulls. Fields that
 /// conflict are kept locally and in `sync_conflicts` until the user decides,
 /// and are not sent again in the meantime.
+class _CollectionChanged implements Exception {
+  const _CollectionChanged();
+}
+
 class SyncEngine {
   SyncEngine(this._db, this._provider)
     : _records = CollectionRecords(_db),
@@ -47,6 +51,17 @@ class SyncEngine {
   });
 
   Future<SyncReport> _run() async {
+    try {
+      return await _runOnce();
+    } on _CollectionChanged {
+      // Another collection now, for example after joining a household: send
+      // everything this device holds and take over what is there.
+      await reset();
+      return _runOnce();
+    }
+  }
+
+  Future<SyncReport> _runOnce() async {
     await _ensureScope();
     final pushed = await _push();
     final received = await _pull();
@@ -144,6 +159,15 @@ class SyncEngine {
     final remote = <String, RemoteRecord>{};
     while (true) {
       final page = await _provider.pull(cursor, limit: _batch);
+      final collection = page.collectionId;
+      if (collection != null) {
+        final known = await _meta('collection');
+        if (known == null) {
+          await _setMeta('collection', collection);
+        } else if (known != collection) {
+          throw const _CollectionChanged();
+        }
+      }
       if (page.reset) {
         cursor = 0;
         fullReload = true;
@@ -277,9 +301,10 @@ class SyncEngine {
     await _db.transaction(() async {
       await _db.delete(_db.syncShadow).go();
       await _db.delete(_db.syncConflicts).go();
-      await (_db.delete(
-        _db.syncMeta,
-      )..where((t) => t.key.isIn(['cursor', 'scope', 'lastSyncAt']))).go();
+      await (_db.delete(_db.syncMeta)..where(
+            (t) => t.key.isIn(['cursor', 'scope', 'lastSyncAt', 'collection']),
+          ))
+          .go();
     });
   }
 

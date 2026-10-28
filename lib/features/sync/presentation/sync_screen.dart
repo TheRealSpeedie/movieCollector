@@ -41,6 +41,18 @@ class SyncScreen extends ConsumerWidget {
           if (storage != CollectionStorage.local) ...[
             const SizedBox(height: 24),
             const _SyncStatusSection(),
+            const SizedBox(height: 12),
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.home_outlined),
+                title: const Text('Haushalt'),
+                subtitle: const Text(
+                  'Eine Sammlung mit den Menschen teilen, mit denen du lebst',
+                ),
+                trailing: const Icon(Icons.arrow_forward_ios, size: 14),
+                onTap: () => context.push('/household'),
+              ),
+            ),
           ],
           const _ConflictSection(),
           const SizedBox(height: 24),

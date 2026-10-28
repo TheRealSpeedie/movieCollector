@@ -111,6 +111,7 @@ class SyncPullPage {
     required this.nextCursor,
     required this.hasMore,
     required this.reset,
+    this.collectionId,
   });
 
   factory SyncPullPage.fromJson(Map<String, dynamic> json) => SyncPullPage(
@@ -121,6 +122,7 @@ class SyncPullPage {
     nextCursor: json['nextCursor'] as int,
     hasMore: json['hasMore'] as bool,
     reset: json['reset'] as bool? ?? false,
+    collectionId: json['collectionId'] as String?,
   );
 
   final List<RemoteRecord> changes;
@@ -130,6 +132,10 @@ class SyncPullPage {
   /// The device was away so long that deletions were cleaned up; it must
   /// load everything again from cursor 0.
   final bool reset;
+
+  /// The collection on the other side. It changes when this account joins
+  /// or leaves a household; the device then starts over.
+  final String? collectionId;
 }
 
 class SyncSnapshotInfo {
