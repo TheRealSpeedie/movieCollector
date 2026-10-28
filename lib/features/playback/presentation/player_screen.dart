@@ -621,6 +621,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
               top: 4,
               left: 4,
               child: IconButton(
+                tooltip: 'Zurück',
                 icon: const Icon(Icons.arrow_back),
                 onPressed: context.pop,
               ),

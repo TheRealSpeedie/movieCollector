@@ -39,6 +39,7 @@ void main() {
       'subtitleMode': 'Auto',
       'preferOriginal': false,
       'hearingImpaired': false,
+      'audioDescription': false,
     });
     expect(
       const UserPreferences(
@@ -71,6 +72,7 @@ void main() {
           'language': 'de',
           'forced': true,
           'hearingImpaired': false,
+          'audioDescription': false,
           'source': 'opensubtitles',
           'fileName': 'Film.de.forced.srt',
         },

@@ -29,7 +29,8 @@ class BarcodeResolver {
        _tmdb = tmdbApiClient,
        _networkInfo = networkInfo,
        _editionRepository = editionRepository,
-       _lookup = lookupService ?? BarcodeLookupService(upcItemDb: barcodeProvider),
+       _lookup =
+           lookupService ?? BarcodeLookupService(upcItemDb: barcodeProvider),
        _matcher = matcher,
        _mediaParser = mediaParser;
 
@@ -142,7 +143,9 @@ class BarcodeResolver {
     if (product.imdbId != null) {
       try {
         final found = await _tmdb.findByImdbId(product.imdbId!);
-        log.add('tmdb-find movie=${found.movie?.id ?? '-'} tv=${found.tv?.id ?? '-'}');
+        log.add(
+          'tmdb-find movie=${found.movie?.id ?? '-'} tv=${found.tv?.id ?? '-'}',
+        );
         if (product.mediaType == 'tv' && found.tv != null) {
           log.add('path=imdb-tv');
           return _tvFromImdb(barcode, product, found.tv!);
@@ -186,14 +189,7 @@ class BarcodeResolver {
     }
 
     log.add('path=title-search');
-    return _resolveMovies(
-      barcode,
-      product,
-      searchTitle,
-      year,
-      format,
-      log,
-    );
+    return _resolveMovies(barcode, product, searchTitle, year, format, log);
   }
 
   BarcodeWeakMatch _weak(
@@ -244,11 +240,7 @@ class BarcodeResolver {
     final results = await _tmdb.searchTv(query, year: parsed.parsedYear);
     if (results.isEmpty) {
       if (parsed.kind == MediaKindHint.completeTvSeries) {
-        final bundle = await _resolveMovieBox(
-          barcode,
-          productTitle,
-          query,
-        );
+        final bundle = await _resolveMovieBox(barcode, productTitle, query);
         if (bundle != null) return bundle;
         return _resolveMovies(
           barcode,
@@ -393,7 +385,9 @@ class BarcodeResolver {
     void add(String query, int? releaseYear) {
       final trimmed = query.trim();
       if (trimmed.isEmpty) return;
-      if (attempts.any((item) => item.query == trimmed && item.year == releaseYear)) {
+      if (attempts.any(
+        (item) => item.query == trimmed && item.year == releaseYear,
+      )) {
         return;
       }
       attempts.add((query: trimmed, year: releaseYear));

@@ -100,6 +100,16 @@ class LanguageScreen extends ConsumerWidget {
             value: p.hearingImpaired,
             onChanged: (v) => controller.save(p.copyWith(hearingImpaired: v)),
           ),
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: const Text('Audiodeskription bevorzugen'),
+            subtitle: const Text(
+              'Tonspuren, die das Bild beschreiben, für blinde und '
+              'sehbehinderte Menschen. Sonst werden sie nie von selbst gewählt.',
+            ),
+            value: p.audioDescription,
+            onChanged: (v) => controller.save(p.copyWith(audioDescription: v)),
+          ),
           const SizedBox(height: 8),
           const Text(
             'Im Player kannst du jederzeit eine andere Spur wählen, Untertitel '
