@@ -4,6 +4,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/network/upcmdb/upcmdb_client.dart';
 import '../../../core/network/upcitemdb/upcitemdb_client.dart';
 import '../../../core/utils/title_normalizer.dart';
+import '../../editions/data/edition_catalog.dart';
 import 'barcode_lookup_cache.dart';
 import 'physical_product.dart';
 import 'scan_trace.dart';
@@ -31,11 +32,16 @@ class BarcodeLookupService {
     required BarcodeProvider upcItemDb,
     this.upcmdb,
     this.cache,
+    this.catalog,
   }) : _upcItemDb = upcItemDb;
 
   final BarcodeProvider _upcItemDb;
   final UpcmdbApi? upcmdb;
   final BarcodeLookupCacheStore? cache;
+
+  /// The edition catalog of the own server or Movie Shelf Cloud. Asked
+  /// first: its entries were described and checked by people.
+  final EditionCatalog? catalog;
 
   static const foundTtl = Duration(days: 30);
   static const missTtl = Duration(days: 7);
@@ -44,6 +50,30 @@ class BarcodeLookupService {
   Future<ExternalLookup> lookup(String gtin, ScanTrace trace) async {
     var sawMiss = false;
     String? failure;
+
+    if (catalog != null) {
+      try {
+        final entries = await catalog!.forBarcode(gtin);
+        trace.add('catalog=${entries.length}');
+        if (entries.isNotEmpty) {
+          final e = entries.first;
+          return ExternalLookupHit(
+            PhysicalProduct(
+              source: 'catalog',
+              title: e.title,
+              year: e.year,
+              physicalFormat: e.format.name,
+              edition: e.editionName,
+              region: e.region,
+              publisher: e.publisher,
+              mediaType: e.kind,
+            ),
+          );
+        }
+      } on Exception catch (error) {
+        trace.add('catalog-error=$error');
+      }
+    }
 
     if (upcmdb != null && (gtin.length == 12 || gtin.length == 13)) {
       final upcmdbResult = await _upcmdb(gtin, trace);

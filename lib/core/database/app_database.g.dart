@@ -1674,6 +1674,26 @@ class $PhysicalEditionsTable extends PhysicalEditions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _catalogIdMeta = const VerificationMeta(
+    'catalogId',
+  );
+  @override
+  late final GeneratedColumn<String> catalogId = GeneratedColumn<String>(
+    'catalog_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1702,6 +1722,8 @@ class $PhysicalEditionsTable extends PhysicalEditions
     subtitleLanguages,
     publisher,
     notes,
+    catalogId,
+    source,
     createdAt,
   ];
   @override
@@ -1820,6 +1842,18 @@ class $PhysicalEditionsTable extends PhysicalEditions
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('catalog_id')) {
+      context.handle(
+        _catalogIdMeta,
+        catalogId.isAcceptableOrUnknown(data['catalog_id']!, _catalogIdMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1891,6 +1925,14 @@ class $PhysicalEditionsTable extends PhysicalEditions
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      catalogId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}catalog_id'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1926,6 +1968,13 @@ class PhysicalEditionRow extends DataClass
   final String? subtitleLanguages;
   final String? publisher;
   final String? notes;
+
+  /// The entry in the edition catalog this edition was taken from or shared
+  /// as. Stays usable offline; the catalog is only asked when online.
+  final String? catalogId;
+
+  /// user, catalog or a barcode service.
+  final String? source;
   final DateTime createdAt;
   const PhysicalEditionRow({
     required this.id,
@@ -1942,6 +1991,8 @@ class PhysicalEditionRow extends DataClass
     this.subtitleLanguages,
     this.publisher,
     this.notes,
+    this.catalogId,
+    this.source,
     required this.createdAt,
   });
   @override
@@ -1983,6 +2034,12 @@ class PhysicalEditionRow extends DataClass
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || catalogId != null) {
+      map['catalog_id'] = Variable<String>(catalogId);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -2023,6 +2080,12 @@ class PhysicalEditionRow extends DataClass
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      catalogId: catalogId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogId),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
       createdAt: Value(createdAt),
     );
   }
@@ -2049,6 +2112,8 @@ class PhysicalEditionRow extends DataClass
       ),
       publisher: serializer.fromJson<String?>(json['publisher']),
       notes: serializer.fromJson<String?>(json['notes']),
+      catalogId: serializer.fromJson<String?>(json['catalogId']),
+      source: serializer.fromJson<String?>(json['source']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -2070,6 +2135,8 @@ class PhysicalEditionRow extends DataClass
       'subtitleLanguages': serializer.toJson<String?>(subtitleLanguages),
       'publisher': serializer.toJson<String?>(publisher),
       'notes': serializer.toJson<String?>(notes),
+      'catalogId': serializer.toJson<String?>(catalogId),
+      'source': serializer.toJson<String?>(source),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -2089,6 +2156,8 @@ class PhysicalEditionRow extends DataClass
     Value<String?> subtitleLanguages = const Value.absent(),
     Value<String?> publisher = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> catalogId = const Value.absent(),
+    Value<String?> source = const Value.absent(),
     DateTime? createdAt,
   }) => PhysicalEditionRow(
     id: id ?? this.id,
@@ -2115,6 +2184,8 @@ class PhysicalEditionRow extends DataClass
         : this.subtitleLanguages,
     publisher: publisher.present ? publisher.value : this.publisher,
     notes: notes.present ? notes.value : this.notes,
+    catalogId: catalogId.present ? catalogId.value : this.catalogId,
+    source: source.present ? source.value : this.source,
     createdAt: createdAt ?? this.createdAt,
   );
   PhysicalEditionRow copyWithCompanion(PhysicalEditionsCompanion data) {
@@ -2147,6 +2218,8 @@ class PhysicalEditionRow extends DataClass
           : this.subtitleLanguages,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       notes: data.notes.present ? data.notes.value : this.notes,
+      catalogId: data.catalogId.present ? data.catalogId.value : this.catalogId,
+      source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -2168,6 +2241,8 @@ class PhysicalEditionRow extends DataClass
           ..write('subtitleLanguages: $subtitleLanguages, ')
           ..write('publisher: $publisher, ')
           ..write('notes: $notes, ')
+          ..write('catalogId: $catalogId, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -2189,6 +2264,8 @@ class PhysicalEditionRow extends DataClass
     subtitleLanguages,
     publisher,
     notes,
+    catalogId,
+    source,
     createdAt,
   );
   @override
@@ -2209,6 +2286,8 @@ class PhysicalEditionRow extends DataClass
           other.subtitleLanguages == this.subtitleLanguages &&
           other.publisher == this.publisher &&
           other.notes == this.notes &&
+          other.catalogId == this.catalogId &&
+          other.source == this.source &&
           other.createdAt == this.createdAt);
 }
 
@@ -2227,6 +2306,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
   final Value<String?> subtitleLanguages;
   final Value<String?> publisher;
   final Value<String?> notes;
+  final Value<String?> catalogId;
+  final Value<String?> source;
   final Value<DateTime> createdAt;
   const PhysicalEditionsCompanion({
     this.id = const Value.absent(),
@@ -2243,6 +2324,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     this.subtitleLanguages = const Value.absent(),
     this.publisher = const Value.absent(),
     this.notes = const Value.absent(),
+    this.catalogId = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   PhysicalEditionsCompanion.insert({
@@ -2260,6 +2343,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     this.subtitleLanguages = const Value.absent(),
     this.publisher = const Value.absent(),
     this.notes = const Value.absent(),
+    this.catalogId = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : mediaKind = Value(mediaKind);
   static Insertable<PhysicalEditionRow> custom({
@@ -2277,6 +2362,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     Expression<String>? subtitleLanguages,
     Expression<String>? publisher,
     Expression<String>? notes,
+    Expression<String>? catalogId,
+    Expression<String>? source,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -2294,6 +2381,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
       if (subtitleLanguages != null) 'subtitle_languages': subtitleLanguages,
       if (publisher != null) 'publisher': publisher,
       if (notes != null) 'notes': notes,
+      if (catalogId != null) 'catalog_id': catalogId,
+      if (source != null) 'source': source,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -2313,6 +2402,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     Value<String?>? subtitleLanguages,
     Value<String?>? publisher,
     Value<String?>? notes,
+    Value<String?>? catalogId,
+    Value<String?>? source,
     Value<DateTime>? createdAt,
   }) {
     return PhysicalEditionsCompanion(
@@ -2330,6 +2421,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
       subtitleLanguages: subtitleLanguages ?? this.subtitleLanguages,
       publisher: publisher ?? this.publisher,
       notes: notes ?? this.notes,
+      catalogId: catalogId ?? this.catalogId,
+      source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -2379,6 +2472,12 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (catalogId.present) {
+      map['catalog_id'] = Variable<String>(catalogId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2402,6 +2501,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
           ..write('subtitleLanguages: $subtitleLanguages, ')
           ..write('publisher: $publisher, ')
           ..write('notes: $notes, ')
+          ..write('catalogId: $catalogId, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -13381,6 +13482,8 @@ typedef $$PhysicalEditionsTableCreateCompanionBuilder =
       Value<String?> subtitleLanguages,
       Value<String?> publisher,
       Value<String?> notes,
+      Value<String?> catalogId,
+      Value<String?> source,
       Value<DateTime> createdAt,
     });
 typedef $$PhysicalEditionsTableUpdateCompanionBuilder =
@@ -13399,6 +13502,8 @@ typedef $$PhysicalEditionsTableUpdateCompanionBuilder =
       Value<String?> subtitleLanguages,
       Value<String?> publisher,
       Value<String?> notes,
+      Value<String?> catalogId,
+      Value<String?> source,
       Value<DateTime> createdAt,
     });
 
@@ -13593,6 +13698,16 @@ class $$PhysicalEditionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get catalogId => $composableBuilder(
+    column: $table.catalogId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -13781,6 +13896,16 @@ class $$PhysicalEditionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get catalogId => $composableBuilder(
+    column: $table.catalogId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -13851,6 +13976,12 @@ class $$PhysicalEditionsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogId =>
+      $composableBuilder(column: $table.catalogId, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -14008,6 +14139,8 @@ class $$PhysicalEditionsTableTableManager
                 Value<String?> subtitleLanguages = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> catalogId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PhysicalEditionsCompanion(
                 id: id,
@@ -14024,6 +14157,8 @@ class $$PhysicalEditionsTableTableManager
                 subtitleLanguages: subtitleLanguages,
                 publisher: publisher,
                 notes: notes,
+                catalogId: catalogId,
+                source: source,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -14042,6 +14177,8 @@ class $$PhysicalEditionsTableTableManager
                 Value<String?> subtitleLanguages = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> catalogId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PhysicalEditionsCompanion.insert(
                 id: id,
@@ -14058,6 +14195,8 @@ class $$PhysicalEditionsTableTableManager
                 subtitleLanguages: subtitleLanguages,
                 publisher: publisher,
                 notes: notes,
+                catalogId: catalogId,
+                source: source,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

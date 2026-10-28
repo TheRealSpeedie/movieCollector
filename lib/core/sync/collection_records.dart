@@ -131,6 +131,8 @@ class CollectionRecords {
           'notes': e.notes,
           'tmdbCollectionId': e.tmdbCollectionId,
           'tmdbTvSeriesId': e.tmdbTvSeriesId,
+          'catalogId': e.catalogId,
+          'source': e.source,
         }),
       );
     }
@@ -452,6 +454,8 @@ class CollectionRecords {
       notes: Value(f['notes'] as String?),
       tmdbCollectionId: Value(f['tmdbCollectionId'] as int?),
       tmdbTvSeriesId: Value(f['tmdbTvSeriesId'] as int?),
+      catalogId: Value(f['catalogId'] as String?),
+      source: Value(f['source'] as String?),
     );
     final existing = await _editionByUuid(uuid);
     if (existing != null) {

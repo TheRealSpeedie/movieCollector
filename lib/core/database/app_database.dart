@@ -154,6 +154,11 @@ SELECT id, movie_id, barcode, barcode_type, product_title, edition_name, created
       if (from < 7) {
         await _addColumnIfMissing('owned_copies', ownedCopies.ownerId);
         await _addColumnIfMissing('owned_copies', ownedCopies.isPrivate);
+        await _addColumnIfMissing(
+          'physical_editions',
+          physicalEditions.catalogId,
+        );
+        await _addColumnIfMissing('physical_editions', physicalEditions.source);
       }
     },
   );
