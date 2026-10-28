@@ -199,9 +199,7 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
               label: 'Alle auf die Wunschliste',
               icon: Icons.favorite_border,
               color: AppColors.dustyRose,
-              onTap: _saving
-                  ? () {}
-                  : () => _setAll(CollectionStatus.wishlist),
+              onTap: _saving ? () {} : () => _setAll(CollectionStatus.wishlist),
             ),
             const SizedBox(height: 8),
             ActionButton(
@@ -351,7 +349,10 @@ class _FranchiseRow extends StatelessWidget {
               ),
               SizedBox(
                 width: 36,
-                child: PosterImage(posterPath: part.posterPath, borderRadius: 6),
+                child: PosterImage(
+                  posterPath: part.posterPath,
+                  borderRadius: 6,
+                ),
               ),
               const SizedBox(width: 10),
               Expanded(

@@ -66,6 +66,34 @@ class SyncController extends AsyncNotifier<SyncReport?> {
 final syncControllerProvider =
     AsyncNotifierProvider<SyncController, SyncReport?>(SyncController.new);
 
+/// Changes made on this device that the sync provider does not have yet,
+/// for example after working offline. Recounted after every sync.
+final pendingChangesProvider = FutureProvider<int>((ref) async {
+  ref.watch(syncControllerProvider);
+  final engine = ref.watch(syncEngineProvider);
+  if (engine == null) return 0;
+  return (await engine.pendingChanges()).length;
+});
+
+/// One line about the sync state, in the same words everywhere.
+String syncSummary(AsyncValue<SyncReport?> sync, int pending) {
+  final waiting = pending == 0
+      ? ''
+      : pending == 1
+      ? ' · 1 Änderung wartet'
+      : ' · $pending Änderungen warten';
+  if (sync.isLoading) return 'Wird abgeglichen …';
+  if (sync.hasError) {
+    return 'Nicht erreichbar – alles bleibt auf dem Gerät$waiting';
+  }
+  final report = sync.valueOrNull;
+  if (report == null) return 'Noch nicht abgeglichen$waiting';
+  final at = report.at;
+  final time =
+      '${at.hour.toString().padLeft(2, '0')}:${at.minute.toString().padLeft(2, '0')}';
+  return 'Abgeglichen $time$waiting';
+}
+
 final syncConflictsProvider = StreamProvider<List<SyncConflictRow>>(
   (ref) => ref
       .watch(appDatabaseProvider)

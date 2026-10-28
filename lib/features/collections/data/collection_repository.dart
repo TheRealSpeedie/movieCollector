@@ -42,9 +42,10 @@ class CollectionRepository {
     int currentTmdbMovieId,
   ) {
     return _db.select(_db.movies).watch().asyncMap((_) async {
-      final row = await (_db.select(
-        _db.collections,
-      )..where((t) => t.tmdbCollectionId.equals(tmdbCollectionId))).getSingleOrNull();
+      final row =
+          await (_db.select(_db.collections)
+                ..where((t) => t.tmdbCollectionId.equals(tmdbCollectionId)))
+              .getSingleOrNull();
       if (row == null) return null;
       final built = await _buildCollectionWithEntries(row);
       return MovieCollectionInfo.fromCollection(
@@ -198,12 +199,8 @@ class CollectionRepository {
       );
     }
     entries.sort(
-      (a, b) => compareReleaseDates(
-        a.releaseDate,
-        b.releaseDate,
-        a.title,
-        b.title,
-      ),
+      (a, b) =>
+          compareReleaseDates(a.releaseDate, b.releaseDate, a.title, b.title),
     );
 
     return CollectionWithEntries(

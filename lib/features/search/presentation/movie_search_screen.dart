@@ -12,7 +12,10 @@ import '../../scanner/domain/barcode_search_context.dart';
 import '../application/search_providers.dart';
 
 class MovieSearchScreen extends ConsumerStatefulWidget {
-  const MovieSearchScreen({super.key, this.scan = const BarcodeSearchContext()});
+  const MovieSearchScreen({
+    super.key,
+    this.scan = const BarcodeSearchContext(),
+  });
 
   final BarcodeSearchContext scan;
 
@@ -104,9 +107,9 @@ class _MovieSearchScreenState extends ConsumerState<MovieSearchScreen> {
                 result,
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                 onTap: () => context.push(
-                  widget.scan.copyForAdd(result.id).location(
-                    path: '/search/add/${result.id}',
-                  ),
+                  widget.scan
+                      .copyForAdd(result.id)
+                      .location(path: '/search/add/${result.id}'),
                 ),
               );
             },
