@@ -127,6 +127,7 @@ final syncSchedulerProvider = Provider<void>((ref) {
           db.ownedCopies,
           db.barcodes,
           db.personalStates,
+          db.streamingSubscriptions,
         ]),
       )
       .listen((_) => schedule());

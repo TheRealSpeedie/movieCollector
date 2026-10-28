@@ -1,7 +1,7 @@
 # Database
 
 Movie Shelf uses [Drift](https://drift.simonbinder.eu/) over SQLite. The database class is
-`AppDatabase` (`lib/core/database/app_database.dart`), currently at **schema version 6**. The
+`AppDatabase` (`lib/core/database/app_database.dart`), currently at **schema version 7**. The
 database file is named `movie_shelf.sqlite` and lives in the platform's application
 documents directory (`getApplicationDocumentsDirectory()`), so it survives app restarts and
 updates but is removed if the user uninstalls the app or clears app data.
@@ -10,7 +10,7 @@ Schema 5 introduces the canonical media model: ownership is stored as **copies o
 (`owned_copies`), the wishlist and watch state as **personal state** (`personal_states`), and
 every synchronised record has a stable UUID. `movies.user_status` and `tv_seasons.user_status`
 remain as a derived cache that the rest of the app reads; only `OwnershipService` writes them.
-See [Ownership and sync tables](#ownership-and-sync-tables-schema-5).
+See [Ownership and sync tables](#ownership-and-sync-tables).
 
 ## Entity-relationship diagram
 
@@ -176,16 +176,16 @@ A physical product (single disc or box) with `mediaKind`:
 Contents are linked by local movie ids and season ids. Barcodes point at the edition, not at
 every contained title.
 
-## Ownership and sync tables (schema 5)
+## Ownership and sync tables
 
 | Table | Purpose |
 |---|---|
-| `physical_editions` (extended) | `uuid`, `format` (`MediaFormat` name: `dvd`, `bluray`, `bluray3d`, `uhd4k`, `vhs`, `digital`, `unknown`), `region`, `release_country`, `audio_languages`, `subtitle_languages`, `publisher`, `notes` |
-| `owned_copies` | One physical item: edition, quantity, condition, purchase date and price, storage location, notes. A movie or season is owned when a copy of an edition containing it exists. |
+| `physical_editions` (extended) | `uuid`, `format` (`MediaFormat` name: `dvd`, `bluray`, `bluray3d`, `uhd4k`, `vhs`, `digital`, `unknown`), `region`, `release_country`, `audio_languages`, `subtitle_languages`, `publisher`, `notes`; v7: `catalog_id` (entry in the edition catalog it came from or was shared as) and `source` (`user`, `catalog`, a barcode service) |
+| `owned_copies` | One physical item: edition, quantity, condition, purchase date and price, storage location, notes. A movie or season is owned when a copy of an edition containing it exists. v7: `owner_id` (another household member's server user id; null means the person using this device) and `is_private` (visible only to its owner) |
 | `personal_states` | One per movie, series or season: `on_wishlist`, `max_price`, `watch_status`, `watch_count`, `last_watched_at`, `rating`, `favourite`, `tags`, `preferred_edition_uuid` |
 | `sync_shadow` | Per synced record the field values last agreed with the sync provider and the server sequence number. The difference between the collection and this shadow is what the next sync sends. |
 | `sync_conflicts` | Fields changed on two devices at once, with both values, until the user decides |
-| `sync_meta` | Provider scope, pull cursor, last sync time |
+| `sync_meta` | Provider scope, pull cursor, last sync time, the collection id behind the provider (a change means joining or leaving a household) and the person's user id there (`me`) |
 | `pending_scans` | Barcodes scanned offline, looked up when the device is online again |
 | `scan_history` | Recent Fundstück scans with their verdict |
 | `streaming_offers`, `streaming_checks` (v6) | Cache of streaming, rental and purchase offers per title and region from TMDB watch providers, checked at most every 7 days. Never ownership. |
@@ -208,7 +208,7 @@ of throwing).
 
 ## Migration strategy
 
-`AppDatabase.schemaVersion` is `6`.
+`AppDatabase.schemaVersion` is `7`.
 
 - **onCreate** creates all current tables and indexes.
 - **onUpgrade from < 2** creates the TV and physical-edition tables, makes `barcodes.movie_id`
@@ -222,6 +222,7 @@ of throwing).
   edition made for it; wishlist entries become `personal_states`. Format and region move from
   barcodes to their edition. Covered by `test/core/database/migration_v5_test.dart`.
 - **from < 6** creates the streaming offer cache and the subscriptions table.
+- **from < 7** adds copy owner and private flag, and the edition's catalog id and source.
 
 Never wipe the database to ship a schema change. When the schema changes again:
 
@@ -232,7 +233,8 @@ Never wipe the database to ship a schema change. When the schema changes again:
 ## Deletion semantics
 
 Deleting a movie (`MovieRepository.deleteMovie`) only removes the `movies` row (and, via
-cascade, its `barcodes` and `movie_genres` rows). It **never** touches `collections` or
+cascade, its `barcodes` and `movie_genres` rows). In a household where another member owns a
+copy, it removes only this person's copies and keeps the movie. It **never** touches `collections` or
 `collection_movies` — cached series data is independent of which of its parts you currently
 own, so deleting a personal movie cannot corrupt series-completeness data for the rest of the
 collection.

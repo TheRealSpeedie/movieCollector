@@ -1,125 +1,63 @@
 # Movie Shelf
 
-Movie Shelf is a personal, offline-first Flutter app for managing a physical DVD/Blu-ray
-collection of **movies and TV series**. Its main use case: you are at a flea market or
-second-hand shop, see a disc, scan its barcode, and immediately learn whether you already own
-the movie or season, whether it's on your wishlist, and how complete the series or collector
-box it belongs to is.
+Your physical discs, digital files and streaming services in one personal collection. Movie Shelf is a Flutter app for Android and iOS (plus an Android TV flavor). It works completely offline and without an account; your own server or Movie Shelf Cloud are optional.
 
-Your collection lives entirely in a local SQLite database on the device. The
-[TMDB](https://www.themoviedb.org/) API and [UPCitemdb](https://www.upcitemdb.com/) are only
-used to enrich movies with metadata and to resolve barcodes you have never scanned before —
-never as the source of truth for what you own.
+## What it does
 
-## Main features
+- **Fundstück-Check**: scan a DVD, Blu-ray or 4K barcode and see at once whether you own it, which edition you have, whether it is on your wishlist, and what is missing in the series. Known barcodes work offline; unknown ones are looked up later.
+- **Collection**: movies and series with editions and copies (format, region, languages, condition, location, price), wishlist, watch history and ratings. Box sets are one copy that holds several titles.
+- **Entdecken**: what to watch next from your shelf, your server and your streaming subscriptions, with reasons. Wishes in plain words ("etwas Lustiges unter 2 Stunden") are understood on the device; AI ordering is optional and needs consent.
+- **Your own server** ([movieshelf_server](https://github.com/TheRealSpeedie/movieshelf_server)): play your files, pick audio and subtitles, resume on another device, control the TV app.
+- **Sync and households**: keep the collection on several devices through your own server or Movie Shelf Cloud, and share it with the people you live with. Every copy keeps its owner; watch history and ratings stay personal.
+- **Edition catalog**: see other releases of a film and how they differ, take them over, share your own.
+- **Backup and export**: encrypted backups, JSON and CSV export, restore.
 
-- **Fundstück-Check** — scan a barcode (or search by title) and instantly see if you own the
-  movie, TV season, or box-set contents, if they're on your wishlist, or if they're missing,
-  with full offline support for barcodes you've scanned before.
-- **TV series** — ownership is tracked per season (`Gekauft` / `Wunschliste` / `Offen` /
-  `Fehlt`). Series cards show `x / y Staffeln gekauft`. Season 0 / Specials are never included
-  in "complete series" unless you explicitly select them.
-- **Physical box sets** — one barcode/import line can represent a movie collector box, several
-  TV seasons, or a complete series. The physical product is stored once and linked to its
-  contents; already-owned items are not duplicated.
-- **Series completeness** — movies that belong to a TMDB collection (e.g. Harry Potter) show
-  owned/missing progress across the whole series.
-- **Sammlung (collection)** — a searchable, filterable, sortable grid/list of everything you
-  own, wishlist, or have marked as open.
-- **Reihen (collections)** — browse all cached movie series and jump straight to missing
-  entries.
-- **Fehlende Filme (missing movies)** — one place to see everything you're still missing
-  across all your series, with a quick "add to wishlist" action.
-- **Import** — paste a messy plain-text list (or a TXT/CSV file) from your notes app and
-  import it with a review step that flags ambiguous or unrecognized titles, letting you pick
-  from suggested candidates or search TMDB manually before committing anything.
-- **Learns barcode mappings** — once you've resolved a barcode manually, it resolves
-  instantly and offline the next time.
-- **Offline-first everywhere** — the app remains fully usable for everything you've already
-  synced; only resolving unknown barcodes/titles requires a connection.
+The full feature list is in [docs/FEATURES.md](docs/FEATURES.md).
 
-## Screenshots
+## Where your data lives
 
-_Add screenshots here once available (e.g. `docs/screenshots/home.png`,
-`docs/screenshots/fundstueck.png`, `docs/screenshots/collection.png`)._
+| Mode | Where | Account |
+|---|---|---|
+| Only on this device (default) | SQLite on the phone | none |
+| Own Movie Shelf Server | the phone and your server at home | none |
+| Movie Shelf Cloud | the phone and the Cloud service | e-mail and password |
 
-## Tech stack
-
-| Concern | Package |
-|---|---|
-| State management | `flutter_riverpod` (manual providers, no code generation) |
-| Local database | `drift` (SQLite) |
-| Networking | `dio` |
-| Barcode scanning | `mobile_scanner` |
-| Poster caching | `cached_network_image` / `flutter_cache_manager` |
-| Navigation | `go_router` (`StatefulShellRoute.indexedStack`) |
-| Immutable models | `freezed` / `json_annotation` |
-| Formatting/i18n prep | `intl`, `flutter_localizations` |
-| Lightweight settings | `shared_preferences` |
-| Permissions | `permission_handler` |
-
-See `pubspec.yaml` for exact versions.
-
-**You only need this file to go from clone → working APIs:** [GETTING_STARTED.md](GETTING_STARTED.md)
+The collection is always complete on the device, so it stays usable offline in every mode. There are no analytics or advertising SDKs. Privacy policy: [movieshelf_server/site/privacy.html](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/site/privacy.html).
 
 ## Quick start
 
 ```bash
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
+cp env.example.json env.json        # add your TMDB Read Access Token
 flutter run --dart-define-from-file=env.json
 ```
 
-You need a TMDB API token before the app can fetch real movie data — see
-[API requirements](#api-requirements) below and [docs/SETUP.md](docs/SETUP.md) for the full
-walkthrough.
-
-## API requirements
-
-- **TMDB (required)** — a free TMDB account and API Read Access Token. Without it, search,
-  barcode resolution, and metadata refresh are disabled; the app still runs and your existing
-  local collection remains fully usable.
-- **UPCitemdb (optional)** — no signup required for the free "trial" tier used by default
-  (rate-limited). An account is only needed if you want the higher-throughput paid tier.
-
-Full setup instructions: [docs/SETUP.md](docs/SETUP.md).
-
-## Development commands
-
-```bash
-flutter pub get                                              # install dependencies
-dart run build_runner build --delete-conflicting-outputs      # generate Drift/freezed code
-dart format .                                                 # format
-flutter analyze                                               # static analysis
-flutter test                                                  # unit/widget/database tests
-flutter run --dart-define-from-file=env.json                  # run with real TMDB data
-```
+A free [TMDB](https://www.themoviedb.org/) token is needed for search and metadata; barcodes use UPCitemdb's free tier by default. Without a token the app still runs with your saved collection. Step by step: [docs/SETUP.md](docs/SETUP.md).
 
 ## Documentation
 
-- [docs/SETUP.md](docs/SETUP.md) — step-by-step setup from a fresh clone
-- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — architecture, data flow, offline strategy
-- [docs/DATABASE.md](docs/DATABASE.md) — schema, relationships, migrations
-- [docs/APIS.md](docs/APIS.md) — TMDB & UPCitemdb integration details
-- [docs/IMPORT.md](docs/IMPORT.md) — import parsing, matching, review workflow
-- [docs/FEATURES.md](docs/FEATURES.md) — features from a user's perspective
-- [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) — common problems and fixes
-- [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) — honest status checklist
+| Document | Contents |
+|---|---|
+| [docs/SETUP.md](docs/SETUP.md) | From a fresh clone to a running app, `env.json` keys, permissions |
+| [docs/FEATURES.md](docs/FEATURES.md) | Every feature from the user's side |
+| [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Folders, layers, offline strategy, barcode and sync flows |
+| [docs/DATABASE.md](docs/DATABASE.md) | Schema v7, migrations, deletion rules |
+| [docs/APIS.md](docs/APIS.md) | TMDB, UPCitemdb and UPCMDB |
+| [docs/IMPORT.md](docs/IMPORT.md) | Importing lists from notes, TXT and CSV |
+| [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common problems |
+| [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | What is done, partial or missing |
 
-## Project status
+Test results, the device checklist and the roadmap for app and server live in the server repository: [VERIFICATION.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/docs/VERIFICATION.md), [ROADMAP.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md).
 
-Feature-complete for the first version described in the project brief: `flutter analyze`
-reports no issues, the automated test suite (unit, database, widget) passes, and an Android
-debug APK builds successfully (`flutter build apk --debug`). It has not been run on a
-physical device/emulator or built for iOS in this environment (no device/emulator or
-macOS/Xcode available here) — see
-[docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) for the full, honest breakdown
-of what is verified vs. what still needs manual/device verification.
+## Development
 
-## Your data, your choice
+```bash
+dart format .
+flutter analyze
+flutter test                                    # no API keys needed
+flutter build apk --dart-define-from-file=env.json
+flutter build apk --flavor tv -t lib/main_tv.dart --dart-define-from-file=env.json
+```
 
-No account is needed and there are no analytics. Your whole collection always lives in a local
-SQLite file on your device. If you want it on several devices, choose your own Movie Shelf
-Server under *Mehr → Daten & Synchronisation* (Movie Shelf Cloud is planned). Encrypted
-backups and exports are available in the same place. See the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md) for
-what comes next.
+Built with Riverpod, Drift, go_router, Dio, mobile_scanner and media_kit; exact versions in `pubspec.yaml`.

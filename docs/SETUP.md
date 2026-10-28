@@ -66,7 +66,9 @@ compile-time environment variables (`String.fromEnvironment`), supplied through 
    {
      "TMDB_ACCESS_TOKEN": "eyJhbGciOi... (your TMDB API Read Access Token)",
      "UPCITEMDB_USER_KEY": "",
-     "UPCITEMDB_KEY_TYPE": "3scale"
+     "UPCITEMDB_KEY_TYPE": "3scale",
+     "UPCMDB_API_KEY": "",
+     "CLOUD_URL": ""
    }
    ```
 
@@ -74,6 +76,8 @@ compile-time environment variables (`String.fromEnvironment`), supplied through 
    - `UPCITEMDB_USER_KEY` / `UPCITEMDB_KEY_TYPE` — optional. Leave empty to use UPCitemdb's
      free, rate-limited "trial" tier (no signup needed). Only fill these in if you've signed
      up for UPCitemdb's paid tier — see [docs/APIS.md](APIS.md).
+   - `UPCMDB_API_KEY` — optional. Enables UPCMDB as the first barcode service; see
+     [docs/APIS.md](APIS.md).
    - `CLOUD_URL` — optional. Address of a Movie Shelf Cloud service, for example
      `https://cloud.example.org`. Without it the app offers only local storage and your own
      server. Running the service is described in `movieshelf_server/docs/CLOUD.md`.
@@ -144,6 +148,12 @@ flutter test      # should report "All tests passed!"
 ```
 
 Neither command requires a TMDB token — all tests mock external APIs.
+
+Then check the running app:
+
+1. *Mehr → Einstellungen*: under **API-Status**, TMDB says **Konfiguriert**.
+2. Search for a film, for example `Der Pate`, and save it as **Gekauft**. It is still there after restarting the app.
+3. Open Fundstück and allow the camera when asked. If you refused for good, the scanner offers **Einstellungen öffnen**; **Titel eingeben** works without a camera.
 
 ## Troubleshooting common setup mistakes
 

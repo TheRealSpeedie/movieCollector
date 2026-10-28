@@ -5,7 +5,7 @@
 **SQLite is the source of truth for the user's collection.** TMDB and UPCitemdb are only
 used to *enrich* data (metadata, collection info) and to *resolve* unknown barcodes/titles.
 A failed API call must never delete, corrupt, or hide anything the user already saved
-locally. A sync provider (the user's own server today, Movie Shelf Cloud later) holds a
+locally. A sync provider (the user's own server or Movie Shelf Cloud) holds a
 copy for other devices; it never replaces the local collection. See the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md).
 
 ## Ownership and sync
@@ -35,18 +35,32 @@ lib/
     network/               DioClient, TMDB client, UPCitemdb client
     providers/             Riverpod providers wiring db/network/repositories
     utils/                 TitleNormalizer, date parsing, season labels
+    collection/            OwnershipService: copies, owners, derived status
+    sync/                  SyncEngine, CollectionRecords, SyncIds (record protocol)
   features/
+    backup/                Encrypted backup, JSON/CSV export, restore, snapshots
+    cloud/                 Movie Shelf Cloud account, client and sync provider
     collection/            "Sammlung" screen: Filme | Serien, filters, sort, search
-    collections/            "Reihen" (TMDB collections) + missing movies
-    editions/               PhysicalEditionRepository (box-set contents)
-    home/                   Dashboard
-    import/                 Text/CSV import: parse → typed ImportTarget → review → commit
-    movie_details/          Single movie details screen
-    movies/                 MovieRepository + movie stream providers
-    scanner/                Barcode resolution + "Fundstück-Check" flow
-    search/                 TMDB title search + add-movie flow
-    settings/               Settings/about + view-mode persistence
-    tv/                     TvRepository + series details
+    collections/           Franchises (TMDB collections) + missing movies
+    discover/              Entdecken, "Was soll ich schauen?", query parser, optional AI ranking
+    editions/              Editions and copies, edition catalog, edition comparison
+    home/                  Home with insights
+    household/             Haushalt: invite, join, leave, members
+    import/                Text/CSV import: parse → typed ImportTarget → review → commit
+    movie_details/         Single movie details screen
+    movies/                MovieRepository + movie stream providers
+    onboarding/            First start: storage, preferences, server, first item
+    personal/              Watch state, rating, wishlist price
+    playback/              Player, track and subtitle choice, pending positions
+    remote/                Remote control for a TV
+    scanner/               Barcode resolution + Fundstück-Check, offline scan queue
+    search/                TMDB title search + add-movie flow
+    server/                Pairing, server browsing, server client with pinning
+    settings/              Settings, languages, preferences
+    sync/                  Storage choice, migration between providers, sync status
+    television/            Android TV flavor
+    tv/                    TV series and seasons
+    watch/                 Where to Watch, streaming subscriptions
   shared/
     models/                 Movie, TvSeries, TvSeason, PhysicalEdition, CollectionStatus, ImportTarget
     widgets/                Reusable UI: PosterImage, StatusChip, SelectableItemList, ...

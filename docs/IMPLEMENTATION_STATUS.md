@@ -1,220 +1,46 @@
 # Implementation status
 
-An honest checklist of what's actually done vs. what still needs work. "Fully implemented"
-means the code exists, compiles, is wired into the UI, and is covered by a passing automated
-test where practical — not just that a placeholder exists.
+What the app has, what is partial, and what is missing. How each part is tested, and what still needs a real device, is in the server repository's [VERIFICATION.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/docs/VERIFICATION.md). What each feature looks like for the user is in [FEATURES.md](FEATURES.md).
 
-## Fully implemented
+Last updated: 28 October 2026 (Phase 5.5).
 
-- **Offline-first local database** — Drift/SQLite schema version 5 for titles, seasons,
-  editions, owned copies, personal state, barcodes, genres, collections and sync state.
-  Existing data from v1 to v4 is migrated in place. The device always holds the complete
-  collection.
-- **Canonical ownership model** — ownership is copies of editions, the wishlist is personal
-  state; scanning a disc records a copy of exactly that edition, an owned box set is one copy.
-- **Storage modes and sync** — onboarding and *Mehr → Daten & Synchronisation* choose between
-  "Nur auf diesem Gerät" and "Eigener Movie Shelf Server" (Movie Shelf Cloud is shown as coming
-  soon). Sync uses the record protocol of the server (`/api/sync`), merges per field, lists
-  real conflicts with both values, and runs after changes and on resume. Moving between storage
-  modes saves a snapshot, previews, transfers and verifies counts first.
-- **Backup and export** — encrypted backup file (Argon2id + AES-256-GCM), JSON export, CSV of
-  owned copies, restore by merge or replace, automatic snapshots before migrations and
-  restores.
-- **Onboarding** — welcome, storage, preferences (region, audio, subtitles, formats), optional
-  server, first action. Existing installs skip it.
-- **Fundstück 2.0** — verdicts for already owned, other edition, upgrade, wishlist (with
-  maximum price), franchise gap, missing season, digital duplicate and new titles, each marked
-  as exact edition or probable title; recent scans; barcodes scanned offline are queued and
-  looked up later.
-- **Entdecken tab** — "Was soll ich schauen?", missing franchise parts, missing seasons,
-  wishlist, franchises.
-- **Copies and editions** — movie details list every edition with its copies; format, region,
-  languages, condition, location, price and purchase date can be edited.
-- **Watch history and ratings** — watched with count and date, rating, wishlist price limit
-  and preferred edition; films played to the end on the home server count as watched.
-- **Where to Watch** — server, subscriptions, free offers, shelf (player needed), rent or buy,
-  per region with a "Stand" date; subscriptions are chosen under *Mehr → Streamingdienste*.
-- **"Was soll ich schauen?"** — rule-based suggestions with reasons, filtered by source,
-  genre, length, language and watched state.
-- **Language and subtitles** — *Mehr → Sprache & Untertitel* sets audio languages, original
-  language, subtitle language and mode, hearing-impaired; the player applies the server's
-  choice, lists subtitle files, searches and downloads subtitles, shifts them and reports
-  wrong ones.
-- **One title, all sources** — movie details list copies, every server version with
-  languages, and streaming offers; seasons have their own copies.
-- **HTTPS** — the app pins the server's certificate and switches older pairings to HTTPS.
-- **TV app** — menu with Start, Filme, Serien, Weiterschauen, Suche, Profile (with PIN pad)
-  and Einstellungen.
-- **TV series** — season-level ownership, completeness `x / y Staffeln gekauft`, series
-  details with per-season status and confirmed bulk actions. Season 0 / Specials stay
-  optional.
-- **Physical box sets** — one barcode/import line can own many movies or seasons without
-  duplicating the barcode onto each title. Partial duplicates are counted, not rejected.
-- **TMDB client** — search, movie details (with German→English overview fallback and German
-  FSK certification extraction via `append_to_response=release_dates`), and collection
-  details, all using Bearer-token auth.
-- **UPCitemdb client** — barcode lookup via the free trial tier by default, with automatic
-  switch to the paid tier's base URL/headers when a user key is configured.
-- **Barcode resolution & learning** — local-mapping check → offline check → UPCitemdb lookup →
-  TMDB search → confidence-ranked matching → user confirmation → permanent mapping saved, so
-  repeat scans resolve instantly offline. Backed by passing unit and database tests.
-- **Movie repository** — add from TMDB (with DB-level unique-TMDB-id duplicate prevention),
-  status updates, on-demand metadata refresh, genre linking/deduplication, deletion (with
-  cascading barcode/genre-link cleanup that never touches cached collection data).
-- **Collection repository** — TMDB collection sync with a 7-day staleness window
-  (`AppConstants.collectionStaleAfter`) and explicit force-refresh, building
-  owned/wishlist/open/missing status per series entry by joining against locally saved
-  movies.
-- **Series completeness UI** — shown in Fundstück-Check results, movie details, and the
-  Reihen tab, sorted by release date with entries lacking a date sorted last, with the
-  relevant movie highlighted.
-- **Fundstück-Check** — full camera scanning flow (EAN-13/EAN-8/UPC-A/UPC-E), manual title
-  fallback, all four result states (owned/wishlist/open/missing) with the exact German
-  strings from the brief, and inline series-completeness.
-- **Import** — plain text/TXT/CSV parsing, TMDB matching with review, default-status
-  selection, per-source-row transactional persist (full TMDB details before insert, genre
-  and collection upserts on TMDB id, idempotent duplicates, status upgrade without
-  downgrade), live save progress, grouped failure summary, and retry of failed rows without
-  rematching. A failed box-set row rolls back only that row. Backed by repository,
-  controller, widget, and in-memory SQLite persistence tests including a realistic
-  multi-title fixture.
-- **Manual import matching** — ambiguous rows show their first 4 ranked TMDB candidates
-  inline for one-tap selection; both ambiguous and not-found rows can open a dedicated,
-  paginated manual TMDB search screen (prefilled with the imported title, debounced search,
-  "Mehr laden" pagination) reached via `Weitere Ergebnisse` / `Film manuell suchen`; users can
-  explicitly continue without a movie (`Ohne Zuordnung fortfahren`, state `skipped`, kept
-  distinct from `notFound`); manual selections never touch the database until the final
-  commit, and pressing back without acting leaves the row untouched. Backed by controller,
-  repository, and widget tests.
-- **Sammlung screen** — grid/list toggle (persisted), search, status filter chips, sorting
-  (recently added/title/year/status), and distinct empty states for "no movies yet" vs. "no
-  results for this filter."
-- **Movie details** — full metadata display, status change via segmented control, on-demand
-  metadata refresh, add-barcode bottom sheet, delete with confirmation dialog.
-- **Reihen & Fehlende Filme** — collection list with progress, collection detail view, and a
-  cross-collection missing-movies view grouped by series with quick "add to wishlist."
-- **Settings** — metadata language/region, movie count, cache-clear action, live TMDB/UPCitemdb
-  configuration status (without exposing secrets), app version, TMDB attribution text.
-- **Navigation** — `go_router` `StatefulShellRoute.indexedStack` bottom nav (Home, Sammlung,
-  Reihen, Fundstück, Mehr) with detail screens pushed on the root navigator.
-- **Theme** — restrained Material 3 theme matching the requested palette/status semantics, no
-  gradients/glassmorphism/oversized hero sections.
-- **Error handling** — sealed `AppException` hierarchy mapped centrally from Dio in
-  `DioClient`, rendered via a shared `describeError()` helper; no raw exception text is ever
-  shown to the user.
-- **Permissions** — Android manifest (camera + internet, optional camera hardware features,
-  `minSdk 23`) and iOS `Info.plist` (`NSCameraUsageDescription`) configured; the scanner
-  screen requests permission, explains why it's needed, and offers an "open settings" button
-  when permanently denied.
-- **API key configuration** — Dart-define-based (`env.json` / `env.example.json`, gitignored),
-  documented commands, no secrets in source; app runs and degrades gracefully with no key
-  configured.
-- **Automated tests** — unit, database, and widget tests across matching, import
-  parse/review/persist (including shared genres, shared collections, bundles, retry, and
-  nullable metadata), barcode resolution, physical editions, and v1→v2 migration, all
-  passing with mocked external APIs (no TMDB credentials required to run `flutter test`).
-- **Static analysis** — `flutter analyze` reports zero issues.
-- **Android debug build** — `flutter build apk --debug` compiles and links successfully in
-  this environment (Android SDK 36.1.0 toolchain present), producing
-  `build/app/outputs/flutter-apk/app-debug.apk`. Getting here required bumping the Android
-  Gradle Plugin (8.7.3 → 8.9.1), `compileSdk` (→ 36), and `ndkVersion` (→ 27.0.12077973) in
-  `android/settings.gradle.kts` / `android/app/build.gradle.kts`, and pinning
-  `permission_handler` to `^12.0.3` instead of the newly-released `13.0.1` (whose Android
-  implementation requires an AGP/Kotlin toolchain combination — AGP 9.0.1, Kotlin 2.3.20 —
-  newer than what ships with current stable Flutter 3.32.x's default Gradle template). This
-  exercises the full Dart→native Android compile path, including all generated Drift/Freezed
-  code and plugin registration. See the note under "Known limitations" regarding running on
-  an actual device/emulator.
+## Implemented
 
-- **Movie Shelf Cloud** — `lib/features/cloud/`: account screen (`/cloud`) for sign-up,
-  sign-in, email verification, password reset, subscription state, devices, export, sign-out
-  and deletion; `CloudSyncProvider` uses the same sync protocol as the home server. The Cloud
-  option in onboarding and Daten & Synchronisation appears when the build sets `CLOUD_URL`
-  in `env.json`. Tests: `test/features/cloud/`.
+| Area | Where | Tests |
+|---|---|---|
+| Local database, schema v7, migrations from v1 | `lib/core/database/` | `test/core/database/` |
+| Ownership: editions, copies with owner and private flag, personal state | `lib/core/collection/ownership_service.dart` | `test/core/collection/` |
+| Sync engine (field merge, conflicts, refused changes undone, collection switch) | `lib/core/sync/` | `test/core/sync/` |
+| Storage modes, migration with snapshot and count check, sync status | `lib/features/sync/` | `test/features/sync/`, `test/features/cloud/cloud_migration_test.dart` |
+| Own server: pairing, HTTPS pinning, browsing, playback, pending positions, TV remote | `lib/features/server/`, `playback/`, `remote/` | `test/features/server/`, `test/features/playback/`, `test/integration/television_test.dart` (needs a running server) |
+| Movie Shelf Cloud account and sync | `lib/features/cloud/` | `test/features/cloud/` |
+| Households | `lib/features/household/` | `test/core/sync/collection_switch_test.dart`, `test/core/collection/household_ownership_test.dart` |
+| Fundstück-Check with offline queue (drained on start and resume) | `lib/features/scanner/` | `test/features/scanner/` |
+| Editions, copies, edition catalog, edition comparison | `lib/features/editions/` | `test/features/editions/` |
+| Watch history, ratings, Where to Watch, subscriptions | `lib/features/personal/`, `watch/` | `test/features/watch/` |
+| Entdecken, query parser, optional AI ranking with consent | `lib/features/discover/` | `test/features/discover/` |
+| Import | `lib/features/import/` | `test/features/import/` |
+| Backup, export, restore | `lib/features/backup/` | `test/features/backup/` |
+| Onboarding, settings, languages and subtitles | `lib/features/onboarding/`, `settings/` | `test/features/playback/track_preferences_test.dart` |
+| Android TV flavor | `lib/features/television/`, `lib/main_tv.dart` | `test/features/television/` |
+| Accessibility: labels for icon buttons, spoken collection tiles, large text, reduced motion | across screens | `test/shared/large_text_test.dart` |
 
-- **Households** — `lib/features/household/`: Haushalt screen (`/household`, from Daten &
-  Synchronisation) to invite with a code, join, leave and remove members, on the own server or
-  Movie Shelf Cloud. The sync engine starts over when the collection behind the provider
-  changes. Tests: `test/core/sync/collection_switch_test.dart`.
+## Partial
 
-- **Household ownership** — copies carry their owner (schema v7: `owned_copies.owner_id`, `is_private`); others' copies are shown with the owner and cannot be changed; private copies; removing a film others own keeps it. Tests: `test/core/collection/household_ownership_test.dart`.
-- **Edition catalog** — `lib/features/editions/`: "Weitere Ausgaben" on movie details, take over, share with consent, catalog-first barcode lookup. Tests: `test/features/editions/edition_catalog_test.dart`.
-- **Discovery** — `lib/features/discover/domain/`: local query parser and rules; optional AI ranking (on-device interface, own server, Movie Shelf Cloud) with consent. Tests: `test/features/discover/discovery_test.dart`.
+- **Sammlung filters**: only status chips have a UI. `CollectionFilterController` already supports genre and year filters (`setGenreFilter`, `setYearFilter`).
+- **Barcode mappings**: adding works from the movie page; there is no UI to edit or delete a mapping (`BarcodeRepository.deleteMapping` exists and is tested).
+- **Manual collections**: the `collections` table can hold user-made collections (`isCustom`), but there is no UI to create one.
 
-- **Phase 5.5 stabilisation** — refused household changes are undone quietly
-  (`sync_engine.dart`); editions describe differences instead of ranking
-  (`lib/features/editions/domain/edition_compare.dart`); AI is asked only for wishes
-  the filters do not cover; the player keeps positions it could not send
-  (`lib/features/playback/data/pending_stops.dart`); sync status with waiting changes in
-  Mehr and Daten & Synchronisation; reduced motion in onboarding. Test results by category
-  (executed, skipped, needs a device) are in `movieshelf_server/docs/VERIFICATION.md`:
-  270 passed, 32 skipped (need a running server). Nothing was checked on a phone, TV or with
-  a screen reader in this phase.
+## Not implemented
 
-## Partially implemented
-
-- **Sammlung filters** — status filtering and sorting are fully wired into the UI.
-  `CollectionFilterController` already supports genre and year filters
-  (`setGenreFilter`/`setYearFilter`) and the `Movie` model carries genre/year/certification
-  data, but there is **no UI control** yet to set a genre, year, collection, or age-rating
-  filter — only the status chips are exposed in `collection_screen.dart`. Wiring up
-  additional filter chips/dropdowns for these is straightforward future work using the
-  existing controller methods.
-- **Barcode edition management** — adding a barcode (with an optional free-text edition name)
-  works from the movie details screen, and `BarcodeRepository.deleteMapping` exists and is
-  covered by a database test, but there is **no UI action** to delete or edit an existing
-  barcode mapping from the movie details screen; the barcode list there is currently
-  read-only after creation (edits happen implicitly via `allowRemap: true` during a later
-  Fundstück-Check confirmation).
-- **Manual/custom collections** — the `collections` table already has an `isCustom` column
-  and a nullable `tmdbCollectionId` specifically to support user-created collections later
-  without a schema migration, but there is no UI to create or edit a manual collection in
-  this version (matches the brief's explicit "not implemented now, but keep it possible").
-
-## Requires external configuration (works, but needs your setup)
-
-- **TMDB integration** — search, metadata, and collection sync are fully implemented but
-  require a free TMDB API Read Access Token in `env.json`. Without it the app runs and your
-  existing local collection is fully usable, but nothing new can be looked up. See
-  [docs/SETUP.md](SETUP.md).
-- **UPCitemdb paid tier** — the free trial tier works with no signup, but is subject to
-  UPCitemdb-controlled rate limits that can change at any time; a paid key can be configured
-  in `env.json` if needed. See [docs/APIS.md](APIS.md).
-
-## Not implemented / future (explicitly out of scope for v1, per the brief)
-
-- Manual/custom collection creation and editing UI.
-- Buying a Movie Shelf Cloud subscription in the app (store purchases are not implemented; the operator sets subscriptions, see the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md), phase 4).
-- Statistics/analytics screens.
-- Lending-to-friends tracking.
-- Notifications for collection insights (shown on Home only).
-- Copies on season details (seasons keep a status picker).
+- Buying a Movie Shelf Cloud subscription in the app (the operator grants subscriptions).
+- An on-device AI model (the interface exists, none is bundled).
+- Statistics screens, lending tracking, push notifications for collection insights.
+- Offline downloads, casting and remote access outside the home network (proposed for Phase 6 in the roadmap).
 
 ## Known limitations
 
-- **Barcode/rate-limit assumptions** — the app deliberately avoids hard-coding UPCitemdb's
-  current rate limit into business logic (per the brief); this means the only feedback for
-  exceeding it is the generic "rate limit reached" message, with no proactive
-  request-budget UI.
-- **API keys are embedded in the client binary** — as documented in
-  [docs/APIS.md](APIS.md#key-security-limitations-in-mobile-apps), this is an accepted
-  tradeoff for a private personal app and is not a defect, but it means this build should not
-  be distributed publicly without moving credentials behind a backend proxy first.
-- **English-first TMDB fallback** — when German copy is missing for a given movie, the
-  overview (and, rarely, other fields) fall back to English rather than showing nothing;
-  the German title is still preferred when available.
-- **Genre/year/collection/age-rating filtering** — see "Partially implemented" above; only
-  status filtering has a UI today.
-- **No platform build verification beyond an Android debug APK** — this development
-  environment is Windows-only, with no Android emulator/device attached (`flutter devices`
-  only lists Windows desktop and web targets). The debug APK builds successfully but was
-  **not run** on a physical device or emulator — camera scanning, permission dialogs, and
-  on-device SQLite behavior are implemented per current `mobile_scanner`/`permission_handler`/
-  `drift` documentation but have not been interactively exercised. A release build
-  (`flutter build apk --release`) and app bundle (`--release --bundle`) were not attempted
-  either. iOS could not be built or verified at all, since Xcode/macOS is not available in
-  this environment; the iOS project configuration (`Info.plist` camera permission entry,
-  deployment target) was written by hand against current Apple/Flutter documentation but is
-  otherwise unverified.
-- **No screenshots yet** — the README has a placeholder section; add real screenshots once
-  the app has been run on a device.
+- API keys from `env.json` are compiled into the app and can be extracted from the binary; see [APIS.md](APIS.md#key-security-limitations-in-mobile-apps).
+- UPCitemdb's free tier is rate-limited; the app only reports the limit, it does not budget requests.
+- When TMDB has no German text, the overview falls back to English.
+- iOS was never built (no Mac available); Android builds were verified, but no screen was checked on a device. Screenshots are still missing.

@@ -1,147 +1,66 @@
 # Features
 
-A user-facing walkthrough of everything Movie Shelf can do today.
+What Movie Shelf does, from the user's side. The interface is German; screen names are given as they appear.
 
-## Home
+## Tabs
 
-The home screen is a compact personal dashboard, not a generic admin panel:
+**Home · Sammlung · Entdecken · Fundstück · Mehr.** Detail screens (movie, series, search, import, settings) open above the tabs.
 
-- **Deine Sammlung** card — total movie count plus a `Gekauft` / `Wunschliste` / `Offen`
-  breakdown.
-- **Fundstück-Check** — a prominent dark call-to-action that jumps straight to the scanner.
-- **Quick actions** — "Nach Titel suchen" and "Importieren" for the two other ways to add
-  movies.
-- **Zuletzt hinzugefügt** — a horizontal strip of your most recently added movies.
-- **Deine Reihen** — up to three of your movie collections with a progress bar
-  (`x / y gekauft`), tap-through to the full collection.
-- Pull-to-refresh reloads movies and collections.
+## First start
 
-## Fundstück-Check (the main feature)
+Onboarding asks where the collection should live (only on this device, Movie Shelf Cloud, or your own server), your region, audio and subtitle languages and preferred formats (all skippable), offers to connect a server, and suggests a first step: scan a disc, import a list, or search a film. Installs that already have data skip it.
 
-Reachable from the Home CTA or the "Fundstück" bottom-nav tab. Opens straight into the
-camera:
+## Fundstück-Check
 
-1. Point the camera at an EAN-13, EAN-8, UPC-A, or UPC-E barcode. Detection is automatic
-   (no manual capture button needed) and stops itself once a code is read.
-2. If camera permission hasn't been granted yet, the screen explains why it's needed and asks
-   for it; if permanently denied, a button opens the OS app-settings page directly.
-3. A floating "Titel eingeben" button always offers manual title search as a fallback (works
-   even without a camera or with permission denied).
-4. After scanning/searching, the result screen shows one of four states:
-   - **✓ Bereits in deiner Sammlung** (owned) — poster, title, year, genres, runtime, FSK
-     rating, overview, and status.
-   - **♡ Auf deiner Wunschliste** (wishlist) — same detail layout with the wishlist banner.
-   - **Als offen gespeichert** (open) — same layout with the "open" banner.
-   - **Dieser Film fehlt dir** (not in your collection) — shows the best match found (with
-     alternatives if more than one plausible candidate exists) and three save actions: `Als
-     gekauft speichern`, `Zur Wunschliste`, `Als offen speichern`.
-5. If the movie belongs to a TMDB collection, its series-completeness card appears
-   immediately underneath (see below), with the scanned/found movie's entry highlighted.
-6. If the barcode was resolved via a fresh online lookup and confirmed by the user, an
-   explicit "Diesen Barcode merken" button saves the barcode → movie mapping so future scans
-   of the same disc resolve instantly and offline.
-7. If offline and the barcode has never been seen before, the screen explains that a
-   connection is required and still lets you search by title or fall back to whatever's
-   cached locally.
+The scanner opens straight into the camera and reads EAN-13, EAN-8, UPC-A and UPC-E. **Titel eingeben** works without a camera.
 
-## Series completeness (collections)
+The result says, in plain words, which case applies, marked as **exact** (the barcode is known) or **probable** (matched by title):
 
-Whenever a saved movie belongs to a TMDB collection (e.g. "Harry Potter Collection"), Movie
-Shelf shows:
+- you own exactly this edition, or another edition of the film (with how they differ),
+- it is on your wishlist (with your maximum price, if set),
+- it fills a gap in a series you collect, or a missing season,
+- you have it digitally on your server,
+- it is new to you.
 
-- Collection name and a progress bar (`x / y gekauft`).
-- Every known movie in the series, sorted by release date (movies with an unknown release
-  date sort last rather than crashing or throwing off the order).
-- Each entry marked as owned (✓), wishlist (♡), open, or missing (○) via consistent color
-  coding.
-- The currently viewed/scanned movie visually highlighted among its siblings.
+Box sets and season boxes show how many contents you already own. Known barcodes work offline; unknown ones scanned offline are queued under **Zuletzt gescannt** and looked up when the app is online again. Lookups ask the edition catalog first, then barcode services.
 
-This appears in three places: the Fundstück-Check result, the movie details screen, and the
-dedicated Reihen (collections) tab.
+## Sammlung
 
-## Sammlung (your collection)
+**Filme | Serien**, grid or list, search, status filters (Gekauft, Wunschliste, Offen) and sorting. Series show `x / y Staffeln gekauft`; seasons have their own status and copies, and Specials never count towards "complete".
 
-The `Sammlung` tab has **Filme | Serien**.
+## Movie page
 
-Movies keep the existing grid/list, search, status chips, and sort options. Empty movies:
-"Deine Sammlung ist noch leer" with "Film suchen".
+Poster, metadata, FSK rating, and everything about this one title in one place:
 
-TV cards show series name plus `x / y Staffeln gekauft`. Opening a series lists every season
-with status (`Gekauft` / `Wunschliste` / `Offen` / `Fehlt`) and bulk actions **Alle als
-gekauft markieren** / **Alle zur Wunschliste** behind a confirmation dialog. Specials are not
-included in those bulk actions.
+- **Meine Exemplare**: every edition (format, region, audio and subtitle languages, publisher) with its copies (condition, location, price, purchase date, notes). In a household, other members' copies show who owns them and cannot be changed; your own copies can be private.
+- **Weitere Ausgaben**: other releases from the edition catalog, with how they differ from yours (resolution, extra or missing languages, region), what is unknown, and whether an entry is still unreviewed. **Übernehmen** keeps it on the device.
+- **Persönlich**: watched, how often and when, rating, favourite, tags, wishlist with maximum price.
+- **Wo kann ich das schauen?**: your server's versions with languages, streaming offers in your region with a "Stand" date, rent and buy.
+- The series progress of the franchise the film belongs to.
 
-## Adding a movie by title
+Removing a film that others in your household own removes only your copies.
 
-From Home ("Nach Titel suchen") or the Sammlung empty state:
+## Entdecken
 
-1. Type a title; TMDB search results show poster, title, original title, and year.
-2. Selecting a result opens an add screen with full movie details, a status selector
-   (defaulting to Gekauft), and any collection info already known.
-3. Saving stores the movie, links its genres, and — if it belongs to a collection —
-   kicks off a background sync of that collection's other entries.
-4. If the movie is already in your collection, you're told immediately and offered a status
-   change instead of a duplicate insert (also enforced at the database level via a unique
-   TMDB id constraint).
-
-## Reihen (Collections) & Fehlende Filme (Missing movies)
-
-- **Reihen** lists every cached collection with a poster, `x / y gekauft`, a progress bar,
-  and missing count. Opening one shows the full series with owned/wishlist/open/missing
-  status per entry and a quick "add to wishlist" action for anything missing.
-- **Fehlende Filme** aggregates missing entries across *all* your cached collections into one
-  screen, grouped by collection, so you can see everything you're missing across every series
-  at a glance and add items to your wishlist directly from there.
-
-## Movie details
-
-Large poster, title, original title, year, runtime, genres, FSK rating, overview, current
-status (changeable via a segmented control), the collection-completeness card if applicable,
-every known barcode edition for that movie, and the last metadata sync time. Actions:
-refresh metadata from TMDB on demand, add another barcode edition, or delete the movie
-(behind a confirmation dialog — cached collection/series data is never affected by deleting a
-personal movie).
-
-## Fundstück-Check for boxes and TV
-
-If the scanned product is a season or box, Fundstück-Check shows how many of the contained
-titles you already own and how many would be added (`2 bereits vorhanden`, `4 fehlen dir`).
-**Als gekauft speichern** only adds or updates missing contents and stores one barcode on the
-physical edition. Known box barcodes resolve fully offline.
+- **Was soll ich schauen?**: suggestions from your server, your streaming subscriptions and your shelf, each with reasons. Filters for source, genre, length, unwatched and original language. Type a wish in plain words; the device understands genres, length, decades and "nochmal". **KI-Vorschläge** is optional: after consent, a wish the filters cannot express (for example "ruhig, wie Arrival") is sent with a shortlist of up to 40 titles to your server's or the Cloud's AI. Without it, or when it fails, the device's own suggestions remain.
+- Missing parts of franchises, missing seasons, the wishlist, and all franchises.
 
 ## Import
 
-Paste a list from your notes app, or pick a TXT/CSV export, and Movie Shelf tolerates messy
-formatting (bullets, checkboxes, numbering, stray whitespace). Every line is matched against
-TMDB and classified as matched automatically / ambiguous / not found / duplicate before you
-commit anything.
+Paste a list from your notes or pick a TXT or CSV file. Every line is matched with TMDB and reviewed before anything is saved: ambiguous lines offer candidates, unmatched ones a manual search for films or series, box sets and series can be assigned as bundles. Failed lines can be retried. Details: [IMPORT.md](IMPORT.md).
 
-- **Ambiguous rows** (`Nicht eindeutig erkannt`) show the first 4 TMDB candidates right in the
-  review list — tap one to assign it directly.
-- **Unmatched rows** (`Kein passender Titel erkannt`) offer `Film suchen` and `Serie suchen`.
-- Manual search has a **Filme | Serien** toggle. TV results open a season picker
-  (single / several / complete series). Movie results can be assigned as a single film or
-  via **Als Filmreihe / Box Set zuordnen** when the title belongs to a TMDB collection.
-- Bundle review cards show counts (`6 Filme ausgewählt`, `4 / 8 Staffeln ausgewählt`) and
-  **Auswahl bearbeiten**.
-- The final summary counts source entries and logical items separately (`Einträge
-  verarbeitet` vs `Filme hinzugefügt` / `Staffeln hinzugefügt` / `bereits vorhanden`).
-- Saving shows live progress (`n / total verarbeitet`) and never treats TMDB matching as a
-  completed import. Failed rows can be retried without rematching.
-- Both cases can open a dedicated **manual search screen** that's prefilled with the imported
-  title, supports editing the search freely, debounces requests, and paginates results with a
-  "Mehr laden" button. Picking a movie there returns you straight to the review list with that
-  row marked `Manuell zugeordnet`.
-- You can always explicitly continue **without** assigning a movie (`Ohne Zuordnung
-  fortfahren`) — that row is marked `Ohne Zuordnung` and excluded from the import, without
-  losing the original imported text.
-- Nothing is saved to your collection until you choose a default status and commit — manual
-  selections only live in the current import session until then.
+## Playback (with a Movie Shelf Server)
 
-See [docs/IMPORT.md](IMPORT.md) for the full parsing/matching/manual-resolution details.
+Play files from your server with direct play, remux or conversion as the device needs. Audio and subtitles follow your preferences (languages, original language, subtitles only when needed, hearing-impaired, audio description). In the player: switch tracks, search and download subtitles, shift them, report wrong ones. Progress is saved per person; positions that could not be sent while offline are delivered later. The phone can control the TV app.
 
-## Settings
+## Mehr
 
-Metadata language/region display, database movie count, an image-cache clear button, live
-TMDB/UPCitemdb configuration status (without ever showing the actual secret token), app
-version, a link to themoviedb.org, and the required TMDB attribution notice.
+- **Daten & Synchronisation**: storage location and moving between them (with a snapshot first and a count check after), sync status with waiting changes, conflicts with both values to choose from, **Haushalt**, backup, export and restore.
+- **Movie Shelf Cloud**: sign up, confirm e-mail, reset password, subscription, devices, export, sign out, delete the account.
+- **Haushalt**: invite with a code, join, leave, remove members. Copies, editions and the wishlist are shared; what each person watched and rated stays theirs.
+- **Movie Shelf Server**: connect by QR code or network discovery, browse libraries, versions, pairing a TV.
+- **Sprache & Untertitel**, **Streamingdienste**, **Einstellungen** (metadata language, API status, cache, TMDB attribution).
+
+## Android TV
+
+A separate flavor with Start, Filme, Serien, Weiterschauen, Suche, Profile (with PIN) and Einstellungen, operated with the remote. It pairs through a phone.

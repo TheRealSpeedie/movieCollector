@@ -56,6 +56,21 @@ a raw error. Beyond that, the app avoids unnecessary calls entirely:
   `forceRefresh` is explicitly requested (triggered automatically alongside a metadata
   refresh of one of its movies).
 
+## Barcode lookup order
+
+An unknown barcode is looked up in this order, and the answer is cached (`barcode_lookup_cache`: hits 30 days, misses 7 days, errors 10 minutes):
+
+1. The edition catalog of the own server or Movie Shelf Cloud, when one is connected (entries described by people).
+2. UPCMDB, when `UPCMDB_API_KEY` is set (12- and 13-digit codes; often returns the IMDb id, which TMDB resolves exactly).
+3. UPCitemdb.
+
+Barcodes already confirmed once resolve from the local database without any request.
+
+## UPCMDB (optional)
+
+- Endpoint: a Google Cloud function (`us-central1-upcmdb-cbae5.cloudfunctions.net`), client in `lib/core/network/upcmdb/upcmdb_client.dart`.
+- Used only when `UPCMDB_API_KEY` is set in `env.json`.
+
 ## UPCitemdb
 
 - Trial (free, default) base URL: `https://api.upcitemdb.com/prod/trial`

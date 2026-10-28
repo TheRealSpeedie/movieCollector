@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:drift/drift.dart' show TableUpdateQuery;
+import 'package:flutter/widgets.dart' show AppLifecycleListener;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/database/app_database.dart';
@@ -109,6 +112,18 @@ class PendingScanProcessor {
 final pendingScanProcessorProvider = Provider<PendingScanProcessor>(
   PendingScanProcessor.new,
 );
+
+/// Looks up barcodes scanned offline when the app starts and whenever it
+/// returns to the foreground, not only when the scanner opens. Watched once
+/// by the app; works in every storage mode.
+final pendingScanDrainProvider = Provider<void>((ref) {
+  final processor = ref.watch(pendingScanProcessorProvider);
+  unawaited(processor.run());
+  final lifecycle = AppLifecycleListener(
+    onResume: () => unawaited(processor.run()),
+  );
+  ref.onDispose(lifecycle.dispose);
+});
 
 /// A short name for a lookup result, for the scan history.
 String? scanTitle(BarcodeLookupResult result) => switch (result) {
