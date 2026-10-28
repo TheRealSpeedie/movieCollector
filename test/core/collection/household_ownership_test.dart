@@ -6,8 +6,40 @@ import 'package:movie_shelf/core/sync/collection_records.dart';
 import 'package:movie_shelf/core/sync/sync_engine.dart';
 import 'package:movie_shelf/shared/models/collection_status.dart';
 
+import 'package:movie_shelf/core/sync/sync_provider.dart';
+
 import '../sync/collection_switch_test.dart' show SwitchingServer;
 import '../sync/sync_engine_test.dart' show Device, FakeServer;
+
+/// A household server that refuses one record: it belongs to someone else.
+class RefusingServer extends FakeServer {
+  String? refused;
+  bool hidden = false;
+
+  @override
+  Future<List<SyncPushResult>> push(List<SyncChange> changes) async {
+    final results = await super.push(
+      changes.where((c) => c.entityId != refused).toList(),
+    );
+    return [
+      ...results,
+      for (final c in changes.where((c) => c.entityId == refused))
+        SyncPushResult(
+          opId: c.opId,
+          outcome: SyncOutcome.conflict,
+          seq: 1,
+          conflicts: const [FieldConflict('_owner', '7', '3')],
+          record: RemoteRecord(
+            type: c.entityType,
+            uuid: c.entityId,
+            seq: 1,
+            deleted: hidden,
+            data: hidden ? const {} : {...?records[c.entityId]?.data},
+          ),
+        ),
+    ];
+  }
+}
 
 void main() {
   late Device phone;
@@ -111,4 +143,32 @@ void main() {
     expect((await mineAfter.snapshot()).counts['copy'], 1);
     expect((await phone.movie(604))!.userStatus, CollectionStatus.open);
   });
+
+  test(
+    'a refused change is undone quietly, without a conflict to resolve',
+    () async {
+      final server = RefusingServer();
+      final device = Device(server);
+      addTearDown(device.db.close);
+      await device.own(603);
+      await device.engine.run();
+      final copy = await device.onlyCopy();
+      server.refused = copy.uuid;
+
+      await device.setCopy(
+        const OwnedCopiesCompanion(condition: Value('zerkratzt')),
+      );
+      await device.engine.run();
+
+      expect((await device.onlyCopy()).condition, isNot('zerkratzt'));
+      expect(await device.db.select(device.db.syncConflicts).get(), isEmpty);
+
+      // A copy that is not visible to this person anymore disappears.
+      server.hidden = true;
+      await device.setCopy(const OwnedCopiesCompanion(condition: Value('neu')));
+      await device.engine.run();
+      expect(await device.db.select(device.db.ownedCopies).get(), isEmpty);
+      expect(await device.db.select(device.db.syncConflicts).get(), isEmpty);
+    },
+  );
 }
