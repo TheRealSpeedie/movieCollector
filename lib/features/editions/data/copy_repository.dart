@@ -4,6 +4,7 @@ import '../../../core/collection/ownership_service.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/media_format.dart';
 import '../../../shared/models/physical_edition_kind.dart';
+import '../domain/edition_compare.dart';
 import 'edition_catalog.dart';
 
 class EditionWithCopies {
@@ -261,7 +262,9 @@ class CopyRepository {
 
   /// Barcodes and catalog ids of the editions of a movie, to tell known
   /// catalog entries from new ones.
-  Future<({Set<String> catalogIds, Set<String> barcodes, int bestOwnedRank})>
+  Future<
+    ({Set<String> catalogIds, Set<String> barcodes, List<EditionFacts> owned})
+  >
   knownForMovie(int movieId) async {
     final editions = await _withCopies(
       await (_db.select(_db.physicalEditions).join([
@@ -281,18 +284,22 @@ class CopyRepository {
         : await (_db.select(
             _db.barcodes,
           )..where((t) => t.physicalEditionId.isIn(ids))).get();
-    var best = 0;
-    for (final e in editions.where((e) => e.copies.isNotEmpty)) {
-      final rank = MediaFormat.fromName(e.edition.format).rank;
-      if (rank > best) best = rank;
-    }
     return (
       catalogIds: {
         for (final e in editions)
           if (e.edition.catalogId != null) e.edition.catalogId!,
       },
       barcodes: {for (final c in codes) c.barcode},
-      bestOwnedRank: best,
+      owned: [
+        for (final e in editions.where((e) => e.copies.isNotEmpty))
+          EditionFacts(
+            format: MediaFormat.fromName(e.edition.format),
+            audio: e.edition.audioLanguages,
+            subtitles: e.edition.subtitleLanguages,
+            region: e.edition.region,
+            editionName: e.edition.editionName,
+          ),
+      ],
     );
   }
 

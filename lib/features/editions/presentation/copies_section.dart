@@ -96,9 +96,11 @@ class CopiesSection extends ConsumerWidget {
                                   'Region ${e.edition.region}',
                                 if (e.edition.audioLanguages != null)
                                   'Ton ${e.edition.audioLanguages}',
-                                e.copies.isEmpty
-                                    ? 'Nicht im Besitz'
-                                    : '${e.copies.length} Exemplar${e.copies.length == 1 ? '' : 'e'}',
+                                if (e.edition.subtitleLanguages != null)
+                                  'UT ${e.edition.subtitleLanguages}',
+                                if (e.edition.catalogId != null)
+                                  'aus dem Katalog',
+                                _ownership(e.copies),
                               ].join(' · '),
                               style: const TextStyle(
                                 color: AppColors.neutralGray,
@@ -275,6 +277,17 @@ class CopiesSection extends ConsumerWidget {
     } on AppException catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
     }
+  }
+
+  /// Who has this edition: the person, others in the household, or nobody.
+  static String _ownership(List<OwnedCopyRow> copies) {
+    final mine = copies.where((c) => c.ownerId == null).length;
+    final others = copies.length - mine;
+    if (copies.isEmpty) return 'Nicht in der Sammlung';
+    return [
+      if (mine > 0) 'Du besitzt $mine',
+      if (others > 0) 'im Haushalt $others',
+    ].join(', ');
   }
 
   static String _copyTitle(OwnedCopyRow copy) => [

@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../watch/application/watch_providers.dart';
 import '../application/catalog_providers.dart';
+import '../domain/edition_compare.dart';
 
 /// "Weitere Ausgaben": releases of the film from the edition catalog that
-/// are not in the collection yet, with a hint when one is better than what
-/// the person owns. Taking one over stores it on the device.
+/// are not in the collection yet, with how each differs from what the person
+/// owns (picture, languages, region) and what is not known about it. No
+/// ranking: which edition is better depends on what someone values. Taking
+/// one over stores it on the device.
 class KnownEditionsSection extends ConsumerWidget {
   const KnownEditionsSection({
     super.key,
@@ -60,18 +63,35 @@ class KnownEditionsSection extends ConsumerWidget {
                     if (entry.editionName != null) entry.editionName!,
                   ].join(' · '),
                 ),
-                subtitle: Text(
-                  [
-                    if (known.bestOwnedRank > 0 &&
-                        entry.format.rank > known.bestOwnedRank)
-                      'Besser als deine Ausgabe',
-                    if (entry.region != null) 'Region ${entry.region}',
-                    if (entry.audioLanguages != null)
-                      'Ton ${entry.audioLanguages}',
-                    if (entry.publisher != null) entry.publisher!,
-                    if (entry.pending) 'wartet auf Prüfung',
-                  ].join(' · '),
+                subtitle: Builder(
+                  builder: (context) {
+                    final facts = EditionFacts(
+                      format: entry.format,
+                      audio: entry.audioLanguages,
+                      subtitles: entry.subtitleLanguages,
+                      region: entry.region,
+                    );
+                    final differences = editionDifferences(known.owned, facts);
+                    return Text(
+                      [
+                        [
+                          if (entry.region != null) 'Region ${entry.region}',
+                          if (entry.audioLanguages != null)
+                            'Ton ${entry.audioLanguages}',
+                          if (entry.subtitleLanguages != null)
+                            'UT ${entry.subtitleLanguages}',
+                          if (entry.publisher != null) entry.publisher!,
+                        ].join(' · '),
+                        if (differences.isNotEmpty)
+                          'Anders als deine: ${differences.join('; ')}',
+                        if (facts.missing.isNotEmpty)
+                          'Unbekannt: ${facts.missing.join(', ')}',
+                        if (entry.pending) 'Noch nicht geprüft',
+                      ].where((l) => l.isNotEmpty).join('\n'),
+                    );
+                  },
                 ),
+                isThreeLine: true,
                 trailing: TextButton(
                   onPressed: () async {
                     await repository.adoptCatalogEdition(movieId, entry);
