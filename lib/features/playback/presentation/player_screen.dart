@@ -17,6 +17,8 @@ import '../../sync/application/sync_providers.dart';
 import '../application/playback_hooks.dart';
 import '../../server/data/server_client.dart';
 import '../../server/domain/server_models.dart';
+import '../../../core/providers/shared_preferences_provider.dart';
+import '../data/pending_stops.dart';
 import '../data/playback_api.dart';
 import '../domain/play_request.dart';
 import '../domain/playback_session.dart';
@@ -37,6 +39,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   late final _video = VideoController(_player);
   late final ServerClient _client = ref.read(serverClientProvider)!;
   late final _api = PlaybackApi(_client);
+  late final _pendingStops = PendingStops(ref.read(sharedPreferencesProvider));
 
   final _subscriptions = <StreamSubscription<Object?>>[];
   Timer? _hideTimer;
@@ -86,6 +89,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
   void initState() {
     super.initState();
     _recordViewingOf = ref.read(viewingRecorderProvider);
+    // Positions from earlier playback that could not be sent then.
+    unawaited(
+      _pendingStops.flush(
+        (session, position, duration) =>
+            _api.stop(session, position: position, duration: duration),
+      ),
+    );
     _preferences = ref.read(playbackPreferencesProvider);
     // The server film list may still be loading; take the id once it is there.
     ref.listenManual(serverMoviesProvider, (_, next) {
@@ -149,14 +159,18 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
     final session = _session;
     if (session != null) {
       unawaited(_recordViewing().catchError((_) {}));
+      final position = _currentSeconds;
+      final duration = _totalSeconds;
+      final pending = _pendingStops;
       unawaited(
         _api
-            .stop(
-              session.id,
-              position: _currentSeconds,
-              duration: _totalSeconds,
-            )
-            .catchError((_) {}),
+            .stop(session.id, position: position, duration: duration)
+            .catchError((Object e) {
+              // Offline: keep the position and send it next time.
+              if (e is AppException && e is! ServerRejectedException) {
+                return pending.add(session.id, position, duration);
+              }
+            }),
       );
     }
     _player.dispose();
@@ -279,8 +293,16 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
       (_) => _report(),
     );
     _tokenTimer ??= Timer.periodic(const Duration(minutes: 4), (_) async {
-      final token = await _client.accessToken();
-      await _setProperty('http-header-fields', 'Authorization: Bearer $token');
+      try {
+        final token = await _client.accessToken();
+        await _setProperty(
+          'http-header-fields',
+          'Authorization: Bearer $token',
+        );
+      } on AppException {
+        // No connection right now; the current token keeps working a while
+        // and the next tick tries again.
+      }
     });
   }
 
