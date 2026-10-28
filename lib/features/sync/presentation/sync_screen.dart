@@ -243,13 +243,20 @@ class _SyncStatusSection extends ConsumerWidget {
               : 'Abgeglichen ${DateFormat.Hm().format(report.at)}',
         ),
         subtitle: Text(
-          sync.error is CloudSubscriptionException
-              ? 'Deine Sammlung bleibt hier und lässt sich exportieren. Neue Änderungen werden nach einer Verlängerung abgeglichen.'
-              : sync.hasError
-              ? 'Änderungen bleiben auf dem Gerät und werden später übertragen.'
-              : report == null
-              ? ''
-              : '${report.pushed} gesendet, ${report.received} empfangen',
+          [
+            sync.error is CloudSubscriptionException
+                ? 'Deine Sammlung bleibt hier und lässt sich exportieren. Neue Änderungen werden nach einer Verlängerung abgeglichen.'
+                : sync.hasError
+                ? 'Änderungen bleiben auf dem Gerät und werden später übertragen.'
+                : report == null
+                ? ''
+                : '${report.pushed} gesendet, ${report.received} empfangen',
+            switch (ref.watch(pendingChangesProvider).valueOrNull ?? 0) {
+              0 => '',
+              1 => '1 Änderung wartet auf den Abgleich.',
+              final n => '$n Änderungen warten auf den Abgleich.',
+            },
+          ].where((line) => line.isNotEmpty).join('\n'),
         ),
         trailing: IconButton(
           tooltip: 'Jetzt abgleichen',

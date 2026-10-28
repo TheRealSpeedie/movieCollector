@@ -112,6 +112,7 @@ class SyncEngine {
       await _db.transaction(() async {
         // Changes to someone else's copy are refused; their version returns.
         final restore = <SyncRecord>[];
+        final drop = <({String type, String uuid})>[];
         for (final change in batch) {
           final result = byOp[change.opId];
           if (result == null) continue;
@@ -141,11 +142,17 @@ class SyncEngine {
                 );
               }
               if (server != null &&
-                  !server.deleted &&
                   result.conflicts.any((c) => c.field == _ownerConflict)) {
-                restore.add(
-                  SyncRecord(change.entityType, change.entityId, server.data),
-                );
+                // Not this person's to change: take the server's version, or
+                // drop a copy that is not visible to them.
+                if (server.deleted) {
+                  drop.add((type: change.entityType, uuid: change.entityId));
+                  await _deleteShadow(change.entityId);
+                } else {
+                  restore.add(
+                    SyncRecord(change.entityType, change.entityId, server.data),
+                  );
+                }
                 continue;
               }
               for (final conflict in result.conflicts) {
@@ -172,8 +179,8 @@ class SyncEngine {
               }
           }
         }
-        if (restore.isNotEmpty) {
-          await _records.apply(restore, const [], await _records.buildAll());
+        if (restore.isNotEmpty || drop.isNotEmpty) {
+          await _records.apply(restore, drop, await _records.buildAll());
           await _ownership.recompute();
         }
       });

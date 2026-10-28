@@ -63,10 +63,17 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (mounted) context.go(location);
   }
 
-  void _next() => _pages.nextPage(
-    duration: const Duration(milliseconds: 250),
-    curve: Curves.easeOut,
-  );
+  void _next() {
+    // People who turned off animations in the system settings get no slide.
+    if (MediaQuery.of(context).disableAnimations) {
+      _pages.jumpToPage((_pages.page ?? 0).round() + 1);
+      return;
+    }
+    _pages.nextPage(
+      duration: const Duration(milliseconds: 250),
+      curve: Curves.easeOut,
+    );
+  }
 
   Future<void> _savePreferences() async {
     await ref.read(userPreferencesProvider.notifier).save(_preferences);

@@ -82,6 +82,16 @@ class Discovery {
         parsed: parsed,
       );
     }
+    // Filters already say everything, or there is barely anything to
+    // choose from: asking a model would only cost time and money.
+    if (parsed.freeText.isEmpty || local.length < 3) {
+      return DiscoveryResult(
+        suggestions: local,
+        engine: 'Regeln',
+        parsed: parsed,
+        notice: 'Dafür reichen deine Filter – ohne KI.',
+      );
+    }
 
     final sent = local.take(maxSent).toList();
     try {

@@ -97,7 +97,7 @@ void main() {
         const RankedPick(7, 'erfunden'),
       ],
     );
-    final result = await run('', ranker: ranker);
+    final result = await run('ruhig wie Arrival', ranker: ranker);
 
     expect(
       ranker.seen!.map((s) => s.candidate.title),
@@ -109,7 +109,7 @@ void main() {
 
   test('when the AI fails, the own suggestions stay', () async {
     final result = await run(
-      '',
+      'ruhig wie Arrival',
       ranker: FakeRanker((_) => throw Exception('offline')),
     );
     expect(result.engine, 'Regeln');
@@ -143,5 +143,21 @@ void main() {
       expect(first.containsKey(key), isFalse, reason: key);
     }
     expect(first['availability'], ['owned']);
+  });
+
+  test('no AI is asked when the filters already say everything', () async {
+    final ranker = FakeRanker((_) => const [RankedPick(0, 'x')]);
+    final result = await run('etwas Lustiges unter 2 Stunden', ranker: ranker);
+    expect(ranker.seen, isNull);
+    expect(result.engine, 'Regeln');
+    expect(result.notice, contains('ohne KI'));
+    expect(
+      const QueryParser().parse('etwas Lustiges unter 2 Stunden').freeText,
+      isEmpty,
+    );
+    expect(
+      const QueryParser().parse('ruhig wie Arrival').freeText,
+      containsAll(['ruhig', 'arrival']),
+    );
   });
 }

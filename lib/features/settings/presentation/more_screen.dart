@@ -9,6 +9,7 @@ import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/collections_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../settings/application/settings_providers.dart';
+import '../../settings/data/settings_repository.dart';
 import '../../sync/application/sync_providers.dart';
 
 class MoreScreen extends ConsumerWidget {
@@ -39,7 +40,9 @@ class MoreScreen extends ConsumerWidget {
               subtitle: Text(
                 conflicts > 0
                     ? '$conflicts Widersprüche warten auf dich'
-                    : '${storage.label} · Export & Sicherung',
+                    : storage == CollectionStorage.local
+                    ? '${storage.label} · Export & Sicherung'
+                    : '${storage.label} · ${syncSummary(ref.watch(syncControllerProvider), ref.watch(pendingChangesProvider).valueOrNull ?? 0)}',
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/sync'),

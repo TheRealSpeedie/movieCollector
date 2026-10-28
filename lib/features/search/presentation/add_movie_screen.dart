@@ -208,15 +208,17 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
   Future<void> _rememberBarcode(int movieId) async {
     final barcode = widget.scan.barcode;
     if (barcode == null || barcode.isEmpty) return;
-    await ref.read(barcodeRepositoryProvider).saveMapping(
-      barcode: barcode,
-      barcodeType: widget.scan.barcodeType,
-      movieId: movieId,
-      productTitle: widget.scan.productTitle,
-      editionName: widget.scan.edition,
-      physicalFormat: widget.scan.physicalFormat,
-      imdbId: widget.scan.imdbId,
-      allowRemap: true,
-    );
+    await ref
+        .read(barcodeRepositoryProvider)
+        .saveMapping(
+          barcode: barcode,
+          barcodeType: widget.scan.barcodeType,
+          movieId: movieId,
+          productTitle: widget.scan.productTitle,
+          editionName: widget.scan.edition,
+          physicalFormat: widget.scan.physicalFormat,
+          imdbId: widget.scan.imdbId,
+          allowRemap: true,
+        );
   }
 }
