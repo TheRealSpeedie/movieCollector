@@ -63,7 +63,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -150,6 +150,10 @@ SELECT id, movie_id, barcode, barcode_type, product_title, edition_name, created
         await migrator.createTable(streamingOffers);
         await migrator.createTable(streamingChecks);
         await migrator.createTable(streamingSubscriptions);
+      }
+      if (from < 7) {
+        await _addColumnIfMissing('owned_copies', ownedCopies.ownerId);
+        await _addColumnIfMissing('owned_copies', ownedCopies.isPrivate);
       }
     },
   );

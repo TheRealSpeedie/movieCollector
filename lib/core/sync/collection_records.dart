@@ -51,6 +51,12 @@ class CollectionRecords {
 
   final AppDatabase _db;
 
+  /// This person's user id at the sync provider, learned from pulls. Copies
+  /// with this owner are stored as the device's own.
+  Future<String?> myUserId() async => (await (_db.select(
+    _db.syncMeta,
+  )..where((t) => t.key.equals('me'))).getSingleOrNull())?.value;
+
   /// The whole collection, keyed by UUID.
   Future<Map<String, SyncRecord>> buildAll() async {
     final records = <String, SyncRecord>{};
@@ -162,6 +168,9 @@ class CollectionRecords {
           'purchasePrice': c.purchasePrice,
           'storageLocation': c.storageLocation,
           'notes': c.notes,
+          'private': c.isPrivate,
+          // The server sets the owner of new copies; only others' copies carry it here.
+          if (c.ownerId != null) 'ownerId': c.ownerId,
         }),
       );
     }
@@ -491,6 +500,8 @@ class CollectionRecords {
     final edition = await _editionByUuid(f['editionId'] as String?);
     if (edition == null) return;
     final purchase = f['purchaseDate'] as String?;
+    final owner = f['ownerId'] as String?;
+    final me = await myUserId();
     final companion = OwnedCopiesCompanion(
       editionId: Value(edition.id),
       quantity: Value(f['quantity'] as int? ?? 1),
@@ -499,6 +510,8 @@ class CollectionRecords {
       purchasePrice: Value((f['purchasePrice'] as num?)?.toDouble()),
       storageLocation: Value(f['storageLocation'] as String?),
       notes: Value(f['notes'] as String?),
+      ownerId: Value(owner == null || owner == me ? null : owner),
+      isPrivate: Value(f['private'] as bool? ?? false),
       updatedAt: Value(DateTime.now()),
     );
     final existing = await (_db.select(

@@ -262,8 +262,22 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
       confirmLabel: 'Entfernen',
       destructive: true,
     );
-    if (!confirmed) return;
-    await ref.read(movieRepositoryProvider).deleteMovie(widget.movieId);
+    if (!confirmed || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final removed = await ref
+        .read(movieRepositoryProvider)
+        .deleteMovie(widget.movieId);
+    if (!removed) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Deine Exemplare sind entfernt. Der Film bleibt, weil andere im '
+            'Haushalt ihn besitzen.',
+          ),
+        ),
+      );
+      return;
+    }
     if (context.mounted) context.pop();
   }
 

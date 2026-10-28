@@ -3,20 +3,21 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:movie_shelf/core/database/app_database.dart' as _i7;
-import 'package:movie_shelf/core/network/network_info.dart' as _i10;
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i9;
+import 'package:movie_shelf/core/database/app_database.dart' as _i8;
+import 'package:movie_shelf/core/network/network_info.dart' as _i11;
+import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i10;
 import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart' as _i3;
+import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart' as _i4;
 import 'package:movie_shelf/core/network/upcitemdb/upcitemdb_client.dart'
-    as _i8;
+    as _i9;
 import 'package:movie_shelf/core/network/upcitemdb/upcitemdb_models.dart'
     as _i2;
 import 'package:movie_shelf/features/scanner/data/barcode_repository.dart'
-    as _i4;
-import 'package:movie_shelf/shared/models/movie.dart' as _i6;
+    as _i5;
+import 'package:movie_shelf/shared/models/movie.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -62,32 +63,38 @@ class _FakeTmdbTvDetails_4 extends _i1.SmartFake implements _i3.TmdbTvDetails {
     : super(parent, parentInvocation);
 }
 
+class _FakeTmdbWatchProviders_5 extends _i1.SmartFake
+    implements _i4.TmdbWatchProviders {
+  _FakeTmdbWatchProviders_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [BarcodeRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBarcodeRepository extends _i1.Mock implements _i4.BarcodeRepository {
+class MockBarcodeRepository extends _i1.Mock implements _i5.BarcodeRepository {
   MockBarcodeRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i6.Movie?> resolveMovie(String? barcode) =>
+  _i6.Future<_i7.Movie?> resolveMovie(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#resolveMovie, [barcode]),
-            returnValue: _i5.Future<_i6.Movie?>.value(),
+            returnValue: _i6.Future<_i7.Movie?>.value(),
           )
-          as _i5.Future<_i6.Movie?>);
+          as _i6.Future<_i7.Movie?>);
 
   @override
-  _i5.Stream<List<_i7.BarcodeRow>> watchBarcodesForMovie(int? movieId) =>
+  _i6.Stream<List<_i8.BarcodeRow>> watchBarcodesForMovie(int? movieId) =>
       (super.noSuchMethod(
             Invocation.method(#watchBarcodesForMovie, [movieId]),
-            returnValue: _i5.Stream<List<_i7.BarcodeRow>>.empty(),
+            returnValue: _i6.Stream<List<_i8.BarcodeRow>>.empty(),
           )
-          as _i5.Stream<List<_i7.BarcodeRow>>);
+          as _i6.Stream<List<_i8.BarcodeRow>>);
 
   @override
-  _i5.Future<int> saveMapping({
+  _i6.Future<int> saveMapping({
     required String? barcode,
     required String? barcodeType,
     required int? movieId,
@@ -112,12 +119,12 @@ class MockBarcodeRepository extends _i1.Mock implements _i4.BarcodeRepository {
               #source: source,
               #allowRemap: allowRemap,
             }),
-            returnValue: _i5.Future<int>.value(0),
+            returnValue: _i6.Future<int>.value(0),
           )
-          as _i5.Future<int>);
+          as _i6.Future<int>);
 
   @override
-  _i5.Future<void> saveEditionMapping({
+  _i6.Future<void> saveEditionMapping({
     required String? barcode,
     required String? barcodeType,
     required int? physicalEditionId,
@@ -144,53 +151,53 @@ class MockBarcodeRepository extends _i1.Mock implements _i4.BarcodeRepository {
               #source: source,
               #allowRemap: allowRemap,
             }),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 
   @override
-  _i5.Future<void> deleteMapping(int? barcodeId) =>
+  _i6.Future<void> deleteMapping(int? barcodeId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteMapping, [barcodeId]),
-            returnValue: _i5.Future<void>.value(),
-            returnValueForMissingStub: _i5.Future<void>.value(),
+            returnValue: _i6.Future<void>.value(),
+            returnValueForMissingStub: _i6.Future<void>.value(),
           )
-          as _i5.Future<void>);
+          as _i6.Future<void>);
 }
 
 /// A class which mocks [BarcodeProvider].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockBarcodeProvider extends _i1.Mock implements _i8.BarcodeProvider {
+class MockBarcodeProvider extends _i1.Mock implements _i9.BarcodeProvider {
   MockBarcodeProvider() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<_i2.UpcLookupResult> lookup(String? barcode) =>
+  _i6.Future<_i2.UpcLookupResult> lookup(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#lookup, [barcode]),
-            returnValue: _i5.Future<_i2.UpcLookupResult>.value(
+            returnValue: _i6.Future<_i2.UpcLookupResult>.value(
               _FakeUpcLookupResult_0(
                 this,
                 Invocation.method(#lookup, [barcode]),
               ),
             ),
           )
-          as _i5.Future<_i2.UpcLookupResult>);
+          as _i6.Future<_i2.UpcLookupResult>);
 }
 
 /// A class which mocks [TmdbApiClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTmdbApiClient extends _i1.Mock implements _i9.TmdbApiClient {
+class MockTmdbApiClient extends _i1.Mock implements _i10.TmdbApiClient {
   MockTmdbApiClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<List<_i3.TmdbSearchResult>> searchMovies(
+  _i6.Future<List<_i3.TmdbSearchResult>> searchMovies(
     String? query, {
     int? page = 1,
     int? year,
@@ -201,105 +208,136 @@ class MockTmdbApiClient extends _i1.Mock implements _i9.TmdbApiClient {
               [query],
               {#page: page, #year: year},
             ),
-            returnValue: _i5.Future<List<_i3.TmdbSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbSearchResult>>.value(
               <_i3.TmdbSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbSearchResult>>);
+          as _i6.Future<List<_i3.TmdbSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
+  _i6.Future<_i3.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getMovieDetails, [tmdbId]),
-            returnValue: _i5.Future<_i3.TmdbMovieDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbMovieDetails>.value(
               _FakeTmdbMovieDetails_1(
                 this,
                 Invocation.method(#getMovieDetails, [tmdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbMovieDetails>);
+          as _i6.Future<_i3.TmdbMovieDetails>);
 
   @override
-  _i5.Future<_i3.TmdbCollectionDetails> getCollection(int? collectionId) =>
+  _i6.Future<_i3.TmdbCollectionDetails> getCollection(int? collectionId) =>
       (super.noSuchMethod(
             Invocation.method(#getCollection, [collectionId]),
-            returnValue: _i5.Future<_i3.TmdbCollectionDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbCollectionDetails>.value(
               _FakeTmdbCollectionDetails_2(
                 this,
                 Invocation.method(#getCollection, [collectionId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbCollectionDetails>);
+          as _i6.Future<_i3.TmdbCollectionDetails>);
 
   @override
-  _i5.Future<List<_i3.TmdbCollectionSearchResult>> searchCollections(
+  _i6.Future<List<_i3.TmdbCollectionSearchResult>> searchCollections(
     String? query, {
     int? page = 1,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchCollections, [query], {#page: page}),
-            returnValue: _i5.Future<List<_i3.TmdbCollectionSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbCollectionSearchResult>>.value(
               <_i3.TmdbCollectionSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbCollectionSearchResult>>);
+          as _i6.Future<List<_i3.TmdbCollectionSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbExternalMatch> findByImdbId(String? imdbId) =>
+  _i6.Future<_i3.TmdbExternalMatch> findByImdbId(String? imdbId) =>
       (super.noSuchMethod(
             Invocation.method(#findByImdbId, [imdbId]),
-            returnValue: _i5.Future<_i3.TmdbExternalMatch>.value(
+            returnValue: _i6.Future<_i3.TmdbExternalMatch>.value(
               _FakeTmdbExternalMatch_3(
                 this,
                 Invocation.method(#findByImdbId, [imdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbExternalMatch>);
+          as _i6.Future<_i3.TmdbExternalMatch>);
 
   @override
-  _i5.Future<List<_i3.TmdbTvSearchResult>> searchTv(
+  _i6.Future<List<_i3.TmdbTvSearchResult>> searchTv(
     String? query, {
     int? page = 1,
     int? year,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchTv, [query], {#page: page, #year: year}),
-            returnValue: _i5.Future<List<_i3.TmdbTvSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbTvSearchResult>>.value(
               <_i3.TmdbTvSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbTvSearchResult>>);
+          as _i6.Future<List<_i3.TmdbTvSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbTvDetails> getTvDetails(int? tmdbId) =>
+  _i6.Future<_i3.TmdbTvDetails> getTvDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getTvDetails, [tmdbId]),
-            returnValue: _i5.Future<_i3.TmdbTvDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbTvDetails>.value(
               _FakeTmdbTvDetails_4(
                 this,
                 Invocation.method(#getTvDetails, [tmdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbTvDetails>);
+          as _i6.Future<_i3.TmdbTvDetails>);
+
+  @override
+  _i6.Future<_i4.TmdbWatchProviders> getWatchProviders(
+    String? mediaType,
+    int? tmdbId,
+    String? region,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getWatchProviders, [mediaType, tmdbId, region]),
+            returnValue: _i6.Future<_i4.TmdbWatchProviders>.value(
+              _FakeTmdbWatchProviders_5(
+                this,
+                Invocation.method(#getWatchProviders, [
+                  mediaType,
+                  tmdbId,
+                  region,
+                ]),
+              ),
+            ),
+          )
+          as _i6.Future<_i4.TmdbWatchProviders>);
+
+  @override
+  _i6.Future<List<_i4.TmdbProvider>> getProviders(String? region) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProviders, [region]),
+            returnValue: _i6.Future<List<_i4.TmdbProvider>>.value(
+              <_i4.TmdbProvider>[],
+            ),
+          )
+          as _i6.Future<List<_i4.TmdbProvider>>);
 }
 
 /// A class which mocks [NetworkInfo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockNetworkInfo extends _i1.Mock implements _i10.NetworkInfo {
+class MockNetworkInfo extends _i1.Mock implements _i11.NetworkInfo {
   MockNetworkInfo() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<bool> get isConnected =>
+  _i6.Future<bool> get isConnected =>
       (super.noSuchMethod(
             Invocation.getter(#isConnected),
-            returnValue: _i5.Future<bool>.value(false),
+            returnValue: _i6.Future<bool>.value(false),
           )
-          as _i5.Future<bool>);
+          as _i6.Future<bool>);
 }

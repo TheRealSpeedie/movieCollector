@@ -7189,6 +7189,32 @@ class $OwnedCopiesTable extends OwnedCopies
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isPrivateMeta = const VerificationMeta(
+    'isPrivate',
+  );
+  @override
+  late final GeneratedColumn<bool> isPrivate = GeneratedColumn<bool>(
+    'is_private',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_private" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7224,6 +7250,8 @@ class $OwnedCopiesTable extends OwnedCopies
     purchasePrice,
     storageLocation,
     notes,
+    ownerId,
+    isPrivate,
     createdAt,
     updatedAt,
   ];
@@ -7301,6 +7329,18 @@ class $OwnedCopiesTable extends OwnedCopies
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    }
+    if (data.containsKey('is_private')) {
+      context.handle(
+        _isPrivateMeta,
+        isPrivate.isAcceptableOrUnknown(data['is_private']!, _isPrivateMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -7358,6 +7398,14 @@ class $OwnedCopiesTable extends OwnedCopies
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      ),
+      isPrivate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_private'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -7385,6 +7433,13 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
   final double? purchasePrice;
   final String? storageLocation;
   final String? notes;
+
+  /// Who owns the copy in a household, as the server's user id. Null means
+  /// the person using this device.
+  final String? ownerId;
+
+  /// Only visible to its owner, also in a household.
+  final bool isPrivate;
   final DateTime createdAt;
   final DateTime updatedAt;
   const OwnedCopyRow({
@@ -7397,6 +7452,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     this.purchasePrice,
     this.storageLocation,
     this.notes,
+    this.ownerId,
+    required this.isPrivate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -7422,6 +7479,10 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || ownerId != null) {
+      map['owner_id'] = Variable<String>(ownerId);
+    }
+    map['is_private'] = Variable<bool>(isPrivate);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -7448,6 +7509,10 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      ownerId: ownerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerId),
+      isPrivate: Value(isPrivate),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -7468,6 +7533,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       purchasePrice: serializer.fromJson<double?>(json['purchasePrice']),
       storageLocation: serializer.fromJson<String?>(json['storageLocation']),
       notes: serializer.fromJson<String?>(json['notes']),
+      ownerId: serializer.fromJson<String?>(json['ownerId']),
+      isPrivate: serializer.fromJson<bool>(json['isPrivate']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -7485,6 +7552,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       'purchasePrice': serializer.toJson<double?>(purchasePrice),
       'storageLocation': serializer.toJson<String?>(storageLocation),
       'notes': serializer.toJson<String?>(notes),
+      'ownerId': serializer.toJson<String?>(ownerId),
+      'isPrivate': serializer.toJson<bool>(isPrivate),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -7500,6 +7569,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     Value<double?> purchasePrice = const Value.absent(),
     Value<String?> storageLocation = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> ownerId = const Value.absent(),
+    bool? isPrivate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => OwnedCopyRow(
@@ -7516,6 +7587,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
         ? storageLocation.value
         : this.storageLocation,
     notes: notes.present ? notes.value : this.notes,
+    ownerId: ownerId.present ? ownerId.value : this.ownerId,
+    isPrivate: isPrivate ?? this.isPrivate,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -7536,6 +7609,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           ? data.storageLocation.value
           : this.storageLocation,
       notes: data.notes.present ? data.notes.value : this.notes,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      isPrivate: data.isPrivate.present ? data.isPrivate.value : this.isPrivate,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -7553,6 +7628,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           ..write('purchasePrice: $purchasePrice, ')
           ..write('storageLocation: $storageLocation, ')
           ..write('notes: $notes, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('isPrivate: $isPrivate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -7570,6 +7647,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     purchasePrice,
     storageLocation,
     notes,
+    ownerId,
+    isPrivate,
     createdAt,
     updatedAt,
   );
@@ -7586,6 +7665,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           other.purchasePrice == this.purchasePrice &&
           other.storageLocation == this.storageLocation &&
           other.notes == this.notes &&
+          other.ownerId == this.ownerId &&
+          other.isPrivate == this.isPrivate &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -7600,6 +7681,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
   final Value<double?> purchasePrice;
   final Value<String?> storageLocation;
   final Value<String?> notes;
+  final Value<String?> ownerId;
+  final Value<bool> isPrivate;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const OwnedCopiesCompanion({
@@ -7612,6 +7695,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     this.purchasePrice = const Value.absent(),
     this.storageLocation = const Value.absent(),
     this.notes = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.isPrivate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -7625,6 +7710,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     this.purchasePrice = const Value.absent(),
     this.storageLocation = const Value.absent(),
     this.notes = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.isPrivate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : editionId = Value(editionId);
@@ -7638,6 +7725,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     Expression<double>? purchasePrice,
     Expression<String>? storageLocation,
     Expression<String>? notes,
+    Expression<String>? ownerId,
+    Expression<bool>? isPrivate,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -7651,6 +7740,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
       if (purchasePrice != null) 'purchase_price': purchasePrice,
       if (storageLocation != null) 'storage_location': storageLocation,
       if (notes != null) 'notes': notes,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (isPrivate != null) 'is_private': isPrivate,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -7666,6 +7757,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     Value<double?>? purchasePrice,
     Value<String?>? storageLocation,
     Value<String?>? notes,
+    Value<String?>? ownerId,
+    Value<bool>? isPrivate,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -7679,6 +7772,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
       purchasePrice: purchasePrice ?? this.purchasePrice,
       storageLocation: storageLocation ?? this.storageLocation,
       notes: notes ?? this.notes,
+      ownerId: ownerId ?? this.ownerId,
+      isPrivate: isPrivate ?? this.isPrivate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -7714,6 +7809,12 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (isPrivate.present) {
+      map['is_private'] = Variable<bool>(isPrivate.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -7735,6 +7836,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
           ..write('purchasePrice: $purchasePrice, ')
           ..write('storageLocation: $storageLocation, ')
           ..write('notes: $notes, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('isPrivate: $isPrivate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -18208,6 +18311,8 @@ typedef $$OwnedCopiesTableCreateCompanionBuilder =
       Value<double?> purchasePrice,
       Value<String?> storageLocation,
       Value<String?> notes,
+      Value<String?> ownerId,
+      Value<bool> isPrivate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -18222,6 +18327,8 @@ typedef $$OwnedCopiesTableUpdateCompanionBuilder =
       Value<double?> purchasePrice,
       Value<String?> storageLocation,
       Value<String?> notes,
+      Value<String?> ownerId,
+      Value<bool> isPrivate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -18296,6 +18403,16 @@ class $$OwnedCopiesTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPrivate => $composableBuilder(
+    column: $table.isPrivate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18382,6 +18499,16 @@ class $$OwnedCopiesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPrivate => $composableBuilder(
+    column: $table.isPrivate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -18455,6 +18582,12 @@ class $$OwnedCopiesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPrivate =>
+      $composableBuilder(column: $table.isPrivate, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -18522,6 +18655,8 @@ class $$OwnedCopiesTableTableManager
                 Value<double?> purchasePrice = const Value.absent(),
                 Value<String?> storageLocation = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> ownerId = const Value.absent(),
+                Value<bool> isPrivate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => OwnedCopiesCompanion(
@@ -18534,6 +18669,8 @@ class $$OwnedCopiesTableTableManager
                 purchasePrice: purchasePrice,
                 storageLocation: storageLocation,
                 notes: notes,
+                ownerId: ownerId,
+                isPrivate: isPrivate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -18548,6 +18685,8 @@ class $$OwnedCopiesTableTableManager
                 Value<double?> purchasePrice = const Value.absent(),
                 Value<String?> storageLocation = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> ownerId = const Value.absent(),
+                Value<bool> isPrivate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => OwnedCopiesCompanion.insert(
@@ -18560,6 +18699,8 @@ class $$OwnedCopiesTableTableManager
                 purchasePrice: purchasePrice,
                 storageLocation: storageLocation,
                 notes: notes,
+                ownerId: ownerId,
+                isPrivate: isPrivate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

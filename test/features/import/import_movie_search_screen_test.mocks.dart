@@ -3,14 +3,15 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i5;
+import 'dart:async' as _i6;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i7;
+import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i8;
 import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart' as _i3;
-import 'package:movie_shelf/features/import/data/import_repository.dart' as _i4;
+import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart' as _i4;
+import 'package:movie_shelf/features/import/data/import_repository.dart' as _i5;
 import 'package:movie_shelf/features/import/domain/import_models.dart' as _i2;
-import 'package:movie_shelf/shared/models/collection_status.dart' as _i6;
+import 'package:movie_shelf/shared/models/collection_status.dart' as _i7;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -56,28 +57,34 @@ class _FakeTmdbTvDetails_4 extends _i1.SmartFake implements _i3.TmdbTvDetails {
     : super(parent, parentInvocation);
 }
 
+class _FakeTmdbWatchProviders_5 extends _i1.SmartFake
+    implements _i4.TmdbWatchProviders {
+  _FakeTmdbWatchProviders_5(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
 /// A class which mocks [ImportRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockImportRepository extends _i1.Mock implements _i4.ImportRepository {
+class MockImportRepository extends _i1.Mock implements _i5.ImportRepository {
   MockImportRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<List<_i2.ImportRow>> buildRows(List<String>? rawLines) =>
+  _i6.Future<List<_i2.ImportRow>> buildRows(List<String>? rawLines) =>
       (super.noSuchMethod(
             Invocation.method(#buildRows, [rawLines]),
-            returnValue: _i5.Future<List<_i2.ImportRow>>.value(
+            returnValue: _i6.Future<List<_i2.ImportRow>>.value(
               <_i2.ImportRow>[],
             ),
           )
-          as _i5.Future<List<_i2.ImportRow>>);
+          as _i6.Future<List<_i2.ImportRow>>);
 
   @override
-  _i5.Future<_i2.ImportCommitReport> commit(
+  _i6.Future<_i2.ImportCommitReport> commit(
     List<_i2.ImportRow>? rows,
-    _i6.CollectionStatus? defaultStatus, {
+    _i7.CollectionStatus? defaultStatus, {
     void Function(_i2.ImportSaveProgress)? onProgress,
     Set<int>? onlyIndexes,
   }) =>
@@ -87,7 +94,7 @@ class MockImportRepository extends _i1.Mock implements _i4.ImportRepository {
               [rows, defaultStatus],
               {#onProgress: onProgress, #onlyIndexes: onlyIndexes},
             ),
-            returnValue: _i5.Future<_i2.ImportCommitReport>.value(
+            returnValue: _i6.Future<_i2.ImportCommitReport>.value(
               _FakeImportCommitReport_0(
                 this,
                 Invocation.method(
@@ -98,19 +105,19 @@ class MockImportRepository extends _i1.Mock implements _i4.ImportRepository {
               ),
             ),
           )
-          as _i5.Future<_i2.ImportCommitReport>);
+          as _i6.Future<_i2.ImportCommitReport>);
 }
 
 /// A class which mocks [TmdbApiClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTmdbApiClient extends _i1.Mock implements _i7.TmdbApiClient {
+class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
   MockTmdbApiClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i5.Future<List<_i3.TmdbSearchResult>> searchMovies(
+  _i6.Future<List<_i3.TmdbSearchResult>> searchMovies(
     String? query, {
     int? page = 1,
     int? year,
@@ -121,88 +128,119 @@ class MockTmdbApiClient extends _i1.Mock implements _i7.TmdbApiClient {
               [query],
               {#page: page, #year: year},
             ),
-            returnValue: _i5.Future<List<_i3.TmdbSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbSearchResult>>.value(
               <_i3.TmdbSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbSearchResult>>);
+          as _i6.Future<List<_i3.TmdbSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
+  _i6.Future<_i3.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getMovieDetails, [tmdbId]),
-            returnValue: _i5.Future<_i3.TmdbMovieDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbMovieDetails>.value(
               _FakeTmdbMovieDetails_1(
                 this,
                 Invocation.method(#getMovieDetails, [tmdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbMovieDetails>);
+          as _i6.Future<_i3.TmdbMovieDetails>);
 
   @override
-  _i5.Future<_i3.TmdbCollectionDetails> getCollection(int? collectionId) =>
+  _i6.Future<_i3.TmdbCollectionDetails> getCollection(int? collectionId) =>
       (super.noSuchMethod(
             Invocation.method(#getCollection, [collectionId]),
-            returnValue: _i5.Future<_i3.TmdbCollectionDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbCollectionDetails>.value(
               _FakeTmdbCollectionDetails_2(
                 this,
                 Invocation.method(#getCollection, [collectionId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbCollectionDetails>);
+          as _i6.Future<_i3.TmdbCollectionDetails>);
 
   @override
-  _i5.Future<List<_i3.TmdbCollectionSearchResult>> searchCollections(
+  _i6.Future<List<_i3.TmdbCollectionSearchResult>> searchCollections(
     String? query, {
     int? page = 1,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchCollections, [query], {#page: page}),
-            returnValue: _i5.Future<List<_i3.TmdbCollectionSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbCollectionSearchResult>>.value(
               <_i3.TmdbCollectionSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbCollectionSearchResult>>);
+          as _i6.Future<List<_i3.TmdbCollectionSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbExternalMatch> findByImdbId(String? imdbId) =>
+  _i6.Future<_i3.TmdbExternalMatch> findByImdbId(String? imdbId) =>
       (super.noSuchMethod(
             Invocation.method(#findByImdbId, [imdbId]),
-            returnValue: _i5.Future<_i3.TmdbExternalMatch>.value(
+            returnValue: _i6.Future<_i3.TmdbExternalMatch>.value(
               _FakeTmdbExternalMatch_3(
                 this,
                 Invocation.method(#findByImdbId, [imdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbExternalMatch>);
+          as _i6.Future<_i3.TmdbExternalMatch>);
 
   @override
-  _i5.Future<List<_i3.TmdbTvSearchResult>> searchTv(
+  _i6.Future<List<_i3.TmdbTvSearchResult>> searchTv(
     String? query, {
     int? page = 1,
     int? year,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchTv, [query], {#page: page, #year: year}),
-            returnValue: _i5.Future<List<_i3.TmdbTvSearchResult>>.value(
+            returnValue: _i6.Future<List<_i3.TmdbTvSearchResult>>.value(
               <_i3.TmdbTvSearchResult>[],
             ),
           )
-          as _i5.Future<List<_i3.TmdbTvSearchResult>>);
+          as _i6.Future<List<_i3.TmdbTvSearchResult>>);
 
   @override
-  _i5.Future<_i3.TmdbTvDetails> getTvDetails(int? tmdbId) =>
+  _i6.Future<_i3.TmdbTvDetails> getTvDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getTvDetails, [tmdbId]),
-            returnValue: _i5.Future<_i3.TmdbTvDetails>.value(
+            returnValue: _i6.Future<_i3.TmdbTvDetails>.value(
               _FakeTmdbTvDetails_4(
                 this,
                 Invocation.method(#getTvDetails, [tmdbId]),
               ),
             ),
           )
-          as _i5.Future<_i3.TmdbTvDetails>);
+          as _i6.Future<_i3.TmdbTvDetails>);
+
+  @override
+  _i6.Future<_i4.TmdbWatchProviders> getWatchProviders(
+    String? mediaType,
+    int? tmdbId,
+    String? region,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getWatchProviders, [mediaType, tmdbId, region]),
+            returnValue: _i6.Future<_i4.TmdbWatchProviders>.value(
+              _FakeTmdbWatchProviders_5(
+                this,
+                Invocation.method(#getWatchProviders, [
+                  mediaType,
+                  tmdbId,
+                  region,
+                ]),
+              ),
+            ),
+          )
+          as _i6.Future<_i4.TmdbWatchProviders>);
+
+  @override
+  _i6.Future<List<_i4.TmdbProvider>> getProviders(String? region) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProviders, [region]),
+            returnValue: _i6.Future<List<_i4.TmdbProvider>>.value(
+              <_i4.TmdbProvider>[],
+            ),
+          )
+          as _i6.Future<List<_i4.TmdbProvider>>);
 }

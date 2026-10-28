@@ -80,10 +80,12 @@ class OwnershipService {
     });
   }
 
+  /// This person's copy of the edition; other household members' copies do
+  /// not count.
   Future<int> ensureCopy(int editionId) async {
     final existing =
         await (_db.select(_db.ownedCopies)
-              ..where((t) => t.editionId.equals(editionId))
+              ..where((t) => t.editionId.equals(editionId) & t.ownerId.isNull())
               ..limit(1))
             .getSingleOrNull();
     if (existing != null) return existing.id;
@@ -92,11 +94,12 @@ class OwnershipService {
         .insert(OwnedCopiesCompanion.insert(editionId: editionId));
   }
 
+  /// Removes one of this person's copies. Someone else's copy stays.
   Future<void> removeCopy(int copyId) async {
     await _db.transaction(() async {
       await (_db.delete(
         _db.ownedCopies,
-      )..where((t) => t.id.equals(copyId))).go();
+      )..where((t) => t.id.equals(copyId) & t.ownerId.isNull())).go();
       await recompute();
     });
   }
@@ -255,7 +258,7 @@ UPDATE tv_seasons SET user_status = CASE
     if (editions.isEmpty) return;
     await (_db.delete(
       _db.ownedCopies,
-    )..where((t) => t.editionId.isIn(editions))).go();
+    )..where((t) => t.editionId.isIn(editions) & t.ownerId.isNull())).go();
   }
 
   Future<void> _removeSingleCopiesOfSeason(int seasonId) async {
@@ -263,7 +266,32 @@ UPDATE tv_seasons SET user_status = CASE
     if (editions.isEmpty) return;
     await (_db.delete(
       _db.ownedCopies,
-    )..where((t) => t.editionId.isIn(editions))).go();
+    )..where((t) => t.editionId.isIn(editions) & t.ownerId.isNull())).go();
+  }
+
+  /// Copies of the movie that belong to other household members.
+  Future<int> othersCopiesOfMovie(int movieId) async {
+    final rows = await _db
+        .customSelect(
+          'SELECT COUNT(*) AS n FROM owned_copies c '
+          'JOIN physical_edition_movies em ON em.edition_id = c.edition_id '
+          'WHERE em.movie_id = ? AND c.owner_id IS NOT NULL',
+          variables: [Variable.withInt(movieId)],
+        )
+        .getSingle();
+    return rows.read<int>('n');
+  }
+
+  /// Removes all of this person's copies of the movie, in every edition.
+  Future<void> removeMyCopiesOfMovie(int movieId) async {
+    await _db.transaction(() async {
+      await _db.customStatement(
+        'DELETE FROM owned_copies WHERE owner_id IS NULL AND edition_id IN '
+        '(SELECT edition_id FROM physical_edition_movies WHERE movie_id = ?)',
+        [movieId],
+      );
+      await recompute();
+    });
   }
 
   Future<void> _setWishlist({

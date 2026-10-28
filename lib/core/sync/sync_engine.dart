@@ -31,6 +31,8 @@ class _CollectionChanged implements Exception {
   const _CollectionChanged();
 }
 
+const _ownerConflict = '_owner';
+
 class SyncEngine {
   SyncEngine(this._db, this._provider)
     : _records = CollectionRecords(_db),
@@ -54,8 +56,15 @@ class SyncEngine {
     try {
       return await _runOnce();
     } on _CollectionChanged {
-      // Another collection now, for example after joining a household: send
-      // everything this device holds and take over what is there.
+      // Another collection now, for example after joining or leaving a
+      // household. Copies of other people stay behind; everything else this
+      // device holds is sent, and what is there is taken over.
+      await _db.transaction(() async {
+        await (_db.delete(
+          _db.ownedCopies,
+        )..where((t) => t.ownerId.isNotNull())).go();
+        await _ownership.recompute();
+      });
       await reset();
       return _runOnce();
     }
@@ -80,7 +89,12 @@ class SyncEngine {
   Future<List<SyncChange>> pendingChanges() async {
     final shadow = await _shadow();
     final blocked = await _blockedFields();
-    return _diff(await _records.buildAll(), shadow, blocked);
+    return _diff(
+      await _records.buildAll(),
+      shadow,
+      blocked,
+      await _records.myUserId(),
+    );
   }
 
   Future<int> _push() async {
@@ -96,6 +110,8 @@ class SyncEngine {
       final results = await _provider.push(batch);
       final byOp = {for (final r in results) r.opId: r};
       await _db.transaction(() async {
+        // Changes to someone else's copy are refused; their version returns.
+        final restore = <SyncRecord>[];
         for (final change in batch) {
           final result = byOp[change.opId];
           if (result == null) continue;
@@ -124,6 +140,14 @@ class SyncEngine {
                   server.deleted ? const {} : server.data,
                 );
               }
+              if (server != null &&
+                  !server.deleted &&
+                  result.conflicts.any((c) => c.field == _ownerConflict)) {
+                restore.add(
+                  SyncRecord(change.entityType, change.entityId, server.data),
+                );
+                continue;
+              }
               for (final conflict in result.conflicts) {
                 final row = SyncConflictsCompanion.insert(
                   entityType: change.entityType,
@@ -148,6 +172,10 @@ class SyncEngine {
               }
           }
         }
+        if (restore.isNotEmpty) {
+          await _records.apply(restore, const [], await _records.buildAll());
+          await _ownership.recompute();
+        }
       });
     }
     return applied;
@@ -159,6 +187,7 @@ class SyncEngine {
     final remote = <String, RemoteRecord>{};
     while (true) {
       final page = await _provider.pull(cursor, limit: _batch);
+      if (page.userId != null) await _setMeta('me', '${page.userId}');
       final collection = page.collectionId;
       if (collection != null) {
         final known = await _meta('collection');
@@ -318,9 +347,18 @@ class SyncEngine {
     Map<String, SyncRecord> local,
     Map<String, _Shadow> shadow,
     Map<String, Set<String>> blocked,
+    String? me,
   ) {
+    // Someone else's copy is never sent: this device cannot change it, and
+    // after leaving a household it must not end up in the own collection.
+    bool othersCopy(String type, Map<String, Object?> fields) {
+      final owner = fields['ownerId'];
+      return type == SyncEntityType.copy && owner != null && owner != me;
+    }
+
     final changes = <SyncChange>[];
     for (final record in local.values) {
+      if (othersCopy(record.type, record.fields)) continue;
       final blockedHere = blocked[record.uuid] ?? const <String>{};
       if (blockedHere.contains(FieldConflict.deletedField)) continue;
       final base = shadow[record.uuid];
@@ -336,6 +374,7 @@ class SyncEngine {
     }
     for (final entry in shadow.entries) {
       if (local.containsKey(entry.key) || entry.value.fields.isEmpty) continue;
+      if (othersCopy(entry.value.type, entry.value.fields)) continue;
       if (blocked[entry.key]?.contains(FieldConflict.deletedField) ?? false) {
         continue;
       }

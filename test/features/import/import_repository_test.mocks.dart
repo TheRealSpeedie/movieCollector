@@ -3,22 +3,23 @@
 // Do not manually edit this file.
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:async' as _i9;
+import 'dart:async' as _i10;
 
 import 'package:mockito/mockito.dart' as _i1;
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i8;
+import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart' as _i9;
 import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart' as _i2;
+import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart' as _i3;
 import 'package:movie_shelf/features/editions/data/physical_edition_repository.dart'
-    as _i13;
-import 'package:movie_shelf/features/movies/data/movie_repository.dart' as _i4;
-import 'package:movie_shelf/features/tv/data/tv_repository.dart' as _i6;
-import 'package:movie_shelf/shared/models/collection_status.dart' as _i10;
-import 'package:movie_shelf/shared/models/movie.dart' as _i3;
-import 'package:movie_shelf/shared/models/physical_edition.dart' as _i7;
-import 'package:movie_shelf/shared/models/physical_edition_kind.dart' as _i14;
-import 'package:movie_shelf/shared/models/tv_season.dart' as _i12;
-import 'package:movie_shelf/shared/models/tv_series.dart' as _i11;
-import 'package:movie_shelf/shared/models/tv_series_with_seasons.dart' as _i5;
+    as _i14;
+import 'package:movie_shelf/features/movies/data/movie_repository.dart' as _i5;
+import 'package:movie_shelf/features/tv/data/tv_repository.dart' as _i7;
+import 'package:movie_shelf/shared/models/collection_status.dart' as _i11;
+import 'package:movie_shelf/shared/models/movie.dart' as _i4;
+import 'package:movie_shelf/shared/models/physical_edition.dart' as _i8;
+import 'package:movie_shelf/shared/models/physical_edition_kind.dart' as _i15;
+import 'package:movie_shelf/shared/models/tv_season.dart' as _i13;
+import 'package:movie_shelf/shared/models/tv_series.dart' as _i12;
+import 'package:movie_shelf/shared/models/tv_series_with_seasons.dart' as _i6;
 
 // ignore_for_file: type=lint
 // ignore_for_file: avoid_redundant_argument_values
@@ -58,45 +59,51 @@ class _FakeTmdbTvDetails_3 extends _i1.SmartFake implements _i2.TmdbTvDetails {
     : super(parent, parentInvocation);
 }
 
-class _FakeMovie_4 extends _i1.SmartFake implements _i3.Movie {
-  _FakeMovie_4(Object parent, Invocation parentInvocation)
+class _FakeTmdbWatchProviders_4 extends _i1.SmartFake
+    implements _i3.TmdbWatchProviders {
+  _FakeTmdbWatchProviders_4(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeMovieUpsertResult_5 extends _i1.SmartFake
-    implements _i4.MovieUpsertResult {
-  _FakeMovieUpsertResult_5(Object parent, Invocation parentInvocation)
+class _FakeMovie_5 extends _i1.SmartFake implements _i4.Movie {
+  _FakeMovie_5(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTvSeriesWithSeasons_6 extends _i1.SmartFake
-    implements _i5.TvSeriesWithSeasons {
-  _FakeTvSeriesWithSeasons_6(Object parent, Invocation parentInvocation)
+class _FakeMovieUpsertResult_6 extends _i1.SmartFake
+    implements _i5.MovieUpsertResult {
+  _FakeMovieUpsertResult_6(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakeTvUpsertResult_7 extends _i1.SmartFake
-    implements _i6.TvUpsertResult {
-  _FakeTvUpsertResult_7(Object parent, Invocation parentInvocation)
+class _FakeTvSeriesWithSeasons_7 extends _i1.SmartFake
+    implements _i6.TvSeriesWithSeasons {
+  _FakeTvSeriesWithSeasons_7(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
-class _FakePhysicalEditionContents_8 extends _i1.SmartFake
-    implements _i7.PhysicalEditionContents {
-  _FakePhysicalEditionContents_8(Object parent, Invocation parentInvocation)
+class _FakeTvUpsertResult_8 extends _i1.SmartFake
+    implements _i7.TvUpsertResult {
+  _FakeTvUpsertResult_8(Object parent, Invocation parentInvocation)
+    : super(parent, parentInvocation);
+}
+
+class _FakePhysicalEditionContents_9 extends _i1.SmartFake
+    implements _i8.PhysicalEditionContents {
+  _FakePhysicalEditionContents_9(Object parent, Invocation parentInvocation)
     : super(parent, parentInvocation);
 }
 
 /// A class which mocks [TmdbApiClient].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
+class MockTmdbApiClient extends _i1.Mock implements _i9.TmdbApiClient {
   MockTmdbApiClient() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Future<List<_i2.TmdbSearchResult>> searchMovies(
+  _i10.Future<List<_i2.TmdbSearchResult>> searchMovies(
     String? query, {
     int? page = 1,
     int? year,
@@ -107,128 +114,160 @@ class MockTmdbApiClient extends _i1.Mock implements _i8.TmdbApiClient {
               [query],
               {#page: page, #year: year},
             ),
-            returnValue: _i9.Future<List<_i2.TmdbSearchResult>>.value(
+            returnValue: _i10.Future<List<_i2.TmdbSearchResult>>.value(
               <_i2.TmdbSearchResult>[],
             ),
           )
-          as _i9.Future<List<_i2.TmdbSearchResult>>);
+          as _i10.Future<List<_i2.TmdbSearchResult>>);
 
   @override
-  _i9.Future<_i2.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
+  _i10.Future<_i2.TmdbMovieDetails> getMovieDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getMovieDetails, [tmdbId]),
-            returnValue: _i9.Future<_i2.TmdbMovieDetails>.value(
+            returnValue: _i10.Future<_i2.TmdbMovieDetails>.value(
               _FakeTmdbMovieDetails_0(
                 this,
                 Invocation.method(#getMovieDetails, [tmdbId]),
               ),
             ),
           )
-          as _i9.Future<_i2.TmdbMovieDetails>);
+          as _i10.Future<_i2.TmdbMovieDetails>);
 
   @override
-  _i9.Future<_i2.TmdbCollectionDetails> getCollection(int? collectionId) =>
+  _i10.Future<_i2.TmdbCollectionDetails> getCollection(int? collectionId) =>
       (super.noSuchMethod(
             Invocation.method(#getCollection, [collectionId]),
-            returnValue: _i9.Future<_i2.TmdbCollectionDetails>.value(
+            returnValue: _i10.Future<_i2.TmdbCollectionDetails>.value(
               _FakeTmdbCollectionDetails_1(
                 this,
                 Invocation.method(#getCollection, [collectionId]),
               ),
             ),
           )
-          as _i9.Future<_i2.TmdbCollectionDetails>);
+          as _i10.Future<_i2.TmdbCollectionDetails>);
 
   @override
-  _i9.Future<List<_i2.TmdbCollectionSearchResult>> searchCollections(
+  _i10.Future<List<_i2.TmdbCollectionSearchResult>> searchCollections(
     String? query, {
     int? page = 1,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchCollections, [query], {#page: page}),
-            returnValue: _i9.Future<List<_i2.TmdbCollectionSearchResult>>.value(
-              <_i2.TmdbCollectionSearchResult>[],
-            ),
+            returnValue:
+                _i10.Future<List<_i2.TmdbCollectionSearchResult>>.value(
+                  <_i2.TmdbCollectionSearchResult>[],
+                ),
           )
-          as _i9.Future<List<_i2.TmdbCollectionSearchResult>>);
+          as _i10.Future<List<_i2.TmdbCollectionSearchResult>>);
 
   @override
-  _i9.Future<_i2.TmdbExternalMatch> findByImdbId(String? imdbId) =>
+  _i10.Future<_i2.TmdbExternalMatch> findByImdbId(String? imdbId) =>
       (super.noSuchMethod(
             Invocation.method(#findByImdbId, [imdbId]),
-            returnValue: _i9.Future<_i2.TmdbExternalMatch>.value(
+            returnValue: _i10.Future<_i2.TmdbExternalMatch>.value(
               _FakeTmdbExternalMatch_2(
                 this,
                 Invocation.method(#findByImdbId, [imdbId]),
               ),
             ),
           )
-          as _i9.Future<_i2.TmdbExternalMatch>);
+          as _i10.Future<_i2.TmdbExternalMatch>);
 
   @override
-  _i9.Future<List<_i2.TmdbTvSearchResult>> searchTv(
+  _i10.Future<List<_i2.TmdbTvSearchResult>> searchTv(
     String? query, {
     int? page = 1,
     int? year,
   }) =>
       (super.noSuchMethod(
             Invocation.method(#searchTv, [query], {#page: page, #year: year}),
-            returnValue: _i9.Future<List<_i2.TmdbTvSearchResult>>.value(
+            returnValue: _i10.Future<List<_i2.TmdbTvSearchResult>>.value(
               <_i2.TmdbTvSearchResult>[],
             ),
           )
-          as _i9.Future<List<_i2.TmdbTvSearchResult>>);
+          as _i10.Future<List<_i2.TmdbTvSearchResult>>);
 
   @override
-  _i9.Future<_i2.TmdbTvDetails> getTvDetails(int? tmdbId) =>
+  _i10.Future<_i2.TmdbTvDetails> getTvDetails(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getTvDetails, [tmdbId]),
-            returnValue: _i9.Future<_i2.TmdbTvDetails>.value(
+            returnValue: _i10.Future<_i2.TmdbTvDetails>.value(
               _FakeTmdbTvDetails_3(
                 this,
                 Invocation.method(#getTvDetails, [tmdbId]),
               ),
             ),
           )
-          as _i9.Future<_i2.TmdbTvDetails>);
+          as _i10.Future<_i2.TmdbTvDetails>);
+
+  @override
+  _i10.Future<_i3.TmdbWatchProviders> getWatchProviders(
+    String? mediaType,
+    int? tmdbId,
+    String? region,
+  ) =>
+      (super.noSuchMethod(
+            Invocation.method(#getWatchProviders, [mediaType, tmdbId, region]),
+            returnValue: _i10.Future<_i3.TmdbWatchProviders>.value(
+              _FakeTmdbWatchProviders_4(
+                this,
+                Invocation.method(#getWatchProviders, [
+                  mediaType,
+                  tmdbId,
+                  region,
+                ]),
+              ),
+            ),
+          )
+          as _i10.Future<_i3.TmdbWatchProviders>);
+
+  @override
+  _i10.Future<List<_i3.TmdbProvider>> getProviders(String? region) =>
+      (super.noSuchMethod(
+            Invocation.method(#getProviders, [region]),
+            returnValue: _i10.Future<List<_i3.TmdbProvider>>.value(
+              <_i3.TmdbProvider>[],
+            ),
+          )
+          as _i10.Future<List<_i3.TmdbProvider>>);
 }
 
 /// A class which mocks [MovieRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
+class MockMovieRepository extends _i1.Mock implements _i5.MovieRepository {
   MockMovieRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Stream<List<_i3.Movie>> watchAllMovies() =>
+  _i10.Stream<List<_i4.Movie>> watchAllMovies() =>
       (super.noSuchMethod(
             Invocation.method(#watchAllMovies, []),
-            returnValue: _i9.Stream<List<_i3.Movie>>.empty(),
+            returnValue: _i10.Stream<List<_i4.Movie>>.empty(),
           )
-          as _i9.Stream<List<_i3.Movie>>);
+          as _i10.Stream<List<_i4.Movie>>);
 
   @override
-  _i9.Stream<_i3.Movie?> watchMovie(int? id) =>
+  _i10.Stream<_i4.Movie?> watchMovie(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#watchMovie, [id]),
-            returnValue: _i9.Stream<_i3.Movie?>.empty(),
+            returnValue: _i10.Stream<_i4.Movie?>.empty(),
           )
-          as _i9.Stream<_i3.Movie?>);
+          as _i10.Stream<_i4.Movie?>);
 
   @override
-  _i9.Future<_i3.Movie?> getMovieByTmdbId(int? tmdbId) =>
+  _i10.Future<_i4.Movie?> getMovieByTmdbId(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getMovieByTmdbId, [tmdbId]),
-            returnValue: _i9.Future<_i3.Movie?>.value(),
+            returnValue: _i10.Future<_i4.Movie?>.value(),
           )
-          as _i9.Future<_i3.Movie?>);
+          as _i10.Future<_i4.Movie?>);
 
   @override
-  _i9.Future<_i3.Movie> addFromTmdb(
+  _i10.Future<_i4.Movie> addFromTmdb(
     int? tmdbId, {
-    required _i10.CollectionStatus? status,
+    required _i11.CollectionStatus? status,
     bool? syncCollection = true,
   }) =>
       (super.noSuchMethod(
@@ -237,8 +276,8 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               [tmdbId],
               {#status: status, #syncCollection: syncCollection},
             ),
-            returnValue: _i9.Future<_i3.Movie>.value(
-              _FakeMovie_4(
+            returnValue: _i10.Future<_i4.Movie>.value(
+              _FakeMovie_5(
                 this,
                 Invocation.method(
                   #addFromTmdb,
@@ -248,12 +287,12 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               ),
             ),
           )
-          as _i9.Future<_i3.Movie>);
+          as _i10.Future<_i4.Movie>);
 
   @override
-  _i9.Future<_i4.MovieUpsertResult> upsertFromDetails(
+  _i10.Future<_i5.MovieUpsertResult> upsertFromDetails(
     _i2.TmdbMovieDetails? details, {
-    required _i10.CollectionStatus? status,
+    required _i11.CollectionStatus? status,
     bool? syncCollection = true,
   }) =>
       (super.noSuchMethod(
@@ -262,8 +301,8 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               [details],
               {#status: status, #syncCollection: syncCollection},
             ),
-            returnValue: _i9.Future<_i4.MovieUpsertResult>.value(
-              _FakeMovieUpsertResult_5(
+            returnValue: _i10.Future<_i5.MovieUpsertResult>.value(
+              _FakeMovieUpsertResult_6(
                 this,
                 Invocation.method(
                   #upsertFromDetails,
@@ -273,28 +312,28 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               ),
             ),
           )
-          as _i9.Future<_i4.MovieUpsertResult>);
+          as _i10.Future<_i5.MovieUpsertResult>);
 
   @override
-  _i9.Future<_i4.MovieUpsertResult> applyImportedStatus(
-    _i3.Movie? existing,
-    _i10.CollectionStatus? incoming,
+  _i10.Future<_i5.MovieUpsertResult> applyImportedStatus(
+    _i4.Movie? existing,
+    _i11.CollectionStatus? incoming,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#applyImportedStatus, [existing, incoming]),
-            returnValue: _i9.Future<_i4.MovieUpsertResult>.value(
-              _FakeMovieUpsertResult_5(
+            returnValue: _i10.Future<_i5.MovieUpsertResult>.value(
+              _FakeMovieUpsertResult_6(
                 this,
                 Invocation.method(#applyImportedStatus, [existing, incoming]),
               ),
             ),
           )
-          as _i9.Future<_i4.MovieUpsertResult>);
+          as _i10.Future<_i5.MovieUpsertResult>);
 
   @override
-  _i9.Future<void> updateStatus(
+  _i10.Future<void> updateStatus(
     int? movieId,
-    _i10.CollectionStatus? status, {
+    _i11.CollectionStatus? status, {
     int? editionId,
   }) =>
       (super.noSuchMethod(
@@ -303,47 +342,46 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
               [movieId, status],
               {#editionId: editionId},
             ),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 
   @override
-  _i9.Future<void> setCollectionStatus(
+  _i10.Future<void> setCollectionStatus(
     int? tmdbId,
-    _i10.CollectionStatus? status,
+    _i11.CollectionStatus? status,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#setCollectionStatus, [tmdbId, status]),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 
   @override
-  _i9.Future<_i3.Movie> refreshMetadata(int? movieId) =>
+  _i10.Future<_i4.Movie> refreshMetadata(int? movieId) =>
       (super.noSuchMethod(
             Invocation.method(#refreshMetadata, [movieId]),
-            returnValue: _i9.Future<_i3.Movie>.value(
-              _FakeMovie_4(
+            returnValue: _i10.Future<_i4.Movie>.value(
+              _FakeMovie_5(
                 this,
                 Invocation.method(#refreshMetadata, [movieId]),
               ),
             ),
           )
-          as _i9.Future<_i3.Movie>);
+          as _i10.Future<_i4.Movie>);
 
   @override
-  _i9.Future<void> deleteMovie(int? movieId) =>
+  _i10.Future<bool> deleteMovie(int? movieId) =>
       (super.noSuchMethod(
             Invocation.method(#deleteMovie, [movieId]),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<bool>.value(false),
           )
-          as _i9.Future<void>);
+          as _i10.Future<bool>);
 
   @override
-  bool isMetadataStale(_i3.Movie? movie) =>
+  bool isMetadataStale(_i4.Movie? movie) =>
       (super.noSuchMethod(
             Invocation.method(#isMetadataStale, [movie]),
             returnValue: false,
@@ -354,60 +392,60 @@ class MockMovieRepository extends _i1.Mock implements _i4.MovieRepository {
 /// A class which mocks [TvRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
+class MockTvRepository extends _i1.Mock implements _i7.TvRepository {
   MockTvRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Stream<List<_i5.TvSeriesWithSeasons>> watchAllSeries() =>
+  _i10.Stream<List<_i6.TvSeriesWithSeasons>> watchAllSeries() =>
       (super.noSuchMethod(
             Invocation.method(#watchAllSeries, []),
-            returnValue: _i9.Stream<List<_i5.TvSeriesWithSeasons>>.empty(),
+            returnValue: _i10.Stream<List<_i6.TvSeriesWithSeasons>>.empty(),
           )
-          as _i9.Stream<List<_i5.TvSeriesWithSeasons>>);
+          as _i10.Stream<List<_i6.TvSeriesWithSeasons>>);
 
   @override
-  _i9.Stream<_i5.TvSeriesWithSeasons?> watchSeries(int? id) =>
+  _i10.Stream<_i6.TvSeriesWithSeasons?> watchSeries(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#watchSeries, [id]),
-            returnValue: _i9.Stream<_i5.TvSeriesWithSeasons?>.empty(),
+            returnValue: _i10.Stream<_i6.TvSeriesWithSeasons?>.empty(),
           )
-          as _i9.Stream<_i5.TvSeriesWithSeasons?>);
+          as _i10.Stream<_i6.TvSeriesWithSeasons?>);
 
   @override
-  _i9.Future<_i5.TvSeriesWithSeasons?> getSeriesWithSeasonsByTmdbId(
+  _i10.Future<_i6.TvSeriesWithSeasons?> getSeriesWithSeasonsByTmdbId(
     int? tmdbId,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getSeriesWithSeasonsByTmdbId, [tmdbId]),
-            returnValue: _i9.Future<_i5.TvSeriesWithSeasons?>.value(),
+            returnValue: _i10.Future<_i6.TvSeriesWithSeasons?>.value(),
           )
-          as _i9.Future<_i5.TvSeriesWithSeasons?>);
+          as _i10.Future<_i6.TvSeriesWithSeasons?>);
 
   @override
-  _i9.Future<_i11.TvSeries?> getSeriesByTmdbId(int? tmdbId) =>
+  _i10.Future<_i12.TvSeries?> getSeriesByTmdbId(int? tmdbId) =>
       (super.noSuchMethod(
             Invocation.method(#getSeriesByTmdbId, [tmdbId]),
-            returnValue: _i9.Future<_i11.TvSeries?>.value(),
+            returnValue: _i10.Future<_i12.TvSeries?>.value(),
           )
-          as _i9.Future<_i11.TvSeries?>);
+          as _i10.Future<_i12.TvSeries?>);
 
   @override
-  _i9.Future<_i12.TvSeason?> getSeasonByTmdb(
+  _i10.Future<_i13.TvSeason?> getSeasonByTmdb(
     int? tmdbSeriesId,
     int? seasonNumber,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#getSeasonByTmdb, [tmdbSeriesId, seasonNumber]),
-            returnValue: _i9.Future<_i12.TvSeason?>.value(),
+            returnValue: _i10.Future<_i13.TvSeason?>.value(),
           )
-          as _i9.Future<_i12.TvSeason?>);
+          as _i10.Future<_i13.TvSeason?>);
 
   @override
-  _i9.Future<_i5.TvSeriesWithSeasons> addOrUpdateFromTmdb(
+  _i10.Future<_i6.TvSeriesWithSeasons> addOrUpdateFromTmdb(
     int? tmdbId, {
-    Map<int, _i10.CollectionStatus>? seasonStatuses = const {},
+    Map<int, _i11.CollectionStatus>? seasonStatuses = const {},
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -415,8 +453,8 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               [tmdbId],
               {#seasonStatuses: seasonStatuses},
             ),
-            returnValue: _i9.Future<_i5.TvSeriesWithSeasons>.value(
-              _FakeTvSeriesWithSeasons_6(
+            returnValue: _i10.Future<_i6.TvSeriesWithSeasons>.value(
+              _FakeTvSeriesWithSeasons_7(
                 this,
                 Invocation.method(
                   #addOrUpdateFromTmdb,
@@ -426,12 +464,12 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               ),
             ),
           )
-          as _i9.Future<_i5.TvSeriesWithSeasons>);
+          as _i10.Future<_i6.TvSeriesWithSeasons>);
 
   @override
-  _i9.Future<_i6.TvUpsertResult> upsertFromDetails(
+  _i10.Future<_i7.TvUpsertResult> upsertFromDetails(
     _i2.TmdbTvDetails? details, {
-    Map<int, _i10.CollectionStatus>? seasonStatuses = const {},
+    Map<int, _i11.CollectionStatus>? seasonStatuses = const {},
   }) =>
       (super.noSuchMethod(
             Invocation.method(
@@ -439,8 +477,8 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               [details],
               {#seasonStatuses: seasonStatuses},
             ),
-            returnValue: _i9.Future<_i6.TvUpsertResult>.value(
-              _FakeTvUpsertResult_7(
+            returnValue: _i10.Future<_i7.TvUpsertResult>.value(
+              _FakeTvUpsertResult_8(
                 this,
                 Invocation.method(
                   #upsertFromDetails,
@@ -450,12 +488,12 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               ),
             ),
           )
-          as _i9.Future<_i6.TvUpsertResult>);
+          as _i10.Future<_i7.TvUpsertResult>);
 
   @override
-  _i9.Future<void> setSeasonStatus(
+  _i10.Future<void> setSeasonStatus(
     int? seasonId,
-    _i10.CollectionStatus? status, {
+    _i11.CollectionStatus? status, {
     int? editionId,
   }) =>
       (super.noSuchMethod(
@@ -464,36 +502,36 @@ class MockTvRepository extends _i1.Mock implements _i6.TvRepository {
               [seasonId, status],
               {#editionId: editionId},
             ),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 
   @override
-  _i9.Future<void> setRegularSeasonsStatus(
+  _i10.Future<void> setRegularSeasonsStatus(
     int? seriesId,
-    _i10.CollectionStatus? status,
+    _i11.CollectionStatus? status,
   ) =>
       (super.noSuchMethod(
             Invocation.method(#setRegularSeasonsStatus, [seriesId, status]),
-            returnValue: _i9.Future<void>.value(),
-            returnValueForMissingStub: _i9.Future<void>.value(),
+            returnValue: _i10.Future<void>.value(),
+            returnValueForMissingStub: _i10.Future<void>.value(),
           )
-          as _i9.Future<void>);
+          as _i10.Future<void>);
 }
 
 /// A class which mocks [PhysicalEditionRepository].
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockPhysicalEditionRepository extends _i1.Mock
-    implements _i13.PhysicalEditionRepository {
+    implements _i14.PhysicalEditionRepository {
   MockPhysicalEditionRepository() {
     _i1.throwOnMissingStub(this);
   }
 
   @override
-  _i9.Future<_i7.PhysicalEditionContents> createEdition({
-    required _i14.PhysicalEditionKind? kind,
+  _i10.Future<_i8.PhysicalEditionContents> createEdition({
+    required _i15.PhysicalEditionKind? kind,
     String? productTitle,
     String? editionName,
     int? tmdbCollectionId,
@@ -511,8 +549,8 @@ class MockPhysicalEditionRepository extends _i1.Mock
               #movieIds: movieIds,
               #seasonIds: seasonIds,
             }),
-            returnValue: _i9.Future<_i7.PhysicalEditionContents>.value(
-              _FakePhysicalEditionContents_8(
+            returnValue: _i10.Future<_i8.PhysicalEditionContents>.value(
+              _FakePhysicalEditionContents_9(
                 this,
                 Invocation.method(#createEdition, [], {
                   #kind: kind,
@@ -526,21 +564,21 @@ class MockPhysicalEditionRepository extends _i1.Mock
               ),
             ),
           )
-          as _i9.Future<_i7.PhysicalEditionContents>);
+          as _i10.Future<_i8.PhysicalEditionContents>);
 
   @override
-  _i9.Future<_i7.PhysicalEditionContents?> getById(int? id) =>
+  _i10.Future<_i8.PhysicalEditionContents?> getById(int? id) =>
       (super.noSuchMethod(
             Invocation.method(#getById, [id]),
-            returnValue: _i9.Future<_i7.PhysicalEditionContents?>.value(),
+            returnValue: _i10.Future<_i8.PhysicalEditionContents?>.value(),
           )
-          as _i9.Future<_i7.PhysicalEditionContents?>);
+          as _i10.Future<_i8.PhysicalEditionContents?>);
 
   @override
-  _i9.Future<_i7.PhysicalEditionContents?> getByBarcode(String? barcode) =>
+  _i10.Future<_i8.PhysicalEditionContents?> getByBarcode(String? barcode) =>
       (super.noSuchMethod(
             Invocation.method(#getByBarcode, [barcode]),
-            returnValue: _i9.Future<_i7.PhysicalEditionContents?>.value(),
+            returnValue: _i10.Future<_i8.PhysicalEditionContents?>.value(),
           )
-          as _i9.Future<_i7.PhysicalEditionContents?>);
+          as _i10.Future<_i8.PhysicalEditionContents?>);
 }

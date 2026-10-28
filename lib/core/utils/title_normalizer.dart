@@ -145,12 +145,18 @@ class TitleNormalizer {
     }
 
     final match = _byPublisher.firstMatch(value);
-    final name = match?.namedGroup('name')?.replaceFirst(RegExp(r'\.+$'), '').trim();
+    final name = match
+        ?.namedGroup('name')
+        ?.replaceFirst(RegExp(r'\.+$'), '')
+        .trim();
     if (match == null || name == null || name.isEmpty) {
       return _SeparatedTitle(value, null);
     }
     if (!_companyTail.hasMatch(name)) return _SeparatedTitle(value, null);
-    return _SeparatedTitle(value.replaceFirst(match.group(0)!, '').trim(), name);
+    return _SeparatedTitle(
+      value.replaceFirst(match.group(0)!, '').trim(),
+      name,
+    );
   }
 
   static String? _formatOf(String raw) {

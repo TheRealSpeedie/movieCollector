@@ -112,6 +112,7 @@ class SyncPullPage {
     required this.hasMore,
     required this.reset,
     this.collectionId,
+    this.userId,
   });
 
   factory SyncPullPage.fromJson(Map<String, dynamic> json) => SyncPullPage(
@@ -123,6 +124,7 @@ class SyncPullPage {
     hasMore: json['hasMore'] as bool,
     reset: json['reset'] as bool? ?? false,
     collectionId: json['collectionId'] as String?,
+    userId: (json['userId'] as num?)?.toInt(),
   );
 
   final List<RemoteRecord> changes;
@@ -136,6 +138,9 @@ class SyncPullPage {
   /// The collection on the other side. It changes when this account joins
   /// or leaves a household; the device then starts over.
   final String? collectionId;
+
+  /// This person at the provider; owners of copies are given as this id.
+  final int? userId;
 }
 
 class SyncSnapshotInfo {

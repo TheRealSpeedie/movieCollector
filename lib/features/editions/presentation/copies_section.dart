@@ -6,6 +6,7 @@ import 'package:intl/intl.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/media_format.dart';
+import '../../household/application/household_providers.dart';
 import '../../watch/application/watch_providers.dart';
 import '../data/copy_repository.dart';
 
@@ -31,6 +32,13 @@ class CopiesSection extends ConsumerWidget {
             .valueOrNull ??
         const [];
     final repository = ref.read(copyRepositoryProvider);
+    // In a household, copies of others show who owns them and cannot be
+    // changed here.
+    final household = ref.watch(householdProvider).valueOrNull;
+    final shared = household?.shared ?? false;
+    final names = {
+      for (final m in household?.members ?? const []) '${m.id}': m.name,
+    };
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,18 +111,44 @@ class CopiesSection extends ConsumerWidget {
                     ],
                   ),
                   for (final copy in e.copies)
-                    ListTile(
-                      dense: true,
-                      contentPadding: EdgeInsets.zero,
-                      leading: const Icon(Icons.album_outlined),
-                      title: Text(_copyTitle(copy)),
-                      subtitle: Text(_copyDetails(copy)),
-                      trailing: IconButton(
-                        tooltip: 'Exemplar bearbeiten',
-                        icon: const Icon(Icons.more_vert),
-                        onPressed: () => _editCopy(context, repository, copy),
-                      ),
-                    ),
+                    copy.ownerId != null
+                        ? ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: const Icon(Icons.album_outlined),
+                            title: Text(
+                              '${_copyTitle(copy)} · gehört '
+                              '${names[copy.ownerId] ?? 'jemand anderem im Haushalt'}',
+                            ),
+                            subtitle: Text(_copyDetails(copy, own: false)),
+                            trailing: const Tooltip(
+                              message:
+                                  'Nur die Besitzerin oder der Besitzer kann es ändern',
+                              child: Icon(Icons.lock_outline, size: 18),
+                            ),
+                          )
+                        : ListTile(
+                            dense: true,
+                            contentPadding: EdgeInsets.zero,
+                            leading: Icon(
+                              copy.isPrivate
+                                  ? Icons.visibility_off_outlined
+                                  : Icons.album_outlined,
+                            ),
+                            title: Text(
+                              [
+                                _copyTitle(copy),
+                                if (shared) copy.isPrivate ? 'privat' : 'deins',
+                              ].join(' · '),
+                            ),
+                            subtitle: Text(_copyDetails(copy)),
+                            trailing: IconButton(
+                              tooltip: 'Exemplar bearbeiten',
+                              icon: const Icon(Icons.more_vert),
+                              onPressed: () =>
+                                  _editCopy(context, repository, copy, shared),
+                            ),
+                          ),
                   Wrap(
                     spacing: 8,
                     children: [
@@ -122,7 +156,7 @@ class CopiesSection extends ConsumerWidget {
                         onPressed: () => repository.addCopy(e.edition.id),
                         icon: const Icon(Icons.add),
                         label: Text(
-                          e.copies.isEmpty
+                          e.copies.every((c) => c.ownerId != null)
                               ? 'Besitze ich'
                               : 'Weiteres Exemplar',
                         ),
@@ -159,7 +193,7 @@ class CopiesSection extends ConsumerWidget {
     copy.condition ?? 'Zustand nicht erfasst',
   ].join(' ');
 
-  static String _copyDetails(OwnedCopyRow copy) {
+  static String _copyDetails(OwnedCopyRow copy, {bool own = true}) {
     final parts = [
       if (copy.storageLocation != null) copy.storageLocation!,
       if (copy.purchasePrice != null)
@@ -168,7 +202,8 @@ class CopiesSection extends ConsumerWidget {
         'gekauft ${DateFormat('dd.MM.yyyy').format(copy.purchaseDate!)}',
       if (copy.notes != null) copy.notes!,
     ];
-    return parts.isEmpty ? 'Antippen zum Ergänzen' : parts.join(' · ');
+    if (parts.isEmpty) return own ? 'Antippen zum Ergänzen' : 'Keine Angaben';
+    return parts.join(' · ');
   }
 
   Future<void> _addEdition(
@@ -328,8 +363,10 @@ class CopiesSection extends ConsumerWidget {
     BuildContext context,
     CopyRepository repository,
     OwnedCopyRow copy,
+    bool shared,
   ) async {
     var condition = copy.condition;
+    var isPrivate = copy.isPrivate;
     var purchaseDate = copy.purchaseDate;
     final location = TextEditingController(text: copy.storageLocation);
     final price = TextEditingController(
@@ -413,6 +450,16 @@ class CopiesSection extends ConsumerWidget {
                     if (picked != null) setState(() => purchaseDate = picked);
                   },
                 ),
+                if (shared)
+                  SwitchListTile(
+                    contentPadding: EdgeInsets.zero,
+                    title: const Text('Nur für mich sichtbar'),
+                    subtitle: const Text(
+                      'Die anderen im Haushalt sehen dieses Exemplar nicht.',
+                    ),
+                    value: isPrivate,
+                    onChanged: (v) => setState(() => isPrivate = v),
+                  ),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -454,6 +501,7 @@ class CopiesSection extends ConsumerWidget {
         purchaseDate: Value(purchaseDate),
         notes: Value(text(notes)),
         quantity: Value(int.tryParse(quantity.text.trim()) ?? copy.quantity),
+        isPrivate: Value(isPrivate),
       ),
     );
   }
