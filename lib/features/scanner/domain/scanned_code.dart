@@ -20,7 +20,9 @@ class ScannedCode {
     if (canonicalGtin != null) keys.add(canonicalGtin!);
     final digits = _digits(raw);
     if (digits.isNotEmpty && !keys.contains(digits)) keys.add(digits);
-    if (raw.trim().isNotEmpty && !keys.contains(raw.trim())) keys.add(raw.trim());
+    if (raw.trim().isNotEmpty && !keys.contains(raw.trim())) {
+      keys.add(raw.trim());
+    }
     if (canonicalGtin != null &&
         canonicalGtin!.length == 13 &&
         canonicalGtin!.startsWith('0')) {

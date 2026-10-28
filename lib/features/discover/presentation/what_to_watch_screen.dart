@@ -6,6 +6,9 @@ import '../../../app/theme/app_colors.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../watch/application/watch_providers.dart';
+import '../application/discovery_providers.dart';
+import '../domain/discovery.dart';
+import '../domain/query_parser.dart';
 import '../domain/watch_suggestions.dart';
 
 final suggestionFilterProvider = StateProvider<SuggestionFilter>(
@@ -13,7 +16,8 @@ final suggestionFilterProvider = StateProvider<SuggestionFilter>(
 );
 
 /// "Was soll ich schauen?": filters over the collection, the home server and
-/// the user's subscriptions, every suggestion with its reasons. Rules only.
+/// the user's subscriptions, every suggestion with its reasons. A wish in
+/// plain words is understood on the device; AI ordering is optional.
 class WhatToWatchScreen extends ConsumerStatefulWidget {
   const WhatToWatchScreen({super.key, this.initialSources});
 
@@ -25,6 +29,76 @@ class WhatToWatchScreen extends ConsumerStatefulWidget {
 
 class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
   var _checking = false;
+  final _wish = TextEditingController();
+  var _query = '';
+  DiscoveryResult? _ai;
+  var _asking = false;
+
+  @override
+  void dispose() {
+    _wish.dispose();
+    super.dispose();
+  }
+
+  /// Runs the wish through the rules and, when allowed, an AI ranker.
+  Future<void> _submit() async {
+    setState(() {
+      _query = _wish.text.trim();
+      _ai = null;
+    });
+    final ranker = await ref.read(discoveryRankerProvider.future);
+    if (ranker == null || !mounted) return;
+    setState(() => _asking = true);
+    final result = await Discovery(ranker: ranker).run(
+      query: _query,
+      candidates: ref.read(watchCandidatesProvider).valueOrNull ?? const [],
+      filter: ref.read(suggestionFilterProvider),
+      subscriptions: ref.read(subscribedIdsProvider),
+      language: 'de',
+      preferredLanguage: ref.read(userPreferencesProvider).audioLanguage,
+    );
+    if (!mounted) return;
+    setState(() {
+      _asking = false;
+      _ai = result;
+    });
+  }
+
+  /// Asks once, saying exactly what would be sent.
+  Future<void> _toggleAi(bool on) async {
+    if (!on) {
+      await ref.read(aiConsentProvider.notifier).set(false);
+      setState(() => _ai = null);
+      return;
+    }
+    final ranker = ref.read(remoteRankerProvider).valueOrNull;
+    final agreed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('KI-Vorschläge einschalten?'),
+        content: Text(
+          'Movie Shelf findet Vorschläge immer selbst. Mit KI werden sie '
+          'zusätzlich sortiert und erklärt (${ranker?.label ?? 'KI-Dienst'}).\n\n'
+          'Gesendet wird nur, wenn du etwas suchst: dein Wunsch und bis zu 40 '
+          'Filme, die schon passen, mit Titel, Jahr, Genres, Länge, ob du sie '
+          'gesehen hast und wo sie verfügbar sind.\n\n'
+          'Nie gesendet: deine Sammlung, Exemplare, Haushalt, Konto oder '
+          'Videodateien. Du kannst es jederzeit wieder ausschalten.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Nein danke'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Einschalten'),
+          ),
+        ],
+      ),
+    );
+    if (agreed == true) await ref.read(aiConsentProvider.notifier).set(true);
+  }
 
   @override
   void initState() {
@@ -66,12 +140,21 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
 
     final all = candidates.valueOrNull ?? const [];
     final genres = {for (final c in all) ...c.genres}.toList()..sort();
-    final suggestions = suggest(
-      all,
-      filter,
-      subscriptions: subscriptions,
-      preferredLanguage: preferences.audioLanguage,
-    );
+    final parsed = _query.isEmpty
+        ? const ParsedQuery()
+        : const QueryParser().parse(_query);
+    final ai = _ai;
+    final suggestions =
+        ai?.suggestions ??
+        Discovery.localSuggestions(
+          parsed: parsed,
+          candidates: all,
+          filter: filter,
+          subscriptions: subscriptions,
+          preferredLanguage: preferences.audioLanguage,
+        );
+    final remote = ref.watch(remoteRankerProvider).valueOrNull;
+    final consent = ref.watch(aiConsentProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -92,6 +175,50 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          TextField(
+            controller: _wish,
+            textInputAction: TextInputAction.search,
+            onSubmitted: (_) => _submit(),
+            decoration: InputDecoration(
+              labelText: 'Worauf hast du Lust?',
+              hintText: 'z. B. etwas Lustiges unter 2 Stunden',
+              suffixIcon: IconButton(
+                tooltip: 'Vorschläge finden',
+                icon: const Icon(Icons.search),
+                onPressed: _submit,
+              ),
+            ),
+          ),
+          if (parsed.understood.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                'Verstanden: ${parsed.understood.join(' · ')}',
+                style: const TextStyle(color: AppColors.neutralGray),
+              ),
+            ),
+          if (remote != null)
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('KI-Vorschläge'),
+              subtitle: Text(
+                consent
+                    ? 'An: ${remote.label}. Nur beim Suchen wird etwas gesendet.'
+                    : 'Aus. Vorschläge kommen nur von diesem Gerät.',
+              ),
+              value: consent,
+              onChanged: _toggleAi,
+            ),
+          if (_asking) const LinearProgressIndicator(),
+          if (ai?.notice != null)
+            Padding(
+              padding: const EdgeInsets.only(top: 6),
+              child: Text(
+                ai!.notice!,
+                style: const TextStyle(color: AppColors.amber),
+              ),
+            ),
+          const SizedBox(height: 8),
           Wrap(
             spacing: 8,
             runSpacing: 4,
@@ -182,7 +309,9 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
             )
           else
             Text(
-              '${suggestions.length} Vorschläge',
+              ai != null && ai.engine != 'Regeln'
+                  ? '${suggestions.length} Vorschläge, ausgewählt von ${ai.engine}'
+                  : '${suggestions.length} Vorschläge',
               style: const TextStyle(color: AppColors.neutralGray),
             ),
           for (final s in suggestions.take(60))

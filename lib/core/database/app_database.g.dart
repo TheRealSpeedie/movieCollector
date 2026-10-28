@@ -1674,6 +1674,26 @@ class $PhysicalEditionsTable extends PhysicalEditions
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _catalogIdMeta = const VerificationMeta(
+    'catalogId',
+  );
+  @override
+  late final GeneratedColumn<String> catalogId = GeneratedColumn<String>(
+    'catalog_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -1702,6 +1722,8 @@ class $PhysicalEditionsTable extends PhysicalEditions
     subtitleLanguages,
     publisher,
     notes,
+    catalogId,
+    source,
     createdAt,
   ];
   @override
@@ -1820,6 +1842,18 @@ class $PhysicalEditionsTable extends PhysicalEditions
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('catalog_id')) {
+      context.handle(
+        _catalogIdMeta,
+        catalogId.isAcceptableOrUnknown(data['catalog_id']!, _catalogIdMeta),
+      );
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -1891,6 +1925,14 @@ class $PhysicalEditionsTable extends PhysicalEditions
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      catalogId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}catalog_id'],
+      ),
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -1926,6 +1968,13 @@ class PhysicalEditionRow extends DataClass
   final String? subtitleLanguages;
   final String? publisher;
   final String? notes;
+
+  /// The entry in the edition catalog this edition was taken from or shared
+  /// as. Stays usable offline; the catalog is only asked when online.
+  final String? catalogId;
+
+  /// user, catalog or a barcode service.
+  final String? source;
   final DateTime createdAt;
   const PhysicalEditionRow({
     required this.id,
@@ -1942,6 +1991,8 @@ class PhysicalEditionRow extends DataClass
     this.subtitleLanguages,
     this.publisher,
     this.notes,
+    this.catalogId,
+    this.source,
     required this.createdAt,
   });
   @override
@@ -1983,6 +2034,12 @@ class PhysicalEditionRow extends DataClass
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || catalogId != null) {
+      map['catalog_id'] = Variable<String>(catalogId);
+    }
+    if (!nullToAbsent || source != null) {
+      map['source'] = Variable<String>(source);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -2023,6 +2080,12 @@ class PhysicalEditionRow extends DataClass
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      catalogId: catalogId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(catalogId),
+      source: source == null && nullToAbsent
+          ? const Value.absent()
+          : Value(source),
       createdAt: Value(createdAt),
     );
   }
@@ -2049,6 +2112,8 @@ class PhysicalEditionRow extends DataClass
       ),
       publisher: serializer.fromJson<String?>(json['publisher']),
       notes: serializer.fromJson<String?>(json['notes']),
+      catalogId: serializer.fromJson<String?>(json['catalogId']),
+      source: serializer.fromJson<String?>(json['source']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -2070,6 +2135,8 @@ class PhysicalEditionRow extends DataClass
       'subtitleLanguages': serializer.toJson<String?>(subtitleLanguages),
       'publisher': serializer.toJson<String?>(publisher),
       'notes': serializer.toJson<String?>(notes),
+      'catalogId': serializer.toJson<String?>(catalogId),
+      'source': serializer.toJson<String?>(source),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -2089,6 +2156,8 @@ class PhysicalEditionRow extends DataClass
     Value<String?> subtitleLanguages = const Value.absent(),
     Value<String?> publisher = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> catalogId = const Value.absent(),
+    Value<String?> source = const Value.absent(),
     DateTime? createdAt,
   }) => PhysicalEditionRow(
     id: id ?? this.id,
@@ -2115,6 +2184,8 @@ class PhysicalEditionRow extends DataClass
         : this.subtitleLanguages,
     publisher: publisher.present ? publisher.value : this.publisher,
     notes: notes.present ? notes.value : this.notes,
+    catalogId: catalogId.present ? catalogId.value : this.catalogId,
+    source: source.present ? source.value : this.source,
     createdAt: createdAt ?? this.createdAt,
   );
   PhysicalEditionRow copyWithCompanion(PhysicalEditionsCompanion data) {
@@ -2147,6 +2218,8 @@ class PhysicalEditionRow extends DataClass
           : this.subtitleLanguages,
       publisher: data.publisher.present ? data.publisher.value : this.publisher,
       notes: data.notes.present ? data.notes.value : this.notes,
+      catalogId: data.catalogId.present ? data.catalogId.value : this.catalogId,
+      source: data.source.present ? data.source.value : this.source,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -2168,6 +2241,8 @@ class PhysicalEditionRow extends DataClass
           ..write('subtitleLanguages: $subtitleLanguages, ')
           ..write('publisher: $publisher, ')
           ..write('notes: $notes, ')
+          ..write('catalogId: $catalogId, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -2189,6 +2264,8 @@ class PhysicalEditionRow extends DataClass
     subtitleLanguages,
     publisher,
     notes,
+    catalogId,
+    source,
     createdAt,
   );
   @override
@@ -2209,6 +2286,8 @@ class PhysicalEditionRow extends DataClass
           other.subtitleLanguages == this.subtitleLanguages &&
           other.publisher == this.publisher &&
           other.notes == this.notes &&
+          other.catalogId == this.catalogId &&
+          other.source == this.source &&
           other.createdAt == this.createdAt);
 }
 
@@ -2227,6 +2306,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
   final Value<String?> subtitleLanguages;
   final Value<String?> publisher;
   final Value<String?> notes;
+  final Value<String?> catalogId;
+  final Value<String?> source;
   final Value<DateTime> createdAt;
   const PhysicalEditionsCompanion({
     this.id = const Value.absent(),
@@ -2243,6 +2324,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     this.subtitleLanguages = const Value.absent(),
     this.publisher = const Value.absent(),
     this.notes = const Value.absent(),
+    this.catalogId = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   PhysicalEditionsCompanion.insert({
@@ -2260,6 +2343,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     this.subtitleLanguages = const Value.absent(),
     this.publisher = const Value.absent(),
     this.notes = const Value.absent(),
+    this.catalogId = const Value.absent(),
+    this.source = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : mediaKind = Value(mediaKind);
   static Insertable<PhysicalEditionRow> custom({
@@ -2277,6 +2362,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     Expression<String>? subtitleLanguages,
     Expression<String>? publisher,
     Expression<String>? notes,
+    Expression<String>? catalogId,
+    Expression<String>? source,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -2294,6 +2381,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
       if (subtitleLanguages != null) 'subtitle_languages': subtitleLanguages,
       if (publisher != null) 'publisher': publisher,
       if (notes != null) 'notes': notes,
+      if (catalogId != null) 'catalog_id': catalogId,
+      if (source != null) 'source': source,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -2313,6 +2402,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     Value<String?>? subtitleLanguages,
     Value<String?>? publisher,
     Value<String?>? notes,
+    Value<String?>? catalogId,
+    Value<String?>? source,
     Value<DateTime>? createdAt,
   }) {
     return PhysicalEditionsCompanion(
@@ -2330,6 +2421,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
       subtitleLanguages: subtitleLanguages ?? this.subtitleLanguages,
       publisher: publisher ?? this.publisher,
       notes: notes ?? this.notes,
+      catalogId: catalogId ?? this.catalogId,
+      source: source ?? this.source,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -2379,6 +2472,12 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (catalogId.present) {
+      map['catalog_id'] = Variable<String>(catalogId.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -2402,6 +2501,8 @@ class PhysicalEditionsCompanion extends UpdateCompanion<PhysicalEditionRow> {
           ..write('subtitleLanguages: $subtitleLanguages, ')
           ..write('publisher: $publisher, ')
           ..write('notes: $notes, ')
+          ..write('catalogId: $catalogId, ')
+          ..write('source: $source, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -7189,6 +7290,32 @@ class $OwnedCopiesTable extends OwnedCopies
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _ownerIdMeta = const VerificationMeta(
+    'ownerId',
+  );
+  @override
+  late final GeneratedColumn<String> ownerId = GeneratedColumn<String>(
+    'owner_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _isPrivateMeta = const VerificationMeta(
+    'isPrivate',
+  );
+  @override
+  late final GeneratedColumn<bool> isPrivate = GeneratedColumn<bool>(
+    'is_private',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_private" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -7224,6 +7351,8 @@ class $OwnedCopiesTable extends OwnedCopies
     purchasePrice,
     storageLocation,
     notes,
+    ownerId,
+    isPrivate,
     createdAt,
     updatedAt,
   ];
@@ -7301,6 +7430,18 @@ class $OwnedCopiesTable extends OwnedCopies
         notes.isAcceptableOrUnknown(data['notes']!, _notesMeta),
       );
     }
+    if (data.containsKey('owner_id')) {
+      context.handle(
+        _ownerIdMeta,
+        ownerId.isAcceptableOrUnknown(data['owner_id']!, _ownerIdMeta),
+      );
+    }
+    if (data.containsKey('is_private')) {
+      context.handle(
+        _isPrivateMeta,
+        isPrivate.isAcceptableOrUnknown(data['is_private']!, _isPrivateMeta),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -7358,6 +7499,14 @@ class $OwnedCopiesTable extends OwnedCopies
         DriftSqlType.string,
         data['${effectivePrefix}notes'],
       ),
+      ownerId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}owner_id'],
+      ),
+      isPrivate: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_private'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -7385,6 +7534,13 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
   final double? purchasePrice;
   final String? storageLocation;
   final String? notes;
+
+  /// Who owns the copy in a household, as the server's user id. Null means
+  /// the person using this device.
+  final String? ownerId;
+
+  /// Only visible to its owner, also in a household.
+  final bool isPrivate;
   final DateTime createdAt;
   final DateTime updatedAt;
   const OwnedCopyRow({
@@ -7397,6 +7553,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     this.purchasePrice,
     this.storageLocation,
     this.notes,
+    this.ownerId,
+    required this.isPrivate,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -7422,6 +7580,10 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     if (!nullToAbsent || notes != null) {
       map['notes'] = Variable<String>(notes);
     }
+    if (!nullToAbsent || ownerId != null) {
+      map['owner_id'] = Variable<String>(ownerId);
+    }
+    map['is_private'] = Variable<bool>(isPrivate);
     map['created_at'] = Variable<DateTime>(createdAt);
     map['updated_at'] = Variable<DateTime>(updatedAt);
     return map;
@@ -7448,6 +7610,10 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       notes: notes == null && nullToAbsent
           ? const Value.absent()
           : Value(notes),
+      ownerId: ownerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ownerId),
+      isPrivate: Value(isPrivate),
       createdAt: Value(createdAt),
       updatedAt: Value(updatedAt),
     );
@@ -7468,6 +7634,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       purchasePrice: serializer.fromJson<double?>(json['purchasePrice']),
       storageLocation: serializer.fromJson<String?>(json['storageLocation']),
       notes: serializer.fromJson<String?>(json['notes']),
+      ownerId: serializer.fromJson<String?>(json['ownerId']),
+      isPrivate: serializer.fromJson<bool>(json['isPrivate']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
     );
@@ -7485,6 +7653,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
       'purchasePrice': serializer.toJson<double?>(purchasePrice),
       'storageLocation': serializer.toJson<String?>(storageLocation),
       'notes': serializer.toJson<String?>(notes),
+      'ownerId': serializer.toJson<String?>(ownerId),
+      'isPrivate': serializer.toJson<bool>(isPrivate),
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
     };
@@ -7500,6 +7670,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     Value<double?> purchasePrice = const Value.absent(),
     Value<String?> storageLocation = const Value.absent(),
     Value<String?> notes = const Value.absent(),
+    Value<String?> ownerId = const Value.absent(),
+    bool? isPrivate,
     DateTime? createdAt,
     DateTime? updatedAt,
   }) => OwnedCopyRow(
@@ -7516,6 +7688,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
         ? storageLocation.value
         : this.storageLocation,
     notes: notes.present ? notes.value : this.notes,
+    ownerId: ownerId.present ? ownerId.value : this.ownerId,
+    isPrivate: isPrivate ?? this.isPrivate,
     createdAt: createdAt ?? this.createdAt,
     updatedAt: updatedAt ?? this.updatedAt,
   );
@@ -7536,6 +7710,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           ? data.storageLocation.value
           : this.storageLocation,
       notes: data.notes.present ? data.notes.value : this.notes,
+      ownerId: data.ownerId.present ? data.ownerId.value : this.ownerId,
+      isPrivate: data.isPrivate.present ? data.isPrivate.value : this.isPrivate,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
     );
@@ -7553,6 +7729,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           ..write('purchasePrice: $purchasePrice, ')
           ..write('storageLocation: $storageLocation, ')
           ..write('notes: $notes, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('isPrivate: $isPrivate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -7570,6 +7748,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
     purchasePrice,
     storageLocation,
     notes,
+    ownerId,
+    isPrivate,
     createdAt,
     updatedAt,
   );
@@ -7586,6 +7766,8 @@ class OwnedCopyRow extends DataClass implements Insertable<OwnedCopyRow> {
           other.purchasePrice == this.purchasePrice &&
           other.storageLocation == this.storageLocation &&
           other.notes == this.notes &&
+          other.ownerId == this.ownerId &&
+          other.isPrivate == this.isPrivate &&
           other.createdAt == this.createdAt &&
           other.updatedAt == this.updatedAt);
 }
@@ -7600,6 +7782,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
   final Value<double?> purchasePrice;
   final Value<String?> storageLocation;
   final Value<String?> notes;
+  final Value<String?> ownerId;
+  final Value<bool> isPrivate;
   final Value<DateTime> createdAt;
   final Value<DateTime> updatedAt;
   const OwnedCopiesCompanion({
@@ -7612,6 +7796,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     this.purchasePrice = const Value.absent(),
     this.storageLocation = const Value.absent(),
     this.notes = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.isPrivate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   });
@@ -7625,6 +7811,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     this.purchasePrice = const Value.absent(),
     this.storageLocation = const Value.absent(),
     this.notes = const Value.absent(),
+    this.ownerId = const Value.absent(),
+    this.isPrivate = const Value.absent(),
     this.createdAt = const Value.absent(),
     this.updatedAt = const Value.absent(),
   }) : editionId = Value(editionId);
@@ -7638,6 +7826,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     Expression<double>? purchasePrice,
     Expression<String>? storageLocation,
     Expression<String>? notes,
+    Expression<String>? ownerId,
+    Expression<bool>? isPrivate,
     Expression<DateTime>? createdAt,
     Expression<DateTime>? updatedAt,
   }) {
@@ -7651,6 +7841,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
       if (purchasePrice != null) 'purchase_price': purchasePrice,
       if (storageLocation != null) 'storage_location': storageLocation,
       if (notes != null) 'notes': notes,
+      if (ownerId != null) 'owner_id': ownerId,
+      if (isPrivate != null) 'is_private': isPrivate,
       if (createdAt != null) 'created_at': createdAt,
       if (updatedAt != null) 'updated_at': updatedAt,
     });
@@ -7666,6 +7858,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     Value<double?>? purchasePrice,
     Value<String?>? storageLocation,
     Value<String?>? notes,
+    Value<String?>? ownerId,
+    Value<bool>? isPrivate,
     Value<DateTime>? createdAt,
     Value<DateTime>? updatedAt,
   }) {
@@ -7679,6 +7873,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
       purchasePrice: purchasePrice ?? this.purchasePrice,
       storageLocation: storageLocation ?? this.storageLocation,
       notes: notes ?? this.notes,
+      ownerId: ownerId ?? this.ownerId,
+      isPrivate: isPrivate ?? this.isPrivate,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
     );
@@ -7714,6 +7910,12 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
     if (notes.present) {
       map['notes'] = Variable<String>(notes.value);
     }
+    if (ownerId.present) {
+      map['owner_id'] = Variable<String>(ownerId.value);
+    }
+    if (isPrivate.present) {
+      map['is_private'] = Variable<bool>(isPrivate.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -7735,6 +7937,8 @@ class OwnedCopiesCompanion extends UpdateCompanion<OwnedCopyRow> {
           ..write('purchasePrice: $purchasePrice, ')
           ..write('storageLocation: $storageLocation, ')
           ..write('notes: $notes, ')
+          ..write('ownerId: $ownerId, ')
+          ..write('isPrivate: $isPrivate, ')
           ..write('createdAt: $createdAt, ')
           ..write('updatedAt: $updatedAt')
           ..write(')'))
@@ -13278,6 +13482,8 @@ typedef $$PhysicalEditionsTableCreateCompanionBuilder =
       Value<String?> subtitleLanguages,
       Value<String?> publisher,
       Value<String?> notes,
+      Value<String?> catalogId,
+      Value<String?> source,
       Value<DateTime> createdAt,
     });
 typedef $$PhysicalEditionsTableUpdateCompanionBuilder =
@@ -13296,6 +13502,8 @@ typedef $$PhysicalEditionsTableUpdateCompanionBuilder =
       Value<String?> subtitleLanguages,
       Value<String?> publisher,
       Value<String?> notes,
+      Value<String?> catalogId,
+      Value<String?> source,
       Value<DateTime> createdAt,
     });
 
@@ -13490,6 +13698,16 @@ class $$PhysicalEditionsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get catalogId => $composableBuilder(
+    column: $table.catalogId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnFilters(column),
@@ -13678,6 +13896,16 @@ class $$PhysicalEditionsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get catalogId => $composableBuilder(
+    column: $table.catalogId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -13748,6 +13976,12 @@ class $$PhysicalEditionsTableAnnotationComposer
 
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
+
+  GeneratedColumn<String> get catalogId =>
+      $composableBuilder(column: $table.catalogId, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -13905,6 +14139,8 @@ class $$PhysicalEditionsTableTableManager
                 Value<String?> subtitleLanguages = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> catalogId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PhysicalEditionsCompanion(
                 id: id,
@@ -13921,6 +14157,8 @@ class $$PhysicalEditionsTableTableManager
                 subtitleLanguages: subtitleLanguages,
                 publisher: publisher,
                 notes: notes,
+                catalogId: catalogId,
+                source: source,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -13939,6 +14177,8 @@ class $$PhysicalEditionsTableTableManager
                 Value<String?> subtitleLanguages = const Value.absent(),
                 Value<String?> publisher = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> catalogId = const Value.absent(),
+                Value<String?> source = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => PhysicalEditionsCompanion.insert(
                 id: id,
@@ -13955,6 +14195,8 @@ class $$PhysicalEditionsTableTableManager
                 subtitleLanguages: subtitleLanguages,
                 publisher: publisher,
                 notes: notes,
+                catalogId: catalogId,
+                source: source,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -18208,6 +18450,8 @@ typedef $$OwnedCopiesTableCreateCompanionBuilder =
       Value<double?> purchasePrice,
       Value<String?> storageLocation,
       Value<String?> notes,
+      Value<String?> ownerId,
+      Value<bool> isPrivate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -18222,6 +18466,8 @@ typedef $$OwnedCopiesTableUpdateCompanionBuilder =
       Value<double?> purchasePrice,
       Value<String?> storageLocation,
       Value<String?> notes,
+      Value<String?> ownerId,
+      Value<bool> isPrivate,
       Value<DateTime> createdAt,
       Value<DateTime> updatedAt,
     });
@@ -18296,6 +18542,16 @@ class $$OwnedCopiesTableFilterComposer
 
   ColumnFilters<String> get notes => $composableBuilder(
     column: $table.notes,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isPrivate => $composableBuilder(
+    column: $table.isPrivate,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -18382,6 +18638,16 @@ class $$OwnedCopiesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get ownerId => $composableBuilder(
+    column: $table.ownerId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isPrivate => $composableBuilder(
+    column: $table.isPrivate,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -18455,6 +18721,12 @@ class $$OwnedCopiesTableAnnotationComposer
   GeneratedColumn<String> get notes =>
       $composableBuilder(column: $table.notes, builder: (column) => column);
 
+  GeneratedColumn<String> get ownerId =>
+      $composableBuilder(column: $table.ownerId, builder: (column) => column);
+
+  GeneratedColumn<bool> get isPrivate =>
+      $composableBuilder(column: $table.isPrivate, builder: (column) => column);
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 
@@ -18522,6 +18794,8 @@ class $$OwnedCopiesTableTableManager
                 Value<double?> purchasePrice = const Value.absent(),
                 Value<String?> storageLocation = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> ownerId = const Value.absent(),
+                Value<bool> isPrivate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => OwnedCopiesCompanion(
@@ -18534,6 +18808,8 @@ class $$OwnedCopiesTableTableManager
                 purchasePrice: purchasePrice,
                 storageLocation: storageLocation,
                 notes: notes,
+                ownerId: ownerId,
+                isPrivate: isPrivate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),
@@ -18548,6 +18824,8 @@ class $$OwnedCopiesTableTableManager
                 Value<double?> purchasePrice = const Value.absent(),
                 Value<String?> storageLocation = const Value.absent(),
                 Value<String?> notes = const Value.absent(),
+                Value<String?> ownerId = const Value.absent(),
+                Value<bool> isPrivate = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<DateTime> updatedAt = const Value.absent(),
               }) => OwnedCopiesCompanion.insert(
@@ -18560,6 +18838,8 @@ class $$OwnedCopiesTableTableManager
                 purchasePrice: purchasePrice,
                 storageLocation: storageLocation,
                 notes: notes,
+                ownerId: ownerId,
+                isPrivate: isPrivate,
                 createdAt: createdAt,
                 updatedAt: updatedAt,
               ),

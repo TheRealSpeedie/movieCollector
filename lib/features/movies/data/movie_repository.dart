@@ -229,8 +229,16 @@ class MovieRepository {
     return mapMovieRow(updated, await _genreNames(movieId));
   }
 
-  Future<void> deleteMovie(int movieId) async {
+  /// Removes the movie. In a household where others own a copy, only this
+  /// person's copies go and the movie stays; returns false then.
+  Future<bool> deleteMovie(int movieId) async {
+    final ownership = OwnershipService(_db);
+    if (await ownership.othersCopiesOfMovie(movieId) > 0) {
+      await ownership.removeMyCopiesOfMovie(movieId);
+      return false;
+    }
     await (_db.delete(_db.movies)..where((t) => t.id.equals(movieId))).go();
+    return true;
   }
 
   bool isMetadataStale(Movie movie) {

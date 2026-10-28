@@ -51,8 +51,12 @@ class UpcmdbRecord {
       format: _text(json['format']),
       specialFeatures: _text(json['special_features']),
       publisher: _text(json['publisher']),
-      imdbId: normalizeImdbId(json['imdbID'] as String? ?? json['imdbId'] as String?),
-      mediaType: _mediaType(json['mediaType'] as String? ?? json['type'] as String?),
+      imdbId: normalizeImdbId(
+        json['imdbID'] as String? ?? json['imdbId'] as String?,
+      ),
+      mediaType: _mediaType(
+        json['mediaType'] as String? ?? json['type'] as String?,
+      ),
     );
   }
 }
@@ -133,7 +137,10 @@ String? normalizeImdbId(String? raw) {
   if (raw == null) return null;
   final trimmed = raw.trim();
   if (trimmed.isEmpty) return null;
-  final prefixed = RegExp(r'tt\d{5,}', caseSensitive: false).firstMatch(trimmed);
+  final prefixed = RegExp(
+    r'tt\d{5,}',
+    caseSensitive: false,
+  ).firstMatch(trimmed);
   if (prefixed != null) return prefixed.group(0)!.toLowerCase();
   if (RegExp(r'^\d{5,}$').hasMatch(trimmed)) return 'tt$trimmed';
   return null;
@@ -155,7 +162,9 @@ String? _text(dynamic value) {
 String? _mediaType(String? raw) {
   if (raw == null) return null;
   final value = raw.toLowerCase();
-  if (value.contains('tv') || value.contains('series') || value.contains('show')) {
+  if (value.contains('tv') ||
+      value.contains('series') ||
+      value.contains('show')) {
     return 'tv';
   }
   if (value.contains('movie') || value.contains('film')) return 'movie';
@@ -165,7 +174,9 @@ String? _mediaType(String? raw) {
 String? mapPhysicalFormat(String? raw) {
   if (raw == null) return null;
   final value = raw.toLowerCase();
-  if (value.contains('4k') || value.contains('uhd') || value.contains('ultra')) {
+  if (value.contains('4k') ||
+      value.contains('uhd') ||
+      value.contains('ultra')) {
     return 'uhd_4k';
   }
   if (value.contains('blu')) return 'blu_ray';

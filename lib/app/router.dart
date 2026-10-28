@@ -12,6 +12,7 @@ import '../features/discover/presentation/what_to_watch_screen.dart';
 import '../features/settings/presentation/language_screen.dart';
 import '../features/watch/presentation/subscriptions_screen.dart';
 import '../features/home/presentation/home_screen.dart';
+import '../features/household/presentation/household_screen.dart';
 import '../features/import/application/import_movie_search_controller.dart';
 import '../features/import/presentation/import_movie_search_screen.dart';
 import '../features/import/presentation/import_screen.dart';
@@ -172,6 +173,11 @@ final appRouter = GoRouter(
       path: '/cloud',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const CloudAccountScreen(),
+    ),
+    GoRoute(
+      path: '/household',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const HouseholdScreen(),
     ),
     GoRoute(
       path: '/collections/:id',

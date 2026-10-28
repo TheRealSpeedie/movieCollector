@@ -4,6 +4,7 @@ import '../../../core/collection/ownership_service.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/media_format.dart';
 import '../../../shared/models/physical_edition_kind.dart';
+import 'edition_catalog.dart';
 
 class EditionWithCopies {
   const EditionWithCopies({
@@ -174,6 +175,126 @@ class CopyRepository {
       (_db.update(
         _db.physicalEditions,
       )..where((t) => t.id.equals(editionId))).write(values);
+
+  /// Takes a catalog edition into the collection, without a copy. It stays
+  /// on the device and syncs like any other edition.
+  Future<int> adoptCatalogEdition(int movieId, CatalogEntry entry) async {
+    return _db.transaction(() async {
+      final id = await _db
+          .into(_db.physicalEditions)
+          .insert(
+            PhysicalEditionsCompanion.insert(
+              mediaKind: PhysicalEditionKind.singleMovie.name,
+              format: Value(entry.format.name),
+              editionName: Value(entry.editionName),
+              productTitle: Value(entry.title),
+              region: Value(entry.region),
+              releaseCountry: Value(entry.releaseCountry),
+              audioLanguages: Value(entry.audioLanguages),
+              subtitleLanguages: Value(entry.subtitleLanguages),
+              publisher: Value(entry.publisher),
+              catalogId: Value(entry.id),
+              source: const Value('catalog'),
+            ),
+          );
+      await _db
+          .into(_db.physicalEditionMovies)
+          .insert(
+            PhysicalEditionMoviesCompanion.insert(
+              editionId: id,
+              movieId: movieId,
+            ),
+          );
+      for (final code in entry.barcodes) {
+        await _db
+            .into(_db.barcodes)
+            .insert(
+              BarcodesCompanion.insert(
+                barcode: code,
+                barcodeType: code.length == 12 ? 'upc' : 'ean',
+                movieId: Value(movieId),
+                physicalEditionId: Value(id),
+                editionName: Value(entry.editionName),
+                physicalFormat: Value(entry.format.name),
+                source: const Value('catalog'),
+                verified: const Value(true),
+              ),
+              mode: InsertMode.insertOrIgnore,
+            );
+      }
+      return id;
+    });
+  }
+
+  /// The release facts of an own edition, ready to share with the catalog.
+  Future<CatalogEntry?> catalogEntryFor(int editionId, int movieId) async {
+    final edition = await (_db.select(
+      _db.physicalEditions,
+    )..where((t) => t.id.equals(editionId))).getSingleOrNull();
+    final movie = await (_db.select(
+      _db.movies,
+    )..where((t) => t.id.equals(movieId))).getSingleOrNull();
+    if (edition == null || movie == null || movie.tmdbId == null) return null;
+    final codes = await (_db.select(
+      _db.barcodes,
+    )..where((t) => t.physicalEditionId.equals(editionId))).get();
+    return CatalogEntry(
+      id: edition.catalogId ?? '',
+      kind: 'movie',
+      title: movie.title,
+      tmdbId: movie.tmdbId,
+      year: movie.releaseYear,
+      format: MediaFormat.fromName(edition.format),
+      editionName: edition.editionName,
+      region: edition.region,
+      releaseCountry: edition.releaseCountry,
+      publisher: edition.publisher,
+      audioLanguages: edition.audioLanguages,
+      subtitleLanguages: edition.subtitleLanguages,
+      barcodes: [for (final c in codes) c.barcode],
+    );
+  }
+
+  Future<void> linkCatalog(int editionId, String catalogId) =>
+      (_db.update(_db.physicalEditions)..where((t) => t.id.equals(editionId)))
+          .write(PhysicalEditionsCompanion(catalogId: Value(catalogId)));
+
+  /// Barcodes and catalog ids of the editions of a movie, to tell known
+  /// catalog entries from new ones.
+  Future<({Set<String> catalogIds, Set<String> barcodes, int bestOwnedRank})>
+  knownForMovie(int movieId) async {
+    final editions = await _withCopies(
+      await (_db.select(_db.physicalEditions).join([
+        innerJoin(
+          _db.physicalEditionMovies,
+          _db.physicalEditionMovies.editionId.equalsExp(
+            _db.physicalEditions.id,
+          ),
+        ),
+      ])..where(_db.physicalEditionMovies.movieId.equals(movieId))).get().then(
+        (rows) => [for (final r in rows) r.readTable(_db.physicalEditions)],
+      ),
+    );
+    final ids = {for (final e in editions) e.edition.id};
+    final codes = ids.isEmpty
+        ? const <BarcodeRow>[]
+        : await (_db.select(
+            _db.barcodes,
+          )..where((t) => t.physicalEditionId.isIn(ids))).get();
+    var best = 0;
+    for (final e in editions.where((e) => e.copies.isNotEmpty)) {
+      final rank = MediaFormat.fromName(e.edition.format).rank;
+      if (rank > best) best = rank;
+    }
+    return (
+      catalogIds: {
+        for (final e in editions)
+          if (e.edition.catalogId != null) e.edition.catalogId!,
+      },
+      barcodes: {for (final c in codes) c.barcode},
+      bestOwnedRank: best,
+    );
+  }
 
   /// Another copy of an edition, for example a second disc of the same
   /// release.

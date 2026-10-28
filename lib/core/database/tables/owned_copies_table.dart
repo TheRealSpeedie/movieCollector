@@ -20,6 +20,13 @@ class OwnedCopies extends Table {
   RealColumn get purchasePrice => real().nullable()();
   TextColumn get storageLocation => text().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// Who owns the copy in a household, as the server's user id. Null means
+  /// the person using this device.
+  TextColumn get ownerId => text().nullable()();
+
+  /// Only visible to its owner, also in a household.
+  BoolColumn get isPrivate => boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
 }

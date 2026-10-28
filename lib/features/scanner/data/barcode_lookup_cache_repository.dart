@@ -10,11 +10,11 @@ class BarcodeLookupCacheRepository implements BarcodeLookupCacheStore {
 
   @override
   Future<CachedProviderResult?> read(String barcode, String provider) async {
-    final row = await (_db.select(
-      _db.barcodeLookupCache,
-    )..where(
-      (t) => t.barcode.equals(barcode) & t.provider.equals(provider),
-    )).getSingleOrNull();
+    final row =
+        await (_db.select(_db.barcodeLookupCache)..where(
+              (t) => t.barcode.equals(barcode) & t.provider.equals(provider),
+            ))
+            .getSingleOrNull();
     if (row == null) return null;
     return CachedProviderResult(
       barcode: row.barcode,
@@ -27,15 +27,17 @@ class BarcodeLookupCacheRepository implements BarcodeLookupCacheStore {
 
   @override
   Future<void> save(CachedProviderResult result) async {
-    await _db.into(_db.barcodeLookupCache).insertOnConflictUpdate(
-      BarcodeLookupCacheCompanion.insert(
-        barcode: result.barcode,
-        provider: result.provider,
-        outcome: result.outcome,
-        payload: Value(result.payload),
-        fetchedAt: DateTime.now(),
-        expiresAt: result.expiresAt,
-      ),
-    );
+    await _db
+        .into(_db.barcodeLookupCache)
+        .insertOnConflictUpdate(
+          BarcodeLookupCacheCompanion.insert(
+            barcode: result.barcode,
+            provider: result.provider,
+            outcome: result.outcome,
+            payload: Value(result.payload),
+            fetchedAt: DateTime.now(),
+            expiresAt: result.expiresAt,
+          ),
+        );
   }
 }

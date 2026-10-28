@@ -158,6 +158,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             ),
           ),
           IconButton(
+            tooltip: 'Taschenlampe',
             icon: ValueListenableBuilder(
               valueListenable: _controller,
               builder: (context, state, child) {

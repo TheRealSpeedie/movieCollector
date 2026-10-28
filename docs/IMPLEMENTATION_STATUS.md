@@ -132,6 +132,15 @@ test where practical — not just that a placeholder exists.
   option in onboarding and Daten & Synchronisation appears when the build sets `CLOUD_URL`
   in `env.json`. Tests: `test/features/cloud/`.
 
+- **Households** — `lib/features/household/`: Haushalt screen (`/household`, from Daten &
+  Synchronisation) to invite with a code, join, leave and remove members, on the own server or
+  Movie Shelf Cloud. The sync engine starts over when the collection behind the provider
+  changes. Tests: `test/core/sync/collection_switch_test.dart`.
+
+- **Household ownership** — copies carry their owner (schema v7: `owned_copies.owner_id`, `is_private`); others' copies are shown with the owner and cannot be changed; private copies; removing a film others own keeps it. Tests: `test/core/collection/household_ownership_test.dart`.
+- **Edition catalog** — `lib/features/editions/`: "Weitere Ausgaben" on movie details, take over, share with consent, catalog-first barcode lookup. Tests: `test/features/editions/edition_catalog_test.dart`.
+- **Discovery** — `lib/features/discover/domain/`: local query parser and rules; optional AI ranking (on-device interface, own server, Movie Shelf Cloud) with consent. Tests: `test/features/discover/discovery_test.dart`.
+
 ## Partially implemented
 
 - **Sammlung filters** — status filtering and sorting are fully wired into the UI.

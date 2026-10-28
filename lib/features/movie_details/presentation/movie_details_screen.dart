@@ -18,6 +18,7 @@ import '../../scanner/application/barcode_providers.dart';
 import '../../sync/application/sync_providers.dart';
 import '../../sync/presentation/digital_section.dart';
 import '../../editions/presentation/copies_section.dart';
+import '../../editions/presentation/known_editions_section.dart';
 import '../../personal/data/personal_state_repository.dart';
 import '../../personal/presentation/personal_section.dart';
 import '../../watch/application/watch_providers.dart';
@@ -147,6 +148,8 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
         ),
         const SizedBox(height: 24),
         CopiesSection(movieId: movie.id),
+        if (movie.tmdbId != null)
+          KnownEditionsSection(movieId: movie.id, tmdbId: movie.tmdbId!),
         const SizedBox(height: 24),
         PersonalSection(
           subject: movieSubject(movie.id),
@@ -262,8 +265,22 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
       confirmLabel: 'Entfernen',
       destructive: true,
     );
-    if (!confirmed) return;
-    await ref.read(movieRepositoryProvider).deleteMovie(widget.movieId);
+    if (!confirmed || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
+    final removed = await ref
+        .read(movieRepositoryProvider)
+        .deleteMovie(widget.movieId);
+    if (!removed) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Deine Exemplare sind entfernt. Der Film bleibt, weil andere im '
+            'Haushalt ihn besitzen.',
+          ),
+        ),
+      );
+      return;
+    }
     if (context.mounted) context.pop();
   }
 

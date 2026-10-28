@@ -24,5 +24,12 @@ class PhysicalEditions extends Table {
   TextColumn get subtitleLanguages => text().nullable()();
   TextColumn get publisher => text().nullable()();
   TextColumn get notes => text().nullable()();
+
+  /// The entry in the edition catalog this edition was taken from or shared
+  /// as. Stays usable offline; the catalog is only asked when online.
+  TextColumn get catalogId => text().nullable()();
+
+  /// user, catalog or a barcode service.
+  TextColumn get source => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }

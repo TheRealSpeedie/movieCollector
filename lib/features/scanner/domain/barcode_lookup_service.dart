@@ -4,6 +4,7 @@ import '../../../core/errors/app_exception.dart';
 import '../../../core/network/upcmdb/upcmdb_client.dart';
 import '../../../core/network/upcitemdb/upcitemdb_client.dart';
 import '../../../core/utils/title_normalizer.dart';
+import '../../editions/data/edition_catalog.dart';
 import 'barcode_lookup_cache.dart';
 import 'physical_product.dart';
 import 'scan_trace.dart';
@@ -31,11 +32,16 @@ class BarcodeLookupService {
     required BarcodeProvider upcItemDb,
     this.upcmdb,
     this.cache,
+    this.catalog,
   }) : _upcItemDb = upcItemDb;
 
   final BarcodeProvider _upcItemDb;
   final UpcmdbApi? upcmdb;
   final BarcodeLookupCacheStore? cache;
+
+  /// The edition catalog of the own server or Movie Shelf Cloud. Asked
+  /// first: its entries were described and checked by people.
+  final EditionCatalog? catalog;
 
   static const foundTtl = Duration(days: 30);
   static const missTtl = Duration(days: 7);
@@ -44,6 +50,30 @@ class BarcodeLookupService {
   Future<ExternalLookup> lookup(String gtin, ScanTrace trace) async {
     var sawMiss = false;
     String? failure;
+
+    if (catalog != null) {
+      try {
+        final entries = await catalog!.forBarcode(gtin);
+        trace.add('catalog=${entries.length}');
+        if (entries.isNotEmpty) {
+          final e = entries.first;
+          return ExternalLookupHit(
+            PhysicalProduct(
+              source: 'catalog',
+              title: e.title,
+              year: e.year,
+              physicalFormat: e.format.name,
+              edition: e.editionName,
+              region: e.region,
+              publisher: e.publisher,
+              mediaType: e.kind,
+            ),
+          );
+        }
+      } on Exception catch (error) {
+        trace.add('catalog-error=$error');
+      }
+    }
 
     if (upcmdb != null && (gtin.length == 12 || gtin.length == 13)) {
       final upcmdbResult = await _upcmdb(gtin, trace);
@@ -87,7 +117,13 @@ class BarcodeLookupService {
       case UpcmdbFound(:final record):
         trace.add('upcmdb=hit');
         final product = _fromUpcmdb(record);
-        await _store(gtin, 'upcmdb', 'found', foundTtl, jsonEncode(product.toJson()));
+        await _store(
+          gtin,
+          'upcmdb',
+          'found',
+          foundTtl,
+          jsonEncode(product.toJson()),
+        );
         return ExternalLookupHit(product);
       case UpcmdbNotFound():
         trace.add('upcmdb=not-found');
@@ -121,7 +157,9 @@ class BarcodeLookupService {
       );
       final product = PhysicalProduct(
         source: 'upcitemdb',
-        title: described.searchTitle.isEmpty ? item.title : described.searchTitle,
+        title: described.searchTitle.isEmpty
+            ? item.title
+            : described.searchTitle,
         productTitle: item.title,
         year: described.year,
         physicalFormat: described.physicalFormat,
@@ -130,7 +168,13 @@ class BarcodeLookupService {
         publisher: item.brand ?? described.publisher,
       );
       trace.add('upcitemdb=hit');
-      await _store(gtin, 'upcitemdb', 'found', foundTtl, jsonEncode(product.toJson()));
+      await _store(
+        gtin,
+        'upcitemdb',
+        'found',
+        foundTtl,
+        jsonEncode(product.toJson()),
+      );
       return ExternalLookupHit(product);
     } on BarcodeNotFoundException {
       trace.add('upcitemdb=not-found');
@@ -161,14 +205,14 @@ class BarcodeLookupService {
         if (product.title.isNotEmpty) return ExternalLookupHit(product);
       }
       if (json is Map) {
-        final product = PhysicalProduct.fromJson(Map<String, dynamic>.from(json));
+        final product = PhysicalProduct.fromJson(
+          Map<String, dynamic>.from(json),
+        );
         if (product.title.isNotEmpty) return ExternalLookupHit(product);
       }
     }
     if (cached.outcome == 'not_found') return const ExternalLookupMiss();
-    return const ExternalLookupFailed(
-      'Die Produktabfrage ist fehlgeschlagen.',
-    );
+    return const ExternalLookupFailed('Die Produktabfrage ist fehlgeschlagen.');
   }
 
   PhysicalProduct _fromUpcmdb(UpcmdbRecord record) {
@@ -183,10 +227,13 @@ class BarcodeLookupService {
     ].join(' ');
     return PhysicalProduct(
       source: 'upcmdb',
-      title: described.searchTitle.isEmpty ? record.title : described.searchTitle,
+      title: described.searchTitle.isEmpty
+          ? record.title
+          : described.searchTitle,
       productTitle: display,
       year: record.year ?? described.year,
-      physicalFormat: mapPhysicalFormat(record.format) ?? described.physicalFormat,
+      physicalFormat:
+          mapPhysicalFormat(record.format) ?? described.physicalFormat,
       edition: record.specialFeatures ?? described.edition,
       region: described.region,
       publisher: record.publisher ?? described.publisher,

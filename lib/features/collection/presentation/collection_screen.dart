@@ -59,6 +59,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             : const Text('Sammlung'),
         actions: [
           IconButton(
+            tooltip: _searching ? 'Suche schließen' : 'Sammlung durchsuchen',
             icon: Icon(_searching ? Icons.close : Icons.search),
             onPressed: () {
               setState(() => _searching = !_searching);
@@ -69,6 +70,9 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             },
           ),
           IconButton(
+            tooltip: filter.viewMode == CollectionViewMode.grid
+                ? 'Als Liste zeigen'
+                : 'Als Raster zeigen',
             icon: Icon(
               filter.viewMode == CollectionViewMode.grid
                   ? Icons.view_list
@@ -77,6 +81,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             onPressed: notifier.toggleViewMode,
           ),
           PopupMenuButton<SortOption>(
+            tooltip: 'Sortieren',
             icon: const Icon(Icons.sort),
             onSelected: notifier.setSort,
             itemBuilder: (context) => const [
@@ -280,45 +285,54 @@ class _MovieGrid extends StatelessWidget {
       itemCount: movies.length,
       itemBuilder: (context, index) {
         final movie = movies[index];
-        return GestureDetector(
-          onTap: () => context.push('/movie/${movie.id}'),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: PosterImage(posterPath: movie.posterPath)),
-              const SizedBox(height: 6),
-              Text(
-                movie.title,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+        return Semantics(
+          button: true,
+          label: [
+            movie.title,
+            if (movie.releaseYear != null) '${movie.releaseYear}',
+            movie.status.germanLabel,
+          ].join(', '),
+          excludeSemantics: true,
+          child: GestureDetector(
+            onTap: () => context.push('/movie/${movie.id}'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(child: PosterImage(posterPath: movie.posterPath)),
+                const SizedBox(height: 6),
+                Text(
+                  movie.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 2),
-              Row(
-                children: [
-                  if (movie.releaseYear != null)
-                    Text(
-                      '${movie.releaseYear}',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.neutralGray,
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    if (movie.releaseYear != null)
+                      Text(
+                        '${movie.releaseYear}',
+                        style: const TextStyle(
+                          fontSize: 11,
+                          color: AppColors.neutralGray,
+                        ),
+                      ),
+                    const Spacer(),
+                    Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: colorForStatus(movie.status),
+                        shape: BoxShape.circle,
                       ),
                     ),
-                  const Spacer(),
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: colorForStatus(movie.status),
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         );
       },
@@ -435,32 +449,39 @@ class _TvGrid extends StatelessWidget {
       itemCount: series.length,
       itemBuilder: (context, index) {
         final entry = series[index];
-        return GestureDetector(
-          onTap: () => context.push('/series/${entry.series.id}'),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Expanded(child: PosterImage(posterPath: entry.series.posterPath)),
-              const SizedBox(height: 6),
-              Text(
-                entry.series.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12,
+        return Semantics(
+          button: true,
+          label: '${entry.series.name}, ${entry.progressLabel}',
+          excludeSemantics: true,
+          child: GestureDetector(
+            onTap: () => context.push('/series/${entry.series.id}'),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: PosterImage(posterPath: entry.series.posterPath),
                 ),
-              ),
-              Text(
-                entry.progressLabel,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontSize: 11,
-                  color: AppColors.neutralGray,
+                const SizedBox(height: 6),
+                Text(
+                  entry.series.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+                Text(
+                  entry.progressLabel,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: AppColors.neutralGray,
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       },

@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/editions/application/catalog_providers.dart';
 import '../../features/collections/data/collection_repository.dart';
 import '../../features/editions/data/physical_edition_repository.dart';
 import '../../features/import/data/import_repository.dart';
@@ -40,6 +41,7 @@ final barcodeLookupServiceProvider = Provider<BarcodeLookupService>((ref) {
     upcItemDb: ref.watch(barcodeProviderProvider),
     upcmdb: ref.watch(upcmdbClientProvider),
     cache: ref.watch(barcodeLookupCacheRepositoryProvider),
+    catalog: ref.watch(editionCatalogProvider),
   );
 });
 

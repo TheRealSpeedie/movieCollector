@@ -41,6 +41,7 @@ class UserPreferences {
     this.subtitleMode = SubtitleMode.auto,
     this.preferOriginal = false,
     this.hearingImpaired = false,
+    this.audioDescription = false,
     this.preferredFormats = const [],
   });
 
@@ -56,6 +57,9 @@ class UserPreferences {
   final bool preferOriginal;
   final bool hearingImpaired;
 
+  /// Prefer audio tracks that describe the picture.
+  final bool audioDescription;
+
   /// MediaFormat names, best first.
   final List<String> preferredFormats;
 
@@ -69,6 +73,7 @@ class UserPreferences {
     SubtitleMode? subtitleMode,
     bool? preferOriginal,
     bool? hearingImpaired,
+    bool? audioDescription,
     List<String>? preferredFormats,
   }) => UserPreferences(
     region: region ?? this.region,
@@ -82,6 +87,7 @@ class UserPreferences {
     subtitleMode: subtitleMode ?? this.subtitleMode,
     preferOriginal: preferOriginal ?? this.preferOriginal,
     hearingImpaired: hearingImpaired ?? this.hearingImpaired,
+    audioDescription: audioDescription ?? this.audioDescription,
     preferredFormats: preferredFormats ?? this.preferredFormats,
   );
 
@@ -101,6 +107,7 @@ class UserPreferences {
     },
     'preferOriginal': preferOriginal,
     'hearingImpaired': hearingImpaired,
+    'audioDescription': audioDescription,
   };
 }
 
@@ -119,6 +126,7 @@ class SettingsRepository {
   static const _subtitleModeKey = 'pref_subtitle_mode';
   static const _originalKey = 'pref_original_language';
   static const _sdhKey = 'pref_hearing_impaired';
+  static const _audioDescriptionKey = 'pref_audio_description';
 
   CollectionViewMode getViewMode() {
     return _prefs.getString(_viewModeKey) == 'list'
@@ -160,6 +168,7 @@ class SettingsRepository {
     ),
     preferOriginal: _prefs.getBool(_originalKey) ?? false,
     hearingImpaired: _prefs.getBool(_sdhKey) ?? false,
+    audioDescription: _prefs.getBool(_audioDescriptionKey) ?? false,
     preferredFormats: _prefs.getStringList(_formatsKey) ?? const [],
   );
 
@@ -180,5 +189,6 @@ class SettingsRepository {
     await _prefs.setString(_subtitleModeKey, preferences.subtitleMode.name);
     await _prefs.setBool(_originalKey, preferences.preferOriginal);
     await _prefs.setBool(_sdhKey, preferences.hearingImpaired);
+    await _prefs.setBool(_audioDescriptionKey, preferences.audioDescription);
   }
 }
