@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/widgets/status_chip.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/widgets/status_chip.dart';
 
 void main() {
   Future<void> pumpChip(WidgetTester tester, CollectionStatus status) {

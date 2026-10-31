@@ -43,7 +43,7 @@ class KnownEditionsSection extends ConsumerWidget {
         ];
         if (fresh.isEmpty) return const SizedBox.shrink();
         final attributions = {
-          for (final e in fresh) e.attribution ?? 'Movie Shelf users',
+          for (final e in fresh) e.attribution ?? 'Speednema users',
         };
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

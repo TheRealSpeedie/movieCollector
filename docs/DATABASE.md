@@ -1,8 +1,8 @@
 # Database
 
-Movie Shelf uses [Drift](https://drift.simonbinder.eu/) over SQLite. The database class is
+Speednema uses [Drift](https://drift.simonbinder.eu/) over SQLite. The database class is
 `AppDatabase` (`lib/core/database/app_database.dart`), currently at **schema version 7**. The
-database file is named `movie_shelf.sqlite` and lives in the platform's application
+database file is named `speednema.sqlite` and lives in the platform's application
 documents directory (`getApplicationDocumentsDirectory()`), so it survives app restarts and
 updates but is removed if the user uninstalls the app or clears app data.
 

@@ -104,7 +104,7 @@ class _ImportMovieSearchScreenState
       if (!mounted) return;
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(SnackBar(content: Text('$error')));
+      ).showSnackBar(SnackBar(content: Text(describeError(error))));
     }
   }
 

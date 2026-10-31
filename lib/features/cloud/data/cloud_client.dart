@@ -5,7 +5,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../core/errors/app_exception.dart';
 
-/// The signed-in Movie Shelf Cloud account on this device.
+/// The signed-in Speednema Cloud account on this device.
 class CloudSession {
   const CloudSession({
     required this.email,
@@ -40,7 +40,7 @@ class SecureCloudSessionStore implements CloudSessionStore {
   SecureCloudSessionStore([FlutterSecureStorage? storage])
     : _storage = storage ?? const FlutterSecureStorage();
 
-  static const _key = 'movieshelf.cloud';
+  static const _key = 'speednema.cloud';
 
   final FlutterSecureStorage _storage;
 
@@ -63,7 +63,7 @@ class SecureCloudSessionStore implements CloudSessionStore {
   Future<void> clear() => _storage.delete(key: _key);
 }
 
-/// Talks to Movie Shelf Cloud. Access tokens live 15 minutes and are renewed
+/// Talks to Speednema Cloud. Access tokens live 15 minutes and are renewed
 /// with the rotating refresh token, which is saved after every rotation.
 class CloudClient {
   CloudClient({
@@ -220,7 +220,7 @@ class CloudClient {
   Future<void> _ensureToken() {
     if (_session == null) {
       throw const ServerRejectedException(
-        'Melde dich bei Movie Shelf Cloud an.',
+        'Melde dich bei Speednema Cloud an.',
         401,
       );
     }
@@ -267,14 +267,14 @@ class CloudClient {
       await _forget();
       onSignedOut?.call();
       return const ServerRejectedException(
-        'Dieses Gerät wurde von Movie Shelf Cloud abgemeldet. Melde dich erneut an.',
+        'Dieses Gerät wurde von Speednema Cloud abgemeldet. Melde dich erneut an.',
         401,
       );
     }
     if (status == 402) {
       return CloudSubscriptionException(
         message ??
-            'Dein Movie-Shelf-Cloud-Abo ist abgelaufen. Deine Sammlung bleibt auf dem Gerät.',
+            'Dein Speednema-Cloud-Abo ist abgelaufen. Deine Sammlung bleibt auf dem Gerät.',
       );
     }
     if (status == 429) {
@@ -284,7 +284,7 @@ class CloudClient {
       );
     }
     return ServerRejectedException(
-      message ?? 'Movie Shelf Cloud hat die Anfrage abgelehnt ($status).',
+      message ?? 'Speednema Cloud hat die Anfrage abgelehnt ($status).',
       status,
     );
   }

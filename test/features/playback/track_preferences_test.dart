@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/playback/domain/playback_session.dart';
-import 'package:movie_shelf/features/server/domain/server_models.dart';
-import 'package:movie_shelf/features/settings/data/settings_repository.dart';
+import 'package:speednema/features/playback/domain/playback_session.dart';
+import 'package:speednema/features/server/domain/server_models.dart';
+import 'package:speednema/features/settings/data/settings_repository.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

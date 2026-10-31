@@ -1,6 +1,9 @@
-sealed class AppException implements Exception {
+import 'user_facing_error.dart';
+
+sealed class AppException implements Exception, UserFacingError {
   const AppException(this.message);
 
+  @override
   final String message;
 
   @override
@@ -62,7 +65,7 @@ class UnknownAppException extends AppException {
 class ServerUnreachableException extends AppException {
   const ServerUnreachableException()
     : super(
-        'Der Movie-Shelf-Server ist nicht erreichbar. Prüfe, ob er läuft und ihr im selben WLAN seid.',
+        'Der Speednema-Server ist nicht erreichbar. Prüfe, ob er läuft und ihr im selben WLAN seid.',
       );
 }
 
@@ -86,11 +89,11 @@ class PairingFailedException extends AppException {
 class CloudUnreachableException extends AppException {
   const CloudUnreachableException()
     : super(
-        'Movie Shelf Cloud ist gerade nicht erreichbar. Deine Änderungen bleiben auf dem Gerät und werden später übertragen.',
+        'Speednema Cloud ist gerade nicht erreichbar. Deine Änderungen bleiben auf dem Gerät und werden später übertragen.',
       );
 }
 
-/// The Movie Shelf Cloud subscription ended: changes stay on the device until
+/// The Speednema Cloud subscription ended: changes stay on the device until
 /// it is renewed. Reading and export keep working.
 class CloudSubscriptionException extends AppException {
   const CloudSubscriptionException(super.message);

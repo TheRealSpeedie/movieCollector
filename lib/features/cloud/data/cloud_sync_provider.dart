@@ -1,7 +1,7 @@
 import '../../../core/sync/sync_provider.dart';
 import 'cloud_client.dart';
 
-/// Collection sync through Movie Shelf Cloud. Same protocol as the home
+/// Collection sync through Speednema Cloud. Same protocol as the home
 /// server; only the address and the sign-in differ.
 class CloudSyncProvider implements CollectionSyncProvider {
   CloudSyncProvider(this._client);

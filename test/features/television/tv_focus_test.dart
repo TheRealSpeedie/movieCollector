@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_shelf/app/theme/app_theme.dart';
-import 'package:movie_shelf/features/server/application/server_providers.dart';
-import 'package:movie_shelf/features/server/domain/server_models.dart';
-import 'package:movie_shelf/features/television/application/tv_providers.dart';
-import 'package:movie_shelf/features/television/presentation/tv_focusable.dart';
-import 'package:movie_shelf/features/television/presentation/tv_home_screen.dart';
+import 'package:speednema/app/theme/app_theme.dart';
+import 'package:speednema/features/server/application/server_providers.dart';
+import 'package:speednema/features/server/domain/server_models.dart';
+import 'package:speednema/features/television/application/tv_providers.dart';
+import 'package:speednema/features/television/presentation/tv_focusable.dart';
+import 'package:speednema/features/television/presentation/tv_home_screen.dart';
 
 import '../server/support/fakes.dart';
 

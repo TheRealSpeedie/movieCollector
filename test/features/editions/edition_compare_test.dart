@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/media_format.dart';
-import 'package:movie_shelf/features/editions/domain/edition_compare.dart';
+import 'package:speednema/core/database/media_format.dart';
+import 'package:speednema/features/editions/domain/edition_compare.dart';
 
 void main() {
   const myBluray = EditionFacts(

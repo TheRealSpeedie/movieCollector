@@ -124,8 +124,10 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 ? _DigitalOnlyGrid(query: filter.query)
                 : moviesAsync.when(
                     loading: () => const LoadingView(),
-                    error: (error, stack) =>
-                        ErrorView(error: error, onRetry: () {}),
+                    error: (error, stack) => ErrorView(
+                      error: error,
+                      onRetry: () => ref.invalidate(allMoviesProvider),
+                    ),
                     data: (movies) {
                       if (movies.isEmpty) {
                         return EmptyState(
@@ -410,7 +412,10 @@ class _TvCollectionBody extends ConsumerWidget {
     final seriesAsync = ref.watch(filteredTvSeriesProvider);
     return seriesAsync.when(
       loading: () => const LoadingView(),
-      error: (error, stack) => ErrorView(error: error, onRetry: () {}),
+      error: (error, stack) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(allTvSeriesProvider),
+      ),
       data: (series) {
         if (series.isEmpty) {
           return EmptyState(

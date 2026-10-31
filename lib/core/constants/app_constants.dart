@@ -1,8 +1,8 @@
 class AppConstants {
   AppConstants._();
 
-  static const String appName = 'Movie Shelf';
-  static const String databaseFileName = 'movie_shelf.sqlite';
+  static const String appName = 'Speednema';
+  static const String databaseFileName = 'speednema.sqlite';
 
   static const Duration metadataStaleAfter = Duration(days: 14);
   static const Duration collectionStaleAfter = Duration(days: 7);

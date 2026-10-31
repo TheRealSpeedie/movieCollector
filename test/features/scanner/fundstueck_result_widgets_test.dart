@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/app/theme/app_colors.dart';
-import 'package:movie_shelf/shared/widgets/action_button.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/features/collections/application/collections_providers.dart';
-import 'package:movie_shelf/features/collections/domain/movie_collection_info.dart';
-import 'package:movie_shelf/features/scanner/presentation/fundstueck_result_screen.dart';
-import 'package:movie_shelf/shared/models/match_candidate.dart';
+import 'package:speednema/app/theme/app_colors.dart';
+import 'package:speednema/shared/widgets/action_button.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/collections/application/collections_providers.dart';
+import 'package:speednema/features/collections/domain/movie_collection_info.dart';
+import 'package:speednema/features/scanner/presentation/fundstueck_result_screen.dart';
+import 'package:speednema/shared/models/match_candidate.dart';
 
 import '../../fixtures/movie_fixtures.dart';
 

@@ -70,7 +70,7 @@ class _PlayerPicker extends ConsumerWidget {
                 child: EmptyState(
                   icon: Icons.tv_off_outlined,
                   title: 'Kein Fernseher verbunden',
-                  message: 'Öffne Movie Shelf auf deinem Fernseher.',
+                  message: 'Öffne Speednema auf deinem Fernseher.',
                 ),
               )
             : Column(
@@ -113,7 +113,7 @@ class RemoteScreen extends ConsumerWidget {
                 icon: Icons.tv_off_outlined,
                 title: 'Kein Fernseher verbunden',
                 message:
-                    'Öffne Movie Shelf auf deinem Fernseher. Sobald er mit dem Server verbunden ist, erscheint er hier.',
+                    'Öffne Speednema auf deinem Fernseher. Sobald er mit dem Server verbunden ist, erscheint er hier.',
               )
             : ListView(
                 padding: const EdgeInsets.all(16),

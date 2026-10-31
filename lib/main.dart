@@ -28,7 +28,7 @@ Future<void> main() async {
         ),
         viewingRecorderProvider.overrideWith(phoneViewingRecorder),
       ],
-      child: const MovieShelfApp(),
+      child: const SpeednemaApp(),
     ),
   );
 }

@@ -13,7 +13,7 @@ class Env {
   );
   static const String upcmdbApiKey = String.fromEnvironment('UPCMDB_API_KEY');
 
-  /// Address of Movie Shelf Cloud, for example https://cloud.example.org.
+  /// Address of Speednema Cloud, for example https://cloud.example.org.
   /// Builds without it offer only local storage and the own server.
   static const String cloudUrl = String.fromEnvironment('CLOUD_URL');
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/errors/user_facing_error.dart';
 import '../../../app/theme/app_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/media_format.dart';
@@ -93,7 +94,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         if (mounted) {
           ScaffoldMessenger.of(
             context,
-          ).showSnackBar(SnackBar(content: Text('$e')));
+          ).showSnackBar(SnackBar(content: Text(describeError(e))));
         }
       }
     }
@@ -232,7 +233,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         option(
           CollectionStorage.selfHosted,
-          'Für Fortgeschrittene: Abgleich über deinen eigenen Movie Shelf '
+          'Für Fortgeschrittene: Abgleich über deinen eigenen Speednema '
           'Server, ganz ohne Hersteller-Konto.',
         ),
       ],
@@ -259,7 +260,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     return _step(
       title: 'Deine Vorlieben',
       text:
-          'Damit Movie Shelf die passende Tonspur, Untertitel und Angebote in deinem Land findet.',
+          'Damit Speednema die passende Tonspur, Untertitel und Angebote in deinem Land findet.',
       children: [
         DropdownButtonFormField<String>(
           initialValue: _preferences.region,
@@ -336,7 +337,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   Widget _serverPage() {
     final connected = ref.watch(serverClientProvider) != null;
     return _step(
-      title: 'Movie Shelf Server',
+      title: 'Speednema Server',
       text: _storage == CollectionStorage.selfHosted
           ? 'Verbinde deinen Server, um deine Sammlung darüber abzugleichen. '
                 'Er findet sich im WLAN von selbst oder per QR-Code aus dem Dashboard.'

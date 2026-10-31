@@ -141,10 +141,10 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
         const SizedBox(height: 16),
         Text(
           _searching
-              ? 'Der Movie-Shelf-Server wird im Heimnetz gesucht …'
+              ? 'Der Speednema-Server wird im Heimnetz gesucht …'
               : _manual
               ? 'Es wurde kein Server gefunden. Gib die Adresse deines Servers ein, zum Beispiel 192.168.1.20.'
-              : 'Öffne Movie Shelf auf deinem Handy, wähle „Fernseher koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
+              : 'Öffne Speednema auf deinem Handy, wähle „Fernseher koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
           style: theme.titleMedium?.copyWith(color: AppColors.neutralGray),
         ),
         if (_error != null) ...[

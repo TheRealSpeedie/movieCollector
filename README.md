@@ -1,14 +1,14 @@
-# Movie Shelf
+# Speednema
 
-Your physical discs, digital files and streaming services in one personal collection. Movie Shelf is a Flutter app for Android and iOS (plus an Android TV flavor). It works completely offline and without an account; your own server or Movie Shelf Cloud are optional.
+Your physical discs, digital files and streaming services in one personal collection. Speednema is a Flutter app for Android and iOS (plus an Android TV flavor). It works completely offline and without an account; your own server or Speednema Cloud are optional.
 
 ## What it does
 
 - **Fundstück-Check**: scan a DVD, Blu-ray or 4K barcode and see at once whether you own it, which edition you have, whether it is on your wishlist, and what is missing in the series. Known barcodes work offline; unknown ones are looked up later.
 - **Collection**: movies and series with editions and copies (format, region, languages, condition, location, price), wishlist, watch history and ratings. Box sets are one copy that holds several titles.
 - **Entdecken**: what to watch next from your shelf, your server and your streaming subscriptions, with reasons. Wishes in plain words ("etwas Lustiges unter 2 Stunden") are understood on the device; AI ordering is optional and needs consent.
-- **Your own server** ([movieshelf_server](https://github.com/TheRealSpeedie/movieshelf_server)): play your files, pick audio and subtitles, resume on another device, control the TV app.
-- **Sync and households**: keep the collection on several devices through your own server or Movie Shelf Cloud, and share it with the people you live with. Every copy keeps its owner; watch history and ratings stay personal.
+- **Your own server** ([speednema_server](https://github.com/TheRealSpeedie/speednema_server)): play your files, pick audio and subtitles, resume on another device, control the TV app.
+- **Sync and households**: keep the collection on several devices through your own server or Speednema Cloud, and share it with the people you live with. Every copy keeps its owner; watch history and ratings stay personal.
 - **Edition catalog**: see other releases of a film and how they differ, take them over, share your own.
 - **Backup and export**: encrypted backups, JSON and CSV export, restore.
 
@@ -19,10 +19,10 @@ The full feature list is in [docs/FEATURES.md](docs/FEATURES.md).
 | Mode | Where | Account |
 |---|---|---|
 | Only on this device (default) | SQLite on the phone | none |
-| Own Movie Shelf Server | the phone and your server at home | none |
-| Movie Shelf Cloud | the phone and the Cloud service | e-mail and password |
+| Own Speednema Server | the phone and your server at home | none |
+| Speednema Cloud | the phone and the Cloud service | e-mail and password |
 
-The collection is always complete on the device, so it stays usable offline in every mode. There are no analytics or advertising SDKs. Privacy policy: [movieshelf_server/site/privacy.html](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/site/privacy.html).
+The collection is always complete on the device, so it stays usable offline in every mode. There are no analytics or advertising SDKs. Privacy policy: [speednema_server/site/privacy.html](https://github.com/TheRealSpeedie/speednema_server/blob/main/site/privacy.html).
 
 ## Quick start
 
@@ -48,7 +48,7 @@ A free [TMDB](https://www.themoviedb.org/) token is needed for search and metada
 | [docs/TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md) | Common problems |
 | [docs/IMPLEMENTATION_STATUS.md](docs/IMPLEMENTATION_STATUS.md) | What is done, partial or missing |
 
-Test results, the device checklist and the roadmap for app and server live in the server repository: [VERIFICATION.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/docs/VERIFICATION.md), [ROADMAP.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md).
+Test results, the device checklist and the roadmap for app and server live in the server repository: [VERIFICATION.md](https://github.com/TheRealSpeedie/speednema_server/blob/main/docs/VERIFICATION.md), [ROADMAP.md](https://github.com/TheRealSpeedie/speednema_server/blob/main/ROADMAP.md).
 
 ## Development
 

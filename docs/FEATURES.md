@@ -1,6 +1,6 @@
 # Features
 
-What Movie Shelf does, from the user's side. The interface is German; screen names are given as they appear.
+What Speednema does, from the user's side. The interface is German; screen names are given as they appear.
 
 ## Tabs
 
@@ -8,7 +8,7 @@ What Movie Shelf does, from the user's side. The interface is German; screen nam
 
 ## First start
 
-Onboarding asks where the collection should live (only on this device, Movie Shelf Cloud, or your own server), your region, audio and subtitle languages and preferred formats (all skippable), offers to connect a server, and suggests a first step: scan a disc, import a list, or search a film. Installs that already have data skip it.
+Onboarding asks where the collection should live (only on this device, Speednema Cloud, or your own server), your region, audio and subtitle languages and preferred formats (all skippable), offers to connect a server, and suggests a first step: scan a disc, import a list, or search a film. Installs that already have data skip it.
 
 ## Fundstück-Check
 
@@ -49,16 +49,16 @@ Removing a film that others in your household own removes only your copies.
 
 Paste a list from your notes or pick a TXT or CSV file. Every line is matched with TMDB and reviewed before anything is saved: ambiguous lines offer candidates, unmatched ones a manual search for films or series, box sets and series can be assigned as bundles. Failed lines can be retried. Details: [IMPORT.md](IMPORT.md).
 
-## Playback (with a Movie Shelf Server)
+## Playback (with a Speednema Server)
 
 Play files from your server with direct play, remux or conversion as the device needs. Audio and subtitles follow your preferences (languages, original language, subtitles only when needed, hearing-impaired, audio description). In the player: switch tracks, search and download subtitles, shift them, report wrong ones. Progress is saved per person; positions that could not be sent while offline are delivered later. The phone can control the TV app.
 
 ## Mehr
 
 - **Daten & Synchronisation**: storage location and moving between them (with a snapshot first and a count check after), sync status with waiting changes, conflicts with both values to choose from, **Haushalt**, backup, export and restore.
-- **Movie Shelf Cloud**: sign up, confirm e-mail, reset password, subscription, devices, export, sign out, delete the account.
+- **Speednema Cloud**: sign up, confirm e-mail, reset password, subscription, devices, export, sign out, delete the account.
 - **Haushalt**: invite with a code, join, leave, remove members. Copies, editions and the wishlist are shared; what each person watched and rated stays theirs.
-- **Movie Shelf Server**: connect by QR code or network discovery, browse libraries, versions, pairing a TV.
+- **Speednema Server**: connect by QR code or network discovery, browse libraries, versions, pairing a TV.
 - **Sprache & Untertitel**, **Streamingdienste**, **Einstellungen** (metadata language, API status, cache, TMDB attribution).
 
 ## Android TV

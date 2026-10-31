@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/core/providers/repository_providers.dart';
-import 'package:movie_shelf/features/import/application/import_controller.dart';
-import 'package:movie_shelf/features/import/domain/import_models.dart';
-import 'package:movie_shelf/features/import/presentation/import_screen.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/providers/repository_providers.dart';
+import 'package:speednema/features/import/application/import_controller.dart';
+import 'package:speednema/features/import/domain/import_models.dart';
+import 'package:speednema/features/import/presentation/import_screen.dart';
 
 import 'import_screen_test.mocks.dart';
 

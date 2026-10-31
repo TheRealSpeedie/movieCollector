@@ -6,8 +6,8 @@ TMDB returned HTTP 401 or 403, mapped to `InvalidApiConfigException`. Causes:
 
 - You didn't pass `--dart-define-from-file=env.json` when running/building. Without it,
   `TMDB_ACCESS_TOKEN` is empty and every TMDB request is unauthenticated.
-- You used the short **API Key (v3 auth)** instead of the **API Read Access Token**. Movie
-  Shelf sends `Authorization: Bearer <token>` — it needs the long JWT-style Read Access
+- You used the short **API Key (v3 auth)** instead of the **API Read Access Token**.
+  Speednema sends `Authorization: Bearer <token>` — it needs the long JWT-style Read Access
   Token from <https://www.themoviedb.org/settings/api>, not the v3 `api_key`.
 - `env.json` has a typo in the key name — it must be exactly `TMDB_ACCESS_TOKEN` (see
   `env.example.json`).
@@ -80,13 +80,13 @@ whole source row. The matcher had already succeeded; only persistence failed.
 Current builds upsert genres (and TMDB collections) on their TMDB ids. If you still see a
 database constraint on import, expand **Details** on the result screen (user-facing category
 only) and check the debug console for `Import save failed` with exception type and stack.
-Do not delete `movie_shelf.sqlite` to "fix" a constraint — retry the failed rows instead.
+Do not delete `speednema.sqlite` to "fix" a constraint — retry the failed rows instead.
 
 ## SQLite migration errors
 
 The app is currently at `schemaVersion = 2`. Changing tables without a new `onUpgrade` step
 will break existing installs. See [docs/DATABASE.md](DATABASE.md#migration-strategy). During
-development, uninstalling the app (or deleting `movie_shelf.sqlite`) still works as a last
+development, uninstalling the app (or deleting `speednema.sqlite`) still works as a last
 resort, but shipping a wipe is not acceptable.
 
 ## Android build issues
@@ -120,7 +120,7 @@ resort, but shipping a wipe is not acceptable.
 - `NSCameraUsageDescription` is already set in `ios/Runner/Info.plist`. If the camera prompt
   never appears, fully delete the app from the simulator/device first — iOS caches
   permission decisions per install and won't re-prompt after a permanent denial; use the
-  "Einstellungen öffnen" button (Settings → Movie Shelf → Camera) instead.
+  "Einstellungen öffnen" button (Settings → Speednema → Camera) instead.
 - Building for iOS requires Xcode on macOS; this cannot be verified from a non-macOS
   development environment — see [docs/IMPLEMENTATION_STATUS.md](IMPLEMENTATION_STATUS.md).
 

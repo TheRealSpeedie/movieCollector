@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/media_format.dart';
-import 'package:movie_shelf/features/discover/domain/discovery.dart';
-import 'package:movie_shelf/features/discover/domain/query_parser.dart';
-import 'package:movie_shelf/features/discover/domain/watch_suggestions.dart';
+import 'package:speednema/core/database/media_format.dart';
+import 'package:speednema/features/discover/domain/discovery.dart';
+import 'package:speednema/features/discover/domain/query_parser.dart';
+import 'package:speednema/features/discover/domain/watch_suggestions.dart';
 
 class FakeRanker implements DiscoveryRanker {
   FakeRanker(this.answer);

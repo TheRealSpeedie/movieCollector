@@ -2,18 +2,18 @@ import 'package:dio/dio.dart';
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/collection/ownership_service.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/database/media_format.dart';
-import 'package:movie_shelf/core/network/dio_client.dart';
-import 'package:movie_shelf/core/network/network_info.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart';
-import 'package:movie_shelf/core/sync/collection_records.dart';
-import 'package:movie_shelf/features/editions/data/copy_repository.dart';
-import 'package:movie_shelf/features/personal/data/personal_state_repository.dart';
-import 'package:movie_shelf/features/watch/data/watch_repository.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/collection/ownership_service.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/database/media_format.dart';
+import 'package:speednema/core/network/dio_client.dart';
+import 'package:speednema/core/network/network_info.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_watch_models.dart';
+import 'package:speednema/core/sync/collection_records.dart';
+import 'package:speednema/features/editions/data/copy_repository.dart';
+import 'package:speednema/features/personal/data/personal_state_repository.dart';
+import 'package:speednema/features/watch/data/watch_repository.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 class _Online implements NetworkInfo {
   @override

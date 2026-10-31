@@ -1,6 +1,6 @@
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/models/collection_with_entries.dart';
-import 'package:movie_shelf/shared/models/movie.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/models/collection_with_entries.dart';
+import 'package:speednema/shared/models/movie.dart';
 
 Movie buildMovie({
   int id = 1,

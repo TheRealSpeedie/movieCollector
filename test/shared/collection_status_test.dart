@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/converters/collection_status_converter.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/database/converters/collection_status_converter.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 void main() {
   test('German labels are stable and correct', () {

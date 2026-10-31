@@ -1,0 +1,4 @@
+tags:
+  # Screenshot comparisons. Regenerate with:
+  #   flutter test --tags golden --update-goldens
+  golden: {}

@@ -13,7 +13,7 @@ class RankedPick {
 /// Something that can order the device's own suggestions for a wish: a
 /// model on the device or a service the person agreed to use.
 abstract interface class DiscoveryRanker {
-  /// Shown with the results, for example "KI über Movie Shelf Cloud".
+  /// Shown with the results, for example "KI über Speednema Cloud".
   String get label;
 
   Future<List<RankedPick>> rank(
@@ -175,7 +175,7 @@ class Discovery {
   }
 }
 
-/// Asks the own server or Movie Shelf Cloud. Sends only the wish and, per
+/// Asks the own server or Speednema Cloud. Sends only the wish and, per
 /// candidate, title, year, genres, length, whether it was watched and where
 /// it is available, under a numbered id. No collection, household or
 /// account data, no ids that identify the person's library.

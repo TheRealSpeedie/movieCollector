@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/cloud/data/cloud_client.dart';
-import 'package:movie_shelf/features/cloud/data/cloud_sync_provider.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/cloud/data/cloud_client.dart';
+import 'package:speednema/features/cloud/data/cloud_sync_provider.dart';
 
 import '../server/support/fakes.dart';
 

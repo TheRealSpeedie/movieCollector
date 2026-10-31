@@ -39,7 +39,7 @@ class BarcodeLookupService {
   final UpcmdbApi? upcmdb;
   final BarcodeLookupCacheStore? cache;
 
-  /// The edition catalog of the own server or Movie Shelf Cloud. Asked
+  /// The edition catalog of the own server or Speednema Cloud. Asked
   /// first: its entries were described and checked by people.
   final EditionCatalog? catalog;
 

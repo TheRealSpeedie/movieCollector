@@ -1,16 +1,16 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/features/collections/data/collection_repository.dart';
-import 'package:movie_shelf/features/editions/data/physical_edition_repository.dart';
-import 'package:movie_shelf/features/import/data/import_repository.dart';
-import 'package:movie_shelf/features/import/domain/import_models.dart';
-import 'package:movie_shelf/features/movies/data/movie_repository.dart';
-import 'package:movie_shelf/features/tv/data/tv_repository.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/collections/data/collection_repository.dart';
+import 'package:speednema/features/editions/data/physical_edition_repository.dart';
+import 'package:speednema/features/import/data/import_repository.dart';
+import 'package:speednema/features/import/domain/import_models.dart';
+import 'package:speednema/features/movies/data/movie_repository.dart';
+import 'package:speednema/features/tv/data/tv_repository.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 const _action = TmdbGenre(id: 28, name: 'Action');
 const _comedy = TmdbGenre(id: 35, name: 'Komödie');

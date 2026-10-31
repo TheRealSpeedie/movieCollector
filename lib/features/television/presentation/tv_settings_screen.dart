@@ -49,7 +49,7 @@ class TvSettingsScreen extends ConsumerWidget {
           line('Profil', credentials.username),
           const SizedBox(height: 8),
           const Text(
-            'Tonspur und Untertitel richtest du in der Movie-Shelf-App auf '
+            'Tonspur und Untertitel richtest du in der Speednema-App auf '
             'dem Handy ein (Mehr → Sprache & Untertitel). Der Fernseher '
             'übernimmt sie für dein Profil.',
             style: TextStyle(color: AppColors.neutralGray),

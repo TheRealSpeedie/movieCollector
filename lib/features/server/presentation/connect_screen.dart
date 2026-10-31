@@ -126,12 +126,12 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Mit deinem Heimserver koppeln',
+              'Mit deinem Speednema Server verbinden',
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
             const Text(
-              'Öffne das Movie-Shelf-Dashboard auf deinem Computer, wähle „Geräte“ und dann „Gerät verbinden“. Der Code ist drei Minuten gültig.',
+              'Öffne das Speednema-Dashboard auf deinem Computer, wähle „Geräte“ und dann „Gerät verbinden“. Der Code ist drei Minuten gültig.',
               style: TextStyle(color: AppColors.neutralGray),
             ),
             const SizedBox(height: 16),
@@ -152,7 +152,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
       controller: _linkField,
       decoration: InputDecoration(
         labelText: 'Oder Kopplungslink einfügen',
-        hintText: 'movieshelf://pair?…',
+        hintText: 'speednema://pair?…',
         suffixIcon: IconButton(
           icon: const Icon(Icons.content_paste),
           tooltip: 'Aus Zwischenablage einfügen',

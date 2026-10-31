@@ -1,14 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/providers/shared_preferences_provider.dart';
-import 'package:movie_shelf/features/collection/application/collection_filter_controller.dart';
-import 'package:movie_shelf/features/movies/application/movie_providers.dart';
-import 'package:movie_shelf/features/server/application/server_providers.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/domain/server_models.dart';
-import 'package:movie_shelf/features/sync/application/sync_providers.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/models/movie.dart';
+import 'package:speednema/core/providers/shared_preferences_provider.dart';
+import 'package:speednema/features/collection/application/collection_filter_controller.dart';
+import 'package:speednema/features/movies/application/movie_providers.dart';
+import 'package:speednema/features/server/application/server_providers.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/domain/server_models.dart';
+import 'package:speednema/features/sync/application/sync_providers.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/models/movie.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../server/support/fakes.dart';

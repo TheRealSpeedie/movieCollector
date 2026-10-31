@@ -5,8 +5,8 @@
 **SQLite is the source of truth for the user's collection.** TMDB and UPCitemdb are only
 used to *enrich* data (metadata, collection info) and to *resolve* unknown barcodes/titles.
 A failed API call must never delete, corrupt, or hide anything the user already saved
-locally. A sync provider (the user's own server or Movie Shelf Cloud) holds a
-copy for other devices; it never replaces the local collection. See the [roadmap](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/ROADMAP.md).
+locally. A sync provider (the user's own server or Speednema Cloud) holds a
+copy for other devices; it never replaces the local collection. See the [roadmap](https://github.com/TheRealSpeedie/speednema_server/blob/main/ROADMAP.md).
 
 ## Ownership and sync
 
@@ -39,7 +39,7 @@ lib/
     sync/                  SyncEngine, CollectionRecords, SyncIds (record protocol)
   features/
     backup/                Encrypted backup, JSON/CSV export, restore, snapshots
-    cloud/                 Movie Shelf Cloud account, client and sync provider
+    cloud/                 Speednema Cloud account, client and sync provider
     collection/            "Sammlung" screen: Filme | Serien, filters, sort, search
     collections/           Franchises (TMDB collections) + missing movies
     discover/              Entdecken, "Was soll ich schauen?", query parser, optional AI ranking

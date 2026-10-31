@@ -4,15 +4,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/core/providers/core_providers.dart';
-import 'package:movie_shelf/core/providers/repository_providers.dart';
-import 'package:movie_shelf/features/import/application/import_controller.dart';
-import 'package:movie_shelf/features/import/data/import_repository.dart';
-import 'package:movie_shelf/features/import/domain/import_models.dart';
-import 'package:movie_shelf/features/import/presentation/import_movie_search_screen.dart';
-import 'package:movie_shelf/features/import/presentation/import_screen.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/providers/core_providers.dart';
+import 'package:speednema/core/providers/repository_providers.dart';
+import 'package:speednema/features/import/application/import_controller.dart';
+import 'package:speednema/features/import/data/import_repository.dart';
+import 'package:speednema/features/import/domain/import_models.dart';
+import 'package:speednema/features/import/presentation/import_movie_search_screen.dart';
+import 'package:speednema/features/import/presentation/import_screen.dart';
 
 import 'import_movie_search_screen_test.mocks.dart';
 

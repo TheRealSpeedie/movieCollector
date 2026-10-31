@@ -55,7 +55,7 @@ class _SubscriptionsScreenState extends ConsumerState<SubscriptionsScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Text(
-                'Wähle, wofür du ein Abo hast. Movie Shelf zeigt dann, was '
+                'Wähle, wofür du ein Abo hast. Speednema zeigt dann, was '
                 'du ohne Zusatzkosten schauen kannst, und meldet, wenn ein '
                 'Film deiner Wunschliste dort verfügbar wird. Region: '
                 '${ref.watch(regionProvider)}.',

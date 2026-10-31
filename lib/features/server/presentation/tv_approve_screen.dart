@@ -44,7 +44,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       final own = ref.read(serverSessionProvider).valueOrNull;
       if (link.mode != 'tv') {
         throw const PairingFailedException(
-          'Dieser Code gehört nicht zu einem Fernseher. Öffne auf dem Fernseher Movie Shelf und scanne den dortigen Code.',
+          'Dieser Code gehört nicht zu einem Fernseher. Öffne auf dem Fernseher Speednema und scanne den dortigen Code.',
         );
       }
       if (own != null && own.fingerprint != link.fingerprint) {
@@ -119,7 +119,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
 
   List<Widget> _enter() => [
     const Text(
-      'Öffne Movie Shelf auf deinem Fernseher. Dort erscheint ein QR-Code und ein Code mit sechs Zeichen.',
+      'Öffne Speednema auf deinem Fernseher. Dort erscheint ein QR-Code und ein Code mit sechs Zeichen.',
       style: TextStyle(color: AppColors.neutralGray),
     ),
     const SizedBox(height: 16),

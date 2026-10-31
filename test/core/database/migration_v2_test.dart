@@ -1,6 +1,6 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
+import 'package:speednema/core/database/app_database.dart';
 import 'package:sqlite3/sqlite3.dart';
 
 void main() {

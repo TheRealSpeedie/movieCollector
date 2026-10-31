@@ -43,7 +43,7 @@ class TvShell extends ConsumerWidget {
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          'Movie Shelf',
+                          'Speednema',
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 20,

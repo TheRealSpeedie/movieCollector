@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_shelf/core/providers/shared_preferences_provider.dart';
-import 'package:movie_shelf/features/collection/presentation/collection_screen.dart';
-import 'package:movie_shelf/features/movies/application/movie_providers.dart';
+import 'package:speednema/core/providers/shared_preferences_provider.dart';
+import 'package:speednema/features/collection/presentation/collection_screen.dart';
+import 'package:speednema/features/movies/application/movie_providers.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

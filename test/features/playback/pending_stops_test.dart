@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/playback/data/pending_stops.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/playback/data/pending_stops.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {

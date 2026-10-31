@@ -1,0 +1,7 @@
+# German is the shipped language. Strings move here screen by screen as each
+# screen is redesigned; English can be added later as app_en.arb.
+arb-dir: lib/l10n
+template-arb-file: app_de.arb
+output-localization-file: app_localizations.dart
+output-class: AppLocalizations
+nullable-getter: false

@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/network/dio_client.dart';
-import 'package:movie_shelf/core/network/network_info.dart';
-import 'package:movie_shelf/core/network/upcmdb/upcmdb_client.dart';
+import 'package:speednema/core/network/dio_client.dart';
+import 'package:speednema/core/network/network_info.dart';
+import 'package:speednema/core/network/upcmdb/upcmdb_client.dart';
 
 void main() {
   test('maps documented UPCMDB fields and leaves missing ones empty', () {

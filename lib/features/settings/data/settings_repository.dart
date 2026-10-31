@@ -4,7 +4,7 @@ enum CollectionViewMode { grid, list }
 
 /// Where the collection is kept. Independent of whether a media server is
 /// connected: a server can be used for playback while the collection stays on
-/// this device or syncs through Movie Shelf Cloud.
+/// this device or syncs through Speednema Cloud.
 enum CollectionStorage {
   local,
   selfHosted,
@@ -12,8 +12,8 @@ enum CollectionStorage {
 
   String get label => switch (this) {
     CollectionStorage.local => 'Nur auf diesem Gerät',
-    CollectionStorage.selfHosted => 'Eigener Movie Shelf Server',
-    CollectionStorage.cloud => 'Movie Shelf Cloud',
+    CollectionStorage.selfHosted => 'Eigener Speednema Server',
+    CollectionStorage.cloud => 'Speednema Cloud',
   };
 }
 

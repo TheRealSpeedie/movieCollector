@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/user_facing_error.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/collection_records.dart';
 import '../../../core/sync/sync_engine.dart';
@@ -11,9 +12,10 @@ import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
 import 'sync_providers.dart';
 
-class MigrationException implements Exception {
+class MigrationException implements Exception, UserFacingError {
   const MigrationException(this.message);
 
+  @override
   final String message;
 
   @override
@@ -52,7 +54,9 @@ class StorageMigration {
         remote: (await destination.snapshot()).counts,
       );
     } catch (e) {
-      throw MigrationException('Das Ziel ist nicht erreichbar: $e');
+      throw MigrationException(
+        'Das Ziel ist nicht erreichbar: ${describeError(e)}',
+      );
     }
   }
 
@@ -76,8 +80,8 @@ class StorageMigration {
     if (destination == null) {
       throw MigrationException(
         target == CollectionStorage.cloud
-            ? 'Melde dich zuerst bei Movie Shelf Cloud an.'
-            : 'Verbinde zuerst einen Movie Shelf Server.',
+            ? 'Melde dich zuerst bei Speednema Cloud an.'
+            : 'Verbinde zuerst einen Speednema Server.',
       );
     }
     final engine = SyncEngine(_ref.read(appDatabaseProvider), destination);
@@ -90,7 +94,8 @@ class StorageMigration {
       await engine.reset();
       if (e is MigrationException) rethrow;
       throw MigrationException(
-        'Der Umzug wurde abgebrochen, deine Sammlung bleibt auf dem Gerät: $e',
+        'Der Umzug wurde abgebrochen, deine Sammlung bleibt auf dem Gerät: '
+        '${describeError(e)}',
       );
     }
     await storage.set(target);

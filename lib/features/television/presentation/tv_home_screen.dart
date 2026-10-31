@@ -28,7 +28,7 @@ class TvHomeScreen extends ConsumerWidget {
         ),
         data: (data) => ListView(
           children: [
-            _Header(serverName: serverName ?? 'Movie Shelf'),
+            _Header(serverName: serverName ?? 'Speednema'),
             if (data.resume.isNotEmpty)
               _Row(
                 title: 'Weiter schauen',

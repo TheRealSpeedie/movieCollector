@@ -6,7 +6,7 @@ import '../../../app/theme/app_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../cloud/application/cloud_providers.dart';
 import '../../collection/application/collection_filter_controller.dart';
-import '../../collections/application/collections_providers.dart';
+import '../../collections/application/franchise_gaps.dart';
 import '../../server/application/server_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
@@ -17,7 +17,7 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final missingCount = ref.watch(totalMissingCountProvider);
+    final gaps = ref.watch(franchiseGapsProvider);
 
     final server = ref.watch(serverSessionProvider).valueOrNull;
     final cloud = ref.watch(cloudAvailableProvider);
@@ -58,7 +58,7 @@ class MoreScreen extends ConsumerWidget {
                       ? AppColors.neutralGray
                       : AppColors.sage,
                 ),
-                title: const Text('Movie Shelf Cloud'),
+                title: const Text('Speednema Cloud'),
                 subtitle: Text(cloudSession?.email ?? 'Nicht angemeldet'),
                 trailing: const Icon(Icons.arrow_forward_ios, size: 14),
                 onTap: () => context.push('/cloud'),
@@ -72,7 +72,7 @@ class MoreScreen extends ConsumerWidget {
                 Icons.dns_outlined,
                 color: server == null ? AppColors.neutralGray : AppColors.sage,
               ),
-              title: const Text('Movie Shelf Server'),
+              title: const Text('Speednema Server'),
               subtitle: Text(
                 server == null
                     ? 'Nicht verbunden'
@@ -104,9 +104,7 @@ class MoreScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.playlist_add_check_circle_outlined),
               title: const Text('Fehlende Filme'),
-              subtitle: Text(
-                '${missingCount.valueOrNull ?? 0} Filme aus deinen Reihen fehlen dir',
-              ),
+              subtitle: Text(franchiseGapsSummary(gaps)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/missing'),
             ),

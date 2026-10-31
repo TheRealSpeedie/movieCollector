@@ -1,11 +1,11 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/collection/ownership_service.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/features/scanner/domain/scan_assessment.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/models/physical_edition_kind.dart';
+import 'package:speednema/core/collection/ownership_service.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/features/scanner/domain/scan_assessment.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/models/physical_edition_kind.dart';
 
 void main() {
   late AppDatabase db;

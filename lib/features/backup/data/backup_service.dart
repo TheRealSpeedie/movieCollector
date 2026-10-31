@@ -8,11 +8,13 @@ import 'package:path_provider/path_provider.dart';
 
 import '../../../core/collection/ownership_service.dart';
 import '../../../core/database/app_database.dart';
+import '../../../core/errors/user_facing_error.dart';
 import '../../../core/sync/collection_records.dart';
 
-class BackupException implements Exception {
+class BackupException implements Exception, UserFacingError {
   const BackupException(this.message);
 
+  @override
   final String message;
 
   @override
@@ -32,8 +34,18 @@ class BackupService {
     : _records = CollectionRecords(_db),
       _documents = documents ?? getApplicationDocumentsDirectory;
 
-  static const format = 'movieshelf-export';
-  static const encryptedFormat = 'movieshelf-backup';
+  static const format = 'speednema-export';
+  static const encryptedFormat = 'speednema-backup';
+
+  /// Format ids written before the rename from Movie Shelf. Files with them
+  /// are still read, so older backups can be restored; new files always use
+  /// [format] and [encryptedFormat].
+  static const legacyFormat = 'movieshelf-export';
+  static const legacyEncryptedFormat = 'movieshelf-backup';
+
+  static bool isExportFormat(Object? id) => id == format || id == legacyFormat;
+  static bool isEncryptedFormat(Object? id) =>
+      id == encryptedFormat || id == legacyEncryptedFormat;
   static const version = 1;
   static const _keepSnapshots = 5;
 
@@ -167,11 +179,11 @@ ORDER BY title, season
     try {
       json = Map<String, Object?>.from(jsonDecode(content) as Map);
     } on FormatException {
-      throw const BackupException('Die Datei ist keine Movie-Shelf-Sicherung.');
+      throw const BackupException('Die Datei ist keine Speednema-Sicherung.');
     }
-    if (json['format'] == format) return json;
-    if (json['format'] != encryptedFormat) {
-      throw const BackupException('Die Datei ist keine Movie-Shelf-Sicherung.');
+    if (isExportFormat(json['format'])) return json;
+    if (!isEncryptedFormat(json['format'])) {
+      throw const BackupException('Die Datei ist keine Speednema-Sicherung.');
     }
     if (password == null) {
       throw const BackupException('Diese Sicherung braucht ein Passwort.');
@@ -211,9 +223,12 @@ ORDER BY title, season
     Map<String, Object?> export, {
     required bool replace,
   }) async {
-    if (export['format'] != format || (export['version'] as int) > version) {
+    if (!isExportFormat(export['format'])) {
+      throw const BackupException('Die Datei ist keine Speednema-Sicherung.');
+    }
+    if ((export['version'] as int) > version) {
       throw const BackupException(
-        'Diese Sicherung stammt aus einer neueren Version von Movie Shelf.',
+        'Diese Sicherung stammt aus einer neueren Version von Speednema.',
       );
     }
     await saveSnapshot('vor-wiederherstellung');

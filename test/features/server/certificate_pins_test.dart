@@ -1,8 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/server/data/pairing_crypto.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
+import 'package:speednema/features/server/data/pairing_crypto.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
 
 void main() {
   test('credentials with a pinned certificate use https', () {

@@ -1,11 +1,11 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/features/collections/data/collection_repository.dart';
-import 'package:movie_shelf/features/movies/data/movie_repository.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/collections/data/collection_repository.dart';
+import 'package:speednema/features/movies/data/movie_repository.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 class _FakeTmdb extends Fake implements TmdbApiClient {
   _FakeTmdb(this.movies);

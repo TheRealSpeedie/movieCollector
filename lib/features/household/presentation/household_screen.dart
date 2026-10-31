@@ -25,7 +25,7 @@ class HouseholdScreen extends ConsumerWidget {
           ? const Padding(
               padding: EdgeInsets.all(24),
               child: Text(
-                'Ein Haushalt braucht einen gemeinsamen Speicherort: Movie Shelf '
+                'Ein Haushalt braucht einen gemeinsamen Speicherort: Speednema '
                 'Cloud oder deinen eigenen Server. Wähle ihn unter Daten & '
                 'Synchronisation.',
               ),
@@ -108,7 +108,7 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     }
     if (!mounted) return;
     final text =
-        'Komm in meinen Movie-Shelf-Haushalt: Mehr › Daten & Synchronisation › '
+        'Komm in meinen Speednema-Haushalt: Mehr › Daten & Synchronisation › '
         'Haushalt › Beitreten, Code ${invite.code}';
     await showDialog<void>(
       context: context,

@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/matching/movie_matcher.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/matching/movie_matcher.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
 
 void main() {
   const matcher = MovieMatcher();

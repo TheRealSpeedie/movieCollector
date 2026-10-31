@@ -1,5 +1,5 @@
 /// Transport of the collection sync protocol. The home server implements it
-/// today, Movie Shelf Cloud will implement the same calls later.
+/// today, Speednema Cloud will implement the same calls later.
 library;
 
 class SyncChange {

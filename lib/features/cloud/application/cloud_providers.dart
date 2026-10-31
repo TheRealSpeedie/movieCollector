@@ -5,7 +5,7 @@ import '../../../core/sync/sync_provider.dart';
 import '../data/cloud_client.dart';
 import '../data/cloud_sync_provider.dart';
 
-/// Whether this build knows a Movie Shelf Cloud address (CLOUD_URL).
+/// Whether this build knows a Speednema Cloud address (CLOUD_URL).
 final cloudAvailableProvider = Provider<bool>((ref) => Env.isCloudConfigured);
 
 final cloudSessionStoreProvider = Provider<CloudSessionStore>(

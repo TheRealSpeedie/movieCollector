@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_shelf/app/theme/app_theme.dart';
-import 'package:movie_shelf/features/server/application/server_providers.dart';
-import 'package:movie_shelf/features/server/data/profile_api.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
-import 'package:movie_shelf/features/television/presentation/tv_shell.dart';
+import 'package:speednema/app/theme/app_theme.dart';
+import 'package:speednema/features/server/application/server_providers.dart';
+import 'package:speednema/features/server/data/profile_api.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
+import 'package:speednema/features/television/presentation/tv_shell.dart';
 
 import '../server/support/fakes.dart';
 

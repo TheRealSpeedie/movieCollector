@@ -88,10 +88,10 @@ class CatalogEntry {
 }
 
 /// Where edition facts come from beyond this device. The own server and
-/// Movie Shelf Cloud offer the same endpoints; other sources can be added
+/// Speednema Cloud offer the same endpoints; other sources can be added
 /// behind this interface.
 abstract interface class EditionCatalog {
-  /// Shown with the results, for example "Movie Shelf Server".
+  /// Shown with the results, for example "Speednema Server".
   String get name;
 
   Future<List<CatalogEntry>> forTitle(String kind, int tmdbId);

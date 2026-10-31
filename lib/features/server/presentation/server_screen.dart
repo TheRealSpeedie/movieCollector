@@ -38,7 +38,7 @@ class _NotConnected extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final revoked = ref.watch(serverRevokedProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Heimserver')),
+      appBar: AppBar(title: const Text('Speednema Server')),
       body: EmptyState(
         icon: revoked ? Icons.link_off : Icons.dns_outlined,
         title: revoked
@@ -46,7 +46,7 @@ class _NotConnected extends ConsumerWidget {
             : 'Kein Server verbunden',
         message: revoked
             ? 'Der Server hat dieses Gerät entfernt. Verbinde es erneut mit einem neuen QR-Code.'
-            : 'Verbinde dein Handy mit dem Movie-Shelf-Server, um deine Filme und Serien im Heimnetz zu schauen.',
+            : 'Verbinde dein Handy mit dem Speednema-Server, um deine Filme und Serien im Heimnetz zu schauen.',
         action: FilledButton.icon(
           onPressed: () => context.push('/server/connect'),
           icon: const Icon(Icons.qr_code_scanner),

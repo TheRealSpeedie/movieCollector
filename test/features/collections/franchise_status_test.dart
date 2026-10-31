@@ -4,16 +4,16 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/network/dio_client.dart';
-import 'package:movie_shelf/core/network/network_info.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/core/providers/core_providers.dart';
-import 'package:movie_shelf/features/collections/data/collection_repository.dart';
-import 'package:movie_shelf/features/collections/presentation/franchise_section.dart';
-import 'package:movie_shelf/features/movies/data/movie_repository.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/network/dio_client.dart';
+import 'package:speednema/core/network/network_info.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/providers/core_providers.dart';
+import 'package:speednema/features/collections/data/collection_repository.dart';
+import 'package:speednema/features/collections/presentation/franchise_section.dart';
+import 'package:speednema/features/movies/data/movie_repository.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 void main() {
   late AppDatabase db;

@@ -1,11 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/app_theme.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../playback/domain/play_request.dart';
 import '../../playback/presentation/player_screen.dart';
 import '../../remote/application/remote_providers.dart';
@@ -143,19 +143,15 @@ class TvApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.watch(tvHostProvider);
     return MaterialApp.router(
-      title: 'Movie Shelf',
+      title: 'Speednema',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.dark,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.dark,
       routerConfig: ref.watch(tvRouterProvider),
       locale: const Locale('de', 'DE'),
-      supportedLocales: const [Locale('de', 'DE'), Locale('en', 'US')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
       builder: (context, child) => MediaQuery(
         data: MediaQuery.of(
           context,

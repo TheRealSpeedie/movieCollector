@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/matching/item_selection.dart';
-import 'package:movie_shelf/shared/widgets/selectable_item_list.dart';
+import 'package:speednema/core/matching/item_selection.dart';
+import 'package:speednema/shared/widgets/selectable_item_list.dart';
 
 void main() {
   testWidgets('select all, deselect all, and regular seasons', (tester) async {

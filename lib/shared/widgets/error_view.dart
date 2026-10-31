@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../app/theme/app_colors.dart';
-import '../../core/errors/app_exception.dart';
+import '../../core/errors/user_facing_error.dart';
+import '../../l10n/l10n.dart';
 
-String describeError(Object error) {
-  if (error is AppException) return error.message;
-  return 'Es ist ein unerwarteter Fehler aufgetreten.';
-}
+export '../../core/errors/user_facing_error.dart' show describeError;
 
 class ErrorView extends StatelessWidget {
   const ErrorView({super.key, required this.error, this.onRetry});
@@ -38,7 +36,7 @@ class ErrorView extends StatelessWidget {
               OutlinedButton.icon(
                 onPressed: onRetry,
                 icon: const Icon(Icons.refresh),
-                label: const Text('Erneut versuchen'),
+                label: Text(context.l10n.actionRetry),
               ),
             ],
           ],

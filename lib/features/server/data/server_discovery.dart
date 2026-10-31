@@ -37,8 +37,8 @@ abstract class ServerDiscovery {
 }
 
 class MdnsServerDiscovery implements ServerDiscovery {
-  static const _serviceType = '_movieshelf._tcp';
-  static const _lock = MethodChannel('movieshelf/multicast');
+  static const _serviceType = '_speednema._tcp';
+  static const _lock = MethodChannel('speednema/multicast');
 
   @override
   Future<List<DiscoveredServer>> discover({

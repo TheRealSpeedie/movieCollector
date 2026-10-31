@@ -77,7 +77,7 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
       builder: (context) => AlertDialog(
         title: const Text('KI-Vorschläge einschalten?'),
         content: Text(
-          'Movie Shelf findet Vorschläge immer selbst. Mit KI werden sie '
+          'Speednema findet Vorschläge immer selbst. Mit KI werden sie '
           'zusätzlich sortiert und erklärt (${ranker?.label ?? 'KI-Dienst'}).\n\n'
           'Gesendet wird nur, wenn du etwas suchst: dein Wunsch und bis zu 40 '
           'Filme, die schon passen, mit Titel, Jahr, Genres, Länge, ob du sie '

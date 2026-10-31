@@ -1,4 +1,4 @@
-package com.movieshelf.movie_shelf
+package com.speednema.speednema
 
 import android.content.Context
 import android.net.wifi.WifiManager
@@ -11,12 +11,12 @@ class MainActivity : FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "movieshelf/multicast")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "speednema/multicast")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "acquire" -> {
                         val wifi = applicationContext.getSystemService(Context.WIFI_SERVICE) as WifiManager
-                        multicastLock = multicastLock ?: wifi.createMulticastLock("movieshelf")
+                        multicastLock = multicastLock ?: wifi.createMulticastLock("speednema")
                         multicastLock?.setReferenceCounted(false)
                         multicastLock?.acquire()
                         result.success(null)

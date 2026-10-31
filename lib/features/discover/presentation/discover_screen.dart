@@ -8,6 +8,7 @@ import '../../../shared/models/collection_with_entries.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/collections_providers.dart';
+import '../../collections/application/franchise_gaps.dart';
 import '../../movies/application/movie_providers.dart';
 import '../application/gap_providers.dart';
 
@@ -18,7 +19,7 @@ class DiscoverScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final missing = ref.watch(totalMissingCountProvider).valueOrNull ?? 0;
+    final gaps = ref.watch(franchiseGapsProvider);
     final collections = ref.watch(allCollectionsProvider).valueOrNull ?? [];
     final seasonGaps = ref.watch(seasonGapsProvider).valueOrNull ?? [];
     final wishlist =
@@ -50,11 +51,7 @@ class DiscoverScreen extends ConsumerWidget {
             child: ListTile(
               leading: const Icon(Icons.playlist_add_check_circle_outlined),
               title: const Text('Fehlende Filme'),
-              subtitle: Text(
-                missing == 0
-                    ? 'Deine Reihen sind vollständig'
-                    : '$missing Filme fehlen in deinen Reihen',
-              ),
+              subtitle: Text(franchiseGapsSummary(gaps)),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/missing'),
             ),

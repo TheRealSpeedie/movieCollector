@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/playback/domain/playback_session.dart';
-import 'package:movie_shelf/features/server/data/pairing_link.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/playback/domain/playback_session.dart';
+import 'package:speednema/features/server/data/pairing_link.dart';
 
 void main() {
   group('PairingLink', () {
     const valid =
-        'movieshelf://pair?v=1&m=mobile&sid=abc&s=AAECAw&h=192.168.1.20&p=8096&tls=0&fp=ff00&id=srv&n=Wohnzimmer';
+        'speednema://pair?v=1&m=mobile&sid=abc&s=AAECAw&h=192.168.1.20&p=8096&tls=0&fp=ff00&id=srv&n=Wohnzimmer';
 
     test('reads every field', () {
       final link = PairingLink.parse(valid);
@@ -43,7 +43,7 @@ void main() {
         throwsA(isA<PairingFailedException>()),
       );
       expect(
-        () => PairingLink.parse('movieshelf://pair?v=1&sid=abc'),
+        () => PairingLink.parse('speednema://pair?v=1&sid=abc'),
         throwsA(isA<PairingFailedException>()),
       );
     });

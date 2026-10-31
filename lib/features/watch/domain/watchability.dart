@@ -49,7 +49,7 @@ List<WatchSource> watchSources({
       const WatchSource(
         option: WatchOption.playNow,
         title: 'Jetzt abspielen',
-        detail: 'Auf deinem Movie Shelf Server',
+        detail: 'Auf deinem Speednema Server',
       ),
     );
   }

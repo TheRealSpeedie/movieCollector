@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/utils/title_normalizer.dart';
+import 'package:speednema/core/utils/title_normalizer.dart';
 
 void main() {
   group('TitleNormalizer.normalize', () {
