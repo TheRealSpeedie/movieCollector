@@ -68,7 +68,9 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     try {
       await changeHousehold(ref, reason, change);
       messenger.showSnackBar(SnackBar(content: Text(done)));
-    } on AppException catch (e) {
+    } catch (e) {
+      // Snapshots and the file system fail with other errors than the API;
+      // all of them must be reported, in the user's words.
       messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
     } finally {
       if (mounted) setState(() => _busy = false);

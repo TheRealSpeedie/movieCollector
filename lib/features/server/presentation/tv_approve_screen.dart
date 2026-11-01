@@ -54,11 +54,12 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       }
       await _lookup(link.sessionId);
     } on AppException catch (e) {
-      setState(() => _error = e.message);
+      if (mounted) setState(() => _error = e.message);
     }
   }
 
   Future<void> _lookup(String idOrCode) async {
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -69,9 +70,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
                   .read(serverClientProvider)!
                   .get('/api/pairing/tv-sessions/${idOrCode.trim()}')
               as Map<String, dynamic>;
-      setState(() => _tv = tv);
+      if (mounted) setState(() => _tv = tv);
     } on Object catch (e) {
-      setState(() => _error = describeError(e));
+      if (mounted) setState(() => _error = describeError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -93,7 +94,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       );
       context.pop();
     } on Object catch (e) {
-      setState(() => _error = describeError(e));
+      if (mounted) setState(() => _error = describeError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }

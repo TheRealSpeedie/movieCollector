@@ -9,6 +9,9 @@ String serverErrorText({String? code, required int status}) =>
 
 const _byCode = {
   'pin_incorrect': 'Die PIN stimmt nicht.',
+  'pin_required':
+      'Dieses Profil braucht eine PIN, bevor es von hier aus geöffnet werden '
+      'kann. Lege sie im Dashboard unter „Benutzer“ fest.',
   'profile_missing': 'Dieses Profil gibt es nicht mehr.',
   'profile_needs_device': 'Profile wechselst du auf einem verbundenen Gerät.',
   'session_ended': 'Die Wiedergabe wurde beendet. Starte sie noch einmal.',

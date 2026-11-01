@@ -482,11 +482,19 @@ class _BackupSection extends ConsumerWidget {
     final picked = await FilePicker.pickFiles(withData: true);
     final bytes = picked?.files.single.bytes;
     if (bytes == null || !context.mounted) return;
-    final content = utf8.decode(bytes);
     final backup = ref.read(backupServiceProvider);
     try {
+      // A picked photo or PDF is not text; say so instead of failing silently.
+      final String content;
+      try {
+        content = utf8.decode(bytes);
+      } on FormatException {
+        throw const BackupException('Die Datei ist keine Speednema-Sicherung.');
+      }
       String? password;
-      if (content.contains(BackupService.encryptedFormat)) {
+      // Older backups from before the rename carry the legacy id.
+      if (content.contains(BackupService.encryptedFormat) ||
+          content.contains(BackupService.legacyEncryptedFormat)) {
         password = await _askPassword(context, confirm: false);
         if (password == null) return;
       }
