@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_shell.dart';
+import '../../add/presentation/add_sheet.dart';
 import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -58,6 +60,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               )
             : const Text('Sammlung'),
         actions: [
+          if (MediaQuery.sizeOf(context).width < Breakpoints.medium)
+            const AddButton(),
           IconButton(
             tooltip: _searching ? 'Suche schließen' : 'Sammlung durchsuchen',
             icon: Icon(_searching ? Icons.close : Icons.search),

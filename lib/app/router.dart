@@ -9,6 +9,7 @@ import '../features/collections/presentation/missing_movies_screen.dart';
 import '../features/discover/domain/watch_suggestions.dart';
 import '../features/discover/presentation/discover_screen.dart';
 import '../features/discover/presentation/what_to_watch_screen.dart';
+import '../features/settings/presentation/diagnostics_screen.dart';
 import '../features/settings/presentation/language_screen.dart';
 import '../features/settings/presentation/metadata_settings_screen.dart';
 import '../features/watch/presentation/subscriptions_screen.dart';
@@ -159,6 +160,11 @@ final appRouter = GoRouter(
       path: '/settings/language',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const LanguageScreen(),
+    ),
+    GoRoute(
+      path: '/settings/diagnostics',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const DiagnosticsScreen(),
     ),
     GoRoute(
       path: '/settings/metadata',

@@ -9,6 +9,7 @@ import '../../../core/database/media_format.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../cloud/application/cloud_providers.dart';
 import '../../server/application/server_providers.dart';
+import '../../settings/domain/regions.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
 import '../../sync/application/storage_migration.dart';
@@ -242,13 +243,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   }
 
   Widget _preferencesPage() {
-    const regions = {
-      'DE': 'Deutschland',
-      'AT': 'Österreich',
-      'CH': 'Schweiz',
-      'US': 'USA',
-      'GB': 'Großbritannien',
-    };
+    const regions = supportedRegions;
     const languages = {
       'de': 'Deutsch',
       'en': 'Englisch',

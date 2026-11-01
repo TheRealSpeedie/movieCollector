@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../app/app_shell.dart';
+import '../../add/presentation/add_sheet.dart';
 import '../../../app/theme/speednema_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../shared/models/collection_status.dart';
@@ -30,6 +32,11 @@ class HomeScreen extends ConsumerWidget {
           AppConstants.appName,
           style: const TextStyle(fontWeight: FontWeight.w700),
         ),
+        actions: [
+          // On wider layouts the navigation rail carries "+".
+          if (MediaQuery.sizeOf(context).width < Breakpoints.medium)
+            const AddButton(),
+        ],
       ),
       body: SafeArea(
         child: RefreshIndicator(

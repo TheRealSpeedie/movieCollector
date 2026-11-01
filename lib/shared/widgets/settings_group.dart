@@ -19,61 +19,73 @@ class SettingsGroup extends StatelessWidget {
   final String? footer;
   final List<Widget> children;
 
+  /// Widest a group gets on large screens.
+  static const maxWidth = 720.0;
+
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final text = Theme.of(context).textTheme;
-    return Padding(
-      padding: const EdgeInsets.symmetric(
-        horizontal: AppSpacing.l,
-        vertical: AppSpacing.s,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (title != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.only(
-                start: AppSpacing.l,
-                bottom: AppSpacing.s,
-              ),
-              child: Semantics(
-                header: true,
-                child: Text(
-                  title!,
-                  style: text.labelLarge?.copyWith(color: colors.textSecondary),
+    // Settings read best at a comfortable width; on tablets and desktop
+    // windows the groups stay centred instead of stretching.
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: SettingsGroup.maxWidth),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.l,
+            vertical: AppSpacing.s,
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (title != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.only(
+                    start: AppSpacing.l,
+                    bottom: AppSpacing.s,
+                  ),
+                  child: Semantics(
+                    header: true,
+                    child: Text(
+                      title!,
+                      style: text.labelLarge?.copyWith(
+                        color: colors.textSecondary,
+                      ),
+                    ),
+                  ),
+                ),
+              // A Material, not a decorated box, so row ripples stay visible.
+              Material(
+                color: colors.surface,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppRadii.card),
+                  side: BorderSide(color: colors.hairline),
+                ),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < children.length; i++) ...[
+                      if (i > 0)
+                        const Divider(height: 1, indent: AppSpacing.l + 40),
+                      children[i],
+                    ],
+                  ],
                 ),
               ),
-            ),
-          // A Material, not a decorated box, so row ripples stay visible.
-          Material(
-            color: colors.surface,
-            clipBehavior: Clip.antiAlias,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(AppRadii.card),
-              side: BorderSide(color: colors.hairline),
-            ),
-            child: Column(
-              children: [
-                for (var i = 0; i < children.length; i++) ...[
-                  if (i > 0)
-                    const Divider(height: 1, indent: AppSpacing.l + 40),
-                  children[i],
-                ],
-              ],
-            ),
+              if (footer != null)
+                Padding(
+                  padding: const EdgeInsetsDirectional.fromSTEB(
+                    AppSpacing.l,
+                    AppSpacing.s,
+                    AppSpacing.l,
+                    0,
+                  ),
+                  child: Text(footer!, style: text.bodySmall),
+                ),
+            ],
           ),
-          if (footer != null)
-            Padding(
-              padding: const EdgeInsetsDirectional.fromSTEB(
-                AppSpacing.l,
-                AppSpacing.s,
-                AppSpacing.l,
-                0,
-              ),
-              child: Text(footer!, style: text.bodySmall),
-            ),
-        ],
+        ),
       ),
     );
   }
