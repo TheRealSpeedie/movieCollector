@@ -53,7 +53,6 @@ void main() {
     'lib/features/collections/presentation/missing_movies_screen.dart': 1,
     'lib/features/editions/presentation/known_editions_section.dart': 1,
     'lib/features/import/presentation/import_movie_search_screen.dart': 1,
-    'lib/features/movie_details/presentation/movie_details_screen.dart': 1,
     'lib/features/playback/presentation/subtitle_sheets.dart': 1,
     'lib/features/remote/presentation/remote_screen.dart': 1,
     'lib/features/server/presentation/connect_screen.dart': 1,

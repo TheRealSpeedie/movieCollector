@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
+import '../../../shared/widgets/error_view.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/poster_image.dart';
@@ -30,7 +31,11 @@ class FranchiseSection extends ConsumerWidget {
         padding: EdgeInsets.symmetric(vertical: 16),
         child: LinearProgressIndicator(),
       ),
-      error: (error, stack) => const SizedBox.shrink(),
+      // A failed load says so instead of silently hiding the series.
+      error: (error, stack) => ErrorView.compact(
+        error: error,
+        onRetry: () => ref.invalidate(franchiseProvider(tmdbMovieId)),
+      ),
       data: (info) {
         if (info == null || info.parts.isEmpty) return const SizedBox.shrink();
         return FranchiseCard(
