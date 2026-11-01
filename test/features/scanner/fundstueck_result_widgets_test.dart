@@ -42,7 +42,7 @@ void main() {
     ) async {
       await pump(tester, KnownMovieView(movie: ownedMovieFixture()));
 
-      expect(find.text('✓ Bereits in deiner Sammlung'), findsOneWidget);
+      expect(find.text('Hab ich'), findsOneWidget);
       expect(find.text('Gekaufter Film'), findsOneWidget);
     });
 
@@ -51,13 +51,13 @@ void main() {
     ) async {
       await pump(tester, KnownMovieView(movie: wishlistMovieFixture()));
 
-      expect(find.text('♡ Auf deiner Wunschliste'), findsOneWidget);
+      expect(find.text('Auf deiner Wunschliste'), findsOneWidget);
     });
 
     testWidgets('shows the open banner for an open movie', (tester) async {
       await pump(tester, KnownMovieView(movie: openMovieFixture()));
 
-      expect(find.text('Als offen gespeichert'), findsOneWidget);
+      expect(find.text('Noch nicht gekauft'), findsOneWidget);
     });
   });
 
@@ -65,6 +65,11 @@ void main() {
     testWidgets('shows the missing-movie banner and save actions', (
       tester,
     ) async {
+      // A tall phone: the verdict comes first, the save actions follow.
+      tester.view
+        ..physicalSize = const Size(430, 1400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       const candidate = MatchCandidate(
         result: TmdbSearchResult(id: 1, title: 'Ein unbekannter Film'),
         confidence: 0.6,
@@ -84,7 +89,7 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Diese Veröffentlichung wurde gefunden.'),
+        find.text('Neu für dich'),
         findsOneWidget,
       );
       expect(find.text('Als gekauft speichern'), findsOneWidget);

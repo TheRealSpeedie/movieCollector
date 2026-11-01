@@ -78,6 +78,11 @@ void main() {
   testWidgets('a franchise failure still shows the scan confirmation', (
     tester,
   ) async {
+    // A tall phone: the verdict comes first, the save actions follow.
+    tester.view
+      ..physicalSize = const Size(430, 1400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     const candidate = MatchCandidate(
       result: TmdbSearchResult(id: 285, title: 'Am Ende der Welt'),
       confidence: 0.99,
