@@ -2,22 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/errors/user_facing_error.dart';
 import '../../../app/theme/speednema_colors.dart';
-import '../../../core/constants/app_constants.dart';
-import '../../../core/database/media_format.dart';
+import '../../../app/theme/tokens.g.dart';
+import '../../../core/errors/user_facing_error.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../cloud/application/cloud_providers.dart';
+import '../../home/presentation/empty_shelf.dart';
 import '../../server/application/server_providers.dart';
-import '../../settings/domain/regions.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
+import '../../settings/domain/regions.dart';
 import '../../sync/application/storage_migration.dart';
 import '../application/onboarding_gate.dart';
 
-/// First run: value first, infrastructure last, every step skippable.
-/// Welcome → where the collection lives → preferences → optional server →
-/// first item.
+enum _Step { welcome, storage, server, start }
+
+/// First run, short and skippable: what Speednema is, where the collection
+/// lives, the server only if that was the choice, and a first step that
+/// leads straight into the real task. Languages and formats wait for
+/// Einstellungen; the country comes from the device.
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -26,16 +29,20 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
-  final _pages = PageController();
-  var _page = 0;
+  var _step = _Step.welcome;
   var _checking = true;
   var _storage = CollectionStorage.local;
-  late UserPreferences _preferences;
+
+  List<_Step> get _steps => [
+    _Step.welcome,
+    _Step.storage,
+    if (_storage == CollectionStorage.selfHosted) _Step.server,
+    _Step.start,
+  ];
 
   @override
   void initState() {
     super.initState();
-    _preferences = ref.read(userPreferencesProvider);
     _skipForExistingInstall();
   }
 
@@ -48,6 +55,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final server = await ref.read(serverSessionProvider.future);
     final settings = ref.read(settingsRepositoryProvider);
     if (hasMovies.isEmpty && hasSeries.isEmpty && server == null) {
+      await _regionFromDevice();
       if (mounted) setState(() => _checking = false);
       return;
     }
@@ -59,27 +67,33 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     await _finish('/home');
   }
 
+  /// Settings can tell what the device knows: the country decides which
+  /// streaming offers are shown. Changeable in Einstellungen.
+  Future<void> _regionFromDevice() async {
+    final country = WidgetsBinding
+        .instance
+        .platformDispatcher
+        .locale
+        .countryCode
+        ?.toUpperCase();
+    if (country == null || !supportedRegions.containsKey(country)) return;
+    final preferences = ref.read(userPreferencesProvider);
+    if (preferences.region == country) return;
+    await ref
+        .read(userPreferencesProvider.notifier)
+        .save(preferences.copyWith(region: country));
+  }
+
   Future<void> _finish(String location) async {
     await ref.read(onboardingDoneProvider.notifier).complete();
     onboardingGate.value = true;
     if (mounted) context.go(location);
   }
 
-  void _next() {
-    // People who turned off animations in the system settings get no slide.
-    if (MediaQuery.of(context).disableAnimations) {
-      _pages.jumpToPage((_pages.page ?? 0).round() + 1);
-      return;
-    }
-    _pages.nextPage(
-      duration: const Duration(milliseconds: 250),
-      curve: Curves.easeOut,
-    );
-  }
-
-  Future<void> _savePreferences() async {
-    await ref.read(userPreferencesProvider.notifier).save(_preferences);
-    _next();
+  void _go(int delta) {
+    final steps = _steps;
+    final index = (steps.indexOf(_step) + delta).clamp(0, steps.length - 1);
+    setState(() => _step = steps[index]);
   }
 
   Future<void> _start(String location) async {
@@ -118,65 +132,117 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     if (_checking) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    final pages = [
-      _welcome(),
-      _storagePage(),
-      _preferencesPage(),
-      _serverPage(),
-      _firstItemPage(),
-    ];
+    final steps = _steps;
+    final index = steps.indexOf(_step);
+    final page = switch (_step) {
+      _Step.welcome => _welcome(),
+      _Step.storage => _storagePage(),
+      _Step.server => _serverPage(),
+      _Step.start => _startPage(),
+    };
     return Scaffold(
+      appBar: AppBar(
+        automaticallyImplyLeading: false,
+        leading: index == 0
+            ? null
+            : IconButton(
+                tooltip: 'Zurück',
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => _go(-1),
+              ),
+        title: Semantics(
+          label: 'Schritt ${index + 1} von ${steps.length}',
+          excludeSemantics: true,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (var i = 0; i < steps.length; i++)
+                Container(
+                  width: i == index ? 20 : 8,
+                  height: 8,
+                  margin: const EdgeInsets.only(right: AppSpacing.xs),
+                  decoration: BoxDecoration(
+                    color: i == index
+                        ? context.colors.accent
+                        : context.colors.hairline,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          if (_step != _Step.start)
+            TextButton(
+              onPressed: () => _finish('/home'),
+              child: const Text('Überspringen'),
+            ),
+        ],
+      ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
-              child: LinearProgressIndicator(
-                value: (_page + 1) / pages.length,
-                backgroundColor: context.colors.hairline,
-              ),
-            ),
-            Expanded(
-              child: PageView(
-                controller: _pages,
-                physics: const NeverScrollableScrollPhysics(),
-                onPageChanged: (page) => setState(() => _page = page),
-                children: pages,
-              ),
-            ),
-          ],
+        child: AnimatedSwitcher(
+          duration: MediaQuery.disableAnimationsOf(context)
+              ? Duration.zero
+              : AppMotion.page,
+          child: KeyedSubtree(key: ValueKey(_step), child: page),
         ),
       ),
     );
   }
 
-  Widget _step({
+  Widget _layout({
+    Widget? hero,
     required String title,
     required String text,
-    required List<Widget> children,
+    List<Widget> children = const [],
     required Widget primary,
     Widget? secondary,
   }) {
-    return ListView(
-      padding: const EdgeInsets.all(24),
-      children: [
-        Text(title, style: Theme.of(context).textTheme.headlineSmall),
-        const SizedBox(height: 8),
-        Text(text, style: TextStyle(color: context.colors.textSecondary)),
-        const SizedBox(height: 24),
-        ...children,
-        const SizedBox(height: 24),
-        primary,
-        if (secondary != null) ...[const SizedBox(height: 8), secondary],
-      ],
+    final textTheme = Theme.of(context).textTheme;
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (hero != null) ...[
+                Center(child: hero),
+                const SizedBox(height: AppSpacing.xl),
+              ],
+              Semantics(
+                header: true,
+                child: Text(title, style: textTheme.headlineSmall),
+              ),
+              const SizedBox(height: AppSpacing.s),
+              Text(
+                text,
+                style: textTheme.bodyLarge?.copyWith(
+                  color: context.colors.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              ...children,
+              if (children.isNotEmpty) const SizedBox(height: AppSpacing.xl),
+              SizedBox(width: double.infinity, child: primary),
+              if (secondary != null) ...[
+                const SizedBox(height: AppSpacing.s),
+                SizedBox(width: double.infinity, child: secondary),
+              ],
+            ],
+          ),
+        ),
+      ),
     );
   }
 
-  Widget _welcome() => _step(
+  Widget _welcome() => _layout(
+    hero: const EmptyShelf(width: 200),
     title: 'Deine Filme. Alles an einem Ort.',
     text:
-        '${AppConstants.appName} verbindet deine Discs, deine digitale '
-        'Bibliothek und was du sehen möchtest – ohne Konto, wenn du willst.',
+        'Speednema verbindet deine Discs, deine digitale Bibliothek und was '
+        'du sehen möchtest – ohne Konto, wenn du willst.',
     children: const [
       _Point(
         Icons.qr_code_scanner,
@@ -188,181 +254,95 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       ),
       _Point(
         Icons.dns_outlined,
-        'Optional: eigener Server für deine digitalen Filme',
+        'Optional: eigener Server zum Streamen und Teilen',
       ),
     ],
-    primary: FilledButton(onPressed: _next, child: const Text('Los geht\'s')),
+    primary: FilledButton(
+      onPressed: () => _go(1),
+      child: const Text('Los geht\'s'),
+    ),
   );
 
   Widget _storagePage() {
-    Widget option(
-      CollectionStorage value,
-      String text, {
-      bool enabled = true,
-    }) => Card(
-      child: ListTile(
-        enabled: enabled,
-        leading: Icon(
-          _storage == value
-              ? Icons.radio_button_checked
-              : Icons.radio_button_off,
-        ),
-        title: Text(value.label),
-        subtitle: Text(text),
-        onTap: () => value == CollectionStorage.cloud
-            ? _chooseCloud()
-            : setState(() => _storage = value),
-      ),
-    );
     final cloud = ref.watch(cloudAvailableProvider);
-    return _step(
+    return _layout(
       title: 'Wo soll deine Sammlung liegen?',
-      text:
-          'Du kannst das später jederzeit ändern. Beim Umzug geht nichts verloren.',
+      text: 'Du kannst das später ändern. Beim Umzug geht nichts verloren.',
       children: [
-        option(
-          CollectionStorage.local,
-          'Kein Konto nötig. Deine Daten bleiben hier. Sicherungen machst du selbst.',
-        ),
-        option(
-          CollectionStorage.cloud,
-          cloud
-              ? 'Automatischer Abgleich zwischen deinen Geräten, ohne eigenen '
-                    'Server. 30 Tage kostenlos.'
-              : 'In dieser Version nicht verfügbar.',
-          enabled: cloud,
-        ),
-        option(
-          CollectionStorage.selfHosted,
-          'Für Fortgeschrittene: Abgleich über deinen eigenen Speednema '
-          'Server, ganz ohne Hersteller-Konto.',
-        ),
-      ],
-      primary: FilledButton(onPressed: _next, child: const Text('Weiter')),
-    );
-  }
-
-  Widget _preferencesPage() {
-    const regions = supportedRegions;
-    const languages = {
-      'de': 'Deutsch',
-      'en': 'Englisch',
-      'fr': 'Französisch',
-      'es': 'Spanisch',
-      'it': 'Italienisch',
-      'ja': 'Japanisch',
-    };
-    return _step(
-      title: 'Deine Vorlieben',
-      text:
-          'Damit Speednema die passende Tonspur, Untertitel und Angebote in deinem Land findet.',
-      children: [
-        DropdownButtonFormField<String>(
-          initialValue: _preferences.region,
-          decoration: const InputDecoration(labelText: 'Land'),
-          items: [
-            for (final e in regions.entries)
-              DropdownMenuItem(value: e.key, child: Text(e.value)),
-          ],
-          onChanged: (v) =>
-              setState(() => _preferences = _preferences.copyWith(region: v)),
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String>(
-          initialValue: _preferences.audioLanguage,
-          decoration: const InputDecoration(labelText: 'Bevorzugte Tonspur'),
-          items: [
-            for (final e in languages.entries)
-              DropdownMenuItem(value: e.key, child: Text(e.value)),
-          ],
-          onChanged: (v) => setState(
-            () => _preferences = _preferences.copyWith(audioLanguage: v),
-          ),
-        ),
-        const SizedBox(height: 12),
-        DropdownButtonFormField<String?>(
-          initialValue: _preferences.subtitleLanguage,
-          decoration: const InputDecoration(labelText: 'Untertitel'),
-          items: [
-            const DropdownMenuItem(value: null, child: Text('Keine')),
-            for (final e in languages.entries)
-              DropdownMenuItem(value: e.key, child: Text(e.value)),
-          ],
-          onChanged: (v) => setState(
-            () => _preferences = _preferences.copyWith(
-              subtitleLanguage: v,
-              clearSubtitles: v == null,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        const Text('Bevorzugte Formate'),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          children: [
-            for (final format in [
-              MediaFormat.uhd4k,
-              MediaFormat.bluray,
-              MediaFormat.dvd,
-            ])
-              FilterChip(
-                label: Text(format.label),
-                selected: _preferences.preferredFormats.contains(format.name),
-                onSelected: (on) => setState(() {
-                  final list = [..._preferences.preferredFormats];
-                  on ? list.add(format.name) : list.remove(format.name);
-                  _preferences = _preferences.copyWith(preferredFormats: list);
-                }),
+        RadioGroup<CollectionStorage>(
+          groupValue: _storage,
+          onChanged: (value) => value == CollectionStorage.cloud
+              ? _chooseCloud()
+              : setState(() => _storage = value!),
+          child: Column(
+            children: [
+              const _StorageOption(
+                value: CollectionStorage.local,
+                title: 'Nur auf diesem Gerät',
+                text:
+                    'Kein Konto nötig. Deine Daten bleiben hier; Sicherungen '
+                    'machst du selbst.',
               ),
-          ],
+              const _StorageOption(
+                value: CollectionStorage.selfHosted,
+                title: 'Eigener Speednema Server',
+                text:
+                    'Für Streaming und den Haushalt. Abgleich über deinen '
+                    'Server, ganz ohne Hersteller-Konto.',
+              ),
+              // Offered only where this version supports it.
+              if (cloud)
+                const _StorageOption(
+                  value: CollectionStorage.cloud,
+                  title: 'Speednema Cloud',
+                  text:
+                      'Abgleich zwischen deinen Geräten ohne eigenen Server. '
+                      '30 Tage kostenlos.',
+                ),
+            ],
+          ),
         ),
       ],
       primary: FilledButton(
-        onPressed: _savePreferences,
+        onPressed: () => _go(1),
         child: const Text('Weiter'),
-      ),
-      secondary: TextButton(
-        onPressed: _next,
-        child: const Text('Überspringen'),
       ),
     );
   }
 
   Widget _serverPage() {
     final connected = ref.watch(serverClientProvider) != null;
-    return _step(
-      title: 'Speednema Server',
-      text: _storage == CollectionStorage.selfHosted
-          ? 'Verbinde deinen Server, um deine Sammlung darüber abzugleichen. '
-                'Er findet sich im WLAN von selbst oder per QR-Code aus dem Dashboard.'
-          : 'Hast du einen Server für deine digitalen Filme? Dann kannst du sie '
-                'hier abspielen. Deine Sammlung bleibt trotzdem auf diesem Gerät.',
+    return _layout(
+      title: 'Deinen Server verbinden',
+      text:
+          'Speednema findet ihn im WLAN von selbst. Du kannst auch seine '
+          'Adresse eingeben oder den QR-Code aus dem Dashboard scannen.',
       children: [
         if (connected) const _Point(Icons.check_circle, 'Server verbunden'),
       ],
       primary: connected
-          ? FilledButton(onPressed: _next, child: const Text('Weiter'))
+          ? FilledButton(onPressed: () => _go(1), child: const Text('Weiter'))
           : FilledButton.icon(
               onPressed: () => context.push('/server/connect'),
               icon: const Icon(Icons.dns_outlined),
               label: const Text('Server verbinden'),
             ),
-      secondary: TextButton(
-        onPressed: () {
-          if (_storage == CollectionStorage.selfHosted && !connected) {
-            setState(() => _storage = CollectionStorage.local);
-          }
-          _next();
-        },
-        child: Text(connected ? 'Weiter' : 'Später'),
-      ),
+      secondary: connected
+          ? null
+          : TextButton(
+              onPressed: () {
+                // Without a server the collection stays on the device.
+                setState(() => _storage = CollectionStorage.local);
+                _go(1);
+              },
+              child: const Text('Später'),
+            ),
     );
   }
 
-  Widget _firstItemPage() => _step(
+  Widget _startPage() => _layout(
     title: 'Womit möchtest du anfangen?',
-    text: 'Alles lässt sich auch später über die Tabs erreichen.',
+    text: 'Alles lässt sich auch später über „+“ erreichen.',
     children: [
       _Choice(
         Icons.qr_code_scanner,
@@ -370,20 +350,36 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         () => _start('/scanner'),
       ),
       _Choice(
-        Icons.upload_file_outlined,
-        'Liste importieren',
-        () => _start('/import'),
-      ),
-      _Choice(
         Icons.search,
         'Film suchen und hinzufügen',
         () => _start('/search'),
       ),
+      _Choice(Icons.playlist_add, 'Liste importieren', () => _start('/import')),
     ],
     primary: OutlinedButton(
       onPressed: () => _start('/home'),
       child: const Text('Erst einmal umsehen'),
     ),
+  );
+}
+
+class _StorageOption extends StatelessWidget {
+  const _StorageOption({
+    required this.value,
+    required this.title,
+    required this.text,
+  });
+
+  final CollectionStorage value;
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) => RadioListTile<CollectionStorage>(
+    value: value,
+    contentPadding: EdgeInsets.zero,
+    title: Text(title, style: Theme.of(context).textTheme.titleMedium),
+    subtitle: Text(text),
   );
 }
 
@@ -394,10 +390,18 @@ class _Point extends StatelessWidget {
   final String text;
 
   @override
-  Widget build(BuildContext context) => ListTile(
-    contentPadding: EdgeInsets.zero,
-    leading: Icon(icon, color: context.colors.accent),
-    title: Text(text),
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, color: context.colors.textSecondary),
+        const SizedBox(width: AppSpacing.m),
+        Expanded(
+          child: Text(text, style: Theme.of(context).textTheme.bodyLarge),
+        ),
+      ],
+    ),
   );
 }
 
@@ -409,12 +413,15 @@ class _Choice extends StatelessWidget {
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) => Card(
-    child: ListTile(
-      leading: Icon(icon, color: context.colors.accent),
-      title: Text(text),
-      trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-      onTap: onTap,
+  Widget build(BuildContext context) => ListTile(
+    contentPadding: EdgeInsets.zero,
+    leading: CircleAvatar(
+      backgroundColor: context.colors.tint(context.colors.accent),
+      foregroundColor: context.colors.text,
+      child: Icon(icon),
     ),
+    title: Text(text, style: Theme.of(context).textTheme.titleMedium),
+    trailing: const Icon(Icons.chevron_right),
+    onTap: onTap,
   );
 }
