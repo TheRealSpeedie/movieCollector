@@ -5,7 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'scan_insights_card.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/matching/media_title_parser.dart';
 import '../../../core/network/tmdb/tmdb_models.dart';
 import '../../../core/providers/repository_providers.dart';
@@ -156,13 +156,16 @@ class KnownMovieView extends ConsumerWidget {
     final banner = switch (movie.status) {
       CollectionStatus.owned => (
         '✓ Bereits in deiner Sammlung',
-        AppColors.sage,
+        context.colors.owned,
       ),
       CollectionStatus.wishlist => (
         '♡ Auf deiner Wunschliste',
-        AppColors.dustyRose,
+        context.colors.accent,
       ),
-      CollectionStatus.open => ('Als offen gespeichert', AppColors.amber),
+      CollectionStatus.open => (
+        'Als offen gespeichert',
+        context.colors.attention,
+      ),
     };
 
     return ListView(
@@ -189,10 +192,9 @@ class KnownMovieView extends ConsumerWidget {
           alignment: Alignment.center,
           child: Text(
             banner.$1,
-            style: TextStyle(
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
               color: banner.$2,
               fontWeight: FontWeight.w700,
-              fontSize: 16,
             ),
           ),
         ),
@@ -216,7 +218,7 @@ class KnownMovieView extends ConsumerWidget {
                   if (movie.releaseYear != null)
                     Text(
                       '${movie.releaseYear}',
-                      style: const TextStyle(color: AppColors.neutralGray),
+                      style: TextStyle(color: context.colors.textSecondary),
                     ),
                   const SizedBox(height: 8),
                   Wrap(
@@ -240,7 +242,7 @@ class KnownMovieView extends ConsumerWidget {
           const SizedBox(height: 12),
           Text(
             movie.genres.join(', '),
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if (movie.overview != null && movie.overview!.isNotEmpty) ...[
@@ -357,33 +359,38 @@ class MissingMovieView extends ConsumerWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 14),
           decoration: BoxDecoration(
-            color: AppColors.neutralGray.withValues(alpha: 0.15),
+            color: context.colors.textSecondary.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(14),
           ),
           alignment: Alignment.center,
-          child: const Text(
+          child: Text(
             'Diese Veröffentlichung wurde gefunden.',
-            style: TextStyle(
-              color: AppColors.charcoal,
+            style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              color: context.colors.text,
               fontWeight: FontWeight.w700,
-              fontSize: 16,
             ),
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Erkannt von: „$productTitle“',
-          style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
         ),
         if (physicalFormat != null)
           Text(
             _formatLabel(physicalFormat!),
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         if (kDebugMode && source != null)
           Text(
             'Quelle: $source',
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         const SizedBox(height: 16),
         Row(
@@ -405,7 +412,7 @@ class MissingMovieView extends ConsumerWidget {
                   if (movie.releaseYear != null)
                     Text(
                       '${movie.releaseYear}',
-                      style: const TextStyle(color: AppColors.neutralGray),
+                      style: TextStyle(color: context.colors.textSecondary),
                     ),
                   const SizedBox(height: 8),
                   Container(
@@ -414,16 +421,20 @@ class MissingMovieView extends ConsumerWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: (isConfident ? AppColors.sage : AppColors.amber)
-                          .withValues(alpha: 0.15),
+                      color:
+                          (isConfident
+                                  ? context.colors.owned
+                                  : context.colors.attention)
+                              .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       isConfident ? 'Hohe Übereinstimmung' : 'Bitte bestätigen',
-                      style: TextStyle(
-                        color: isConfident ? AppColors.sage : AppColors.amber,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: isConfident
+                            ? context.colors.owned
+                            : context.colors.attention,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -489,21 +500,21 @@ class MissingMovieView extends ConsumerWidget {
           ActionButton(
             label: 'Als gekauft speichern',
             icon: Icons.check_circle_outline,
-            color: AppColors.sage,
+            color: context.colors.owned,
             onTap: () => _save(context, ref, CollectionStatus.owned),
           ),
           const SizedBox(height: 8),
           ActionButton(
             label: 'Zur Wunschliste',
             icon: Icons.favorite_border,
-            color: AppColors.dustyRose,
+            color: context.colors.accent,
             onTap: () => _save(context, ref, CollectionStatus.wishlist),
           ),
           const SizedBox(height: 8),
           ActionButton(
             label: 'Als offen speichern',
             icon: Icons.hourglass_bottom,
-            color: AppColors.amber,
+            color: context.colors.attention,
             onTap: () => _save(context, ref, CollectionStatus.open),
           ),
           const SizedBox(height: 8),
@@ -582,10 +593,10 @@ class NoMatchView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.help_outline,
               size: 48,
-              color: AppColors.neutralGray,
+              color: context.colors.textSecondary,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -596,7 +607,7 @@ class NoMatchView extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Erkanntes Produkt: „$productTitle“',
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             ],
             const SizedBox(height: 20),
@@ -629,7 +640,7 @@ class OfflineView extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off, size: 48, color: AppColors.neutralGray),
+            Icon(Icons.wifi_off, size: 48, color: context.colors.textSecondary),
             const SizedBox(height: 16),
             const Text(
               'Dieser Barcode ist auf diesem Gerät noch nicht bekannt. '
@@ -770,7 +781,7 @@ class MovieBundleConfirmationView extends ConsumerWidget {
             ActionButton(
               label: 'Als gekauft speichern',
               icon: Icons.check_circle_outline,
-              color: AppColors.sage,
+              color: context.colors.owned,
               onTap: () => ref
                   .read(fundstueckControllerProvider.notifier)
                   .confirmMovieBundle(
@@ -864,7 +875,7 @@ class TvConfirmationView extends ConsumerWidget {
               ActionButton(
                 label: 'Als gekauft speichern',
                 icon: Icons.check_circle_outline,
-                color: AppColors.sage,
+                color: context.colors.owned,
                 onTap: () => ref
                     .read(fundstueckControllerProvider.notifier)
                     .confirmTvSeasons(

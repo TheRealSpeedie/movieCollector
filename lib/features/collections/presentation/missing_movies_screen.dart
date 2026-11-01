@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -52,10 +52,10 @@ class MissingMoviesScreen extends ConsumerWidget {
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
                         size: 12,
-                        color: AppColors.neutralGray,
+                        color: context.colors.textSecondary,
                       ),
                     ],
                   ),
@@ -90,9 +90,9 @@ class MissingMoviesScreen extends ConsumerWidget {
                                   if (entry.releaseDate != null)
                                     Text(
                                       '${entry.releaseDate!.year}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.neutralGray,
+                                        color: context.colors.textSecondary,
                                       ),
                                     ),
                                 ],
@@ -125,10 +125,10 @@ class MissingMoviesScreen extends ConsumerWidget {
                                   );
                                 }
                               },
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.favorite_border,
                                 size: 18,
-                                color: AppColors.dustyRose,
+                                color: context.colors.accent,
                               ),
                               label: const Text('Wunschliste'),
                             ),

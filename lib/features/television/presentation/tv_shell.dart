@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../server/application/server_providers.dart';
 
 /// The TV's main areas, chosen with the remote from a menu on the left.
@@ -32,14 +32,14 @@ class TvShell extends ConsumerWidget {
           FocusTraversalGroup(
             child: Container(
               width: 240,
-              color: AppColors.surface,
+              color: context.colors.surface,
               padding: const EdgeInsets.symmetric(vertical: 27, horizontal: 16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Row(
+                  Row(
                     children: [
-                      Icon(Icons.movie_filter, color: AppColors.dustyRose),
+                      Icon(Icons.movie_filter, color: context.colors.accent),
                       SizedBox(width: 10),
                       Expanded(
                         child: Text(
@@ -58,7 +58,7 @@ class TvShell extends ConsumerWidget {
                       padding: const EdgeInsets.only(top: 4, left: 34),
                       child: Text(
                         profile,
-                        style: const TextStyle(color: AppColors.neutralGray),
+                        style: TextStyle(color: context.colors.textSecondary),
                       ),
                     ),
                   const SizedBox(height: 24),
@@ -107,9 +107,9 @@ class _MenuItemState extends State<_MenuItem> {
       padding: const EdgeInsets.only(bottom: 6),
       child: Material(
         color: _focused
-            ? AppColors.dustyRose
+            ? context.colors.accent
             : widget.selected
-            ? AppColors.divider
+            ? context.colors.hairline
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: InkWell(
@@ -123,10 +123,10 @@ class _MenuItemState extends State<_MenuItem> {
                 Icon(
                   widget.icon,
                   color: _focused
-                      ? AppColors.background
+                      ? context.colors.background
                       : highlight
-                      ? AppColors.charcoal
-                      : AppColors.neutralGray,
+                      ? context.colors.text
+                      : context.colors.textSecondary,
                 ),
                 const SizedBox(width: 12),
                 Expanded(
@@ -136,7 +136,7 @@ class _MenuItemState extends State<_MenuItem> {
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: highlight ? FontWeight.w700 : FontWeight.w500,
-                      color: _focused ? AppColors.background : null,
+                      color: _focused ? context.colors.background : null,
                     ),
                   ),
                 ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -317,9 +317,9 @@ class _MovieGrid extends StatelessWidget {
                     if (movie.releaseYear != null)
                       Text(
                         '${movie.releaseYear}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.neutralGray,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     const Spacer(),
@@ -327,7 +327,7 @@ class _MovieGrid extends StatelessWidget {
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
-                        color: colorForStatus(movie.status),
+                        color: context.colors.forStatus(movie.status),
                         shape: BoxShape.circle,
                       ),
                     ),
@@ -382,8 +382,8 @@ class _MovieList extends StatelessWidget {
                         if (movie.releaseYear != null)
                           Text(
                             '${movie.releaseYear}',
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
+                            style: TextStyle(
+                              color: context.colors.textSecondary,
                               fontSize: 12,
                             ),
                           ),
@@ -480,9 +480,9 @@ class _TvGrid extends StatelessWidget {
                   entry.progressLabel,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 11,
-                    color: AppColors.neutralGray,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -534,16 +534,16 @@ class _TvList extends StatelessWidget {
                         if (entry.series.firstAirYear != null)
                           Text(
                             '${entry.series.firstAirYear}',
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
+                            style: TextStyle(
+                              color: context.colors.textSecondary,
                               fontSize: 12,
                             ),
                           ),
                         const SizedBox(height: 6),
                         Text(
                           entry.progressLabel,
-                          style: const TextStyle(
-                            color: AppColors.neutralGray,
+                          style: TextStyle(
+                            color: context.colors.textSecondary,
                             fontSize: 12,
                           ),
                         ),

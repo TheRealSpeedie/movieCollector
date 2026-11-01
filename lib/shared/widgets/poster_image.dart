@@ -1,7 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 import '../../core/constants/api_constants.dart';
 
 class PosterImage extends StatelessWidget {
@@ -24,33 +24,34 @@ class PosterImage extends StatelessWidget {
       child: AspectRatio(
         aspectRatio: 2 / 3,
         child: url.isEmpty
-            ? _placeholder()
+            ? _placeholder(context)
             : CachedNetworkImage(
                 imageUrl: url,
                 fit: fit,
-                placeholder: (context, _) => _placeholder(loading: true),
-                errorWidget: (context, _, __) => _placeholder(),
+                placeholder: (context, _) =>
+                    _placeholder(context, loading: true),
+                errorWidget: (context, _, __) => _placeholder(context),
               ),
       ),
     );
   }
 
-  Widget _placeholder({bool loading = false}) {
+  Widget _placeholder(BuildContext context, {bool loading = false}) {
     return Container(
-      color: AppColors.divider,
+      color: context.colors.hairline,
       alignment: Alignment.center,
       child: loading
-          ? const SizedBox(
+          ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.neutralGray,
+                color: context.colors.textSecondary,
               ),
             )
-          : const Icon(
+          : Icon(
               Icons.movie_outlined,
-              color: AppColors.neutralGray,
+              color: context.colors.textSecondary,
               size: 32,
             ),
     );

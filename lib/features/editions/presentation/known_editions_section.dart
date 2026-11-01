@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../watch/application/watch_providers.dart';
 import '../application/catalog_providers.dart';
 import '../domain/edition_compare.dart';
@@ -111,8 +111,8 @@ class KnownEditionsSection extends ConsumerWidget {
             Text(
               'Ausgabe-Daten: ${attributions.join(', ')}, über ${catalog.name}. '
               'Filmdaten: TMDB.',
-              style: const TextStyle(
-                color: AppColors.neutralGray,
+              style: TextStyle(
+                color: context.colors.textSecondary,
                 fontSize: 12,
               ),
             ),

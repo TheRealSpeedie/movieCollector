@@ -10,7 +10,7 @@ import 'package:permission_handler/permission_handler.dart';
 import '../application/scan_providers.dart';
 import 'recent_scans_sheet.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../application/fundstueck_controller.dart';
 
@@ -139,10 +139,10 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
   Widget build(BuildContext context) {
     ref.listen(fundstueckControllerProvider, (_, _) {});
     return Scaffold(
-      backgroundColor: _resolving ? AppColors.background : Colors.black,
+      backgroundColor: _resolving ? context.colors.background : Colors.black,
       appBar: AppBar(
-        backgroundColor: _resolving ? AppColors.background : Colors.black,
-        foregroundColor: Colors.white,
+        backgroundColor: _resolving ? context.colors.background : Colors.black,
+        foregroundColor: context.colors.onMedia,
         title: const Text('Fundstück-Check'),
         actions: [
           IconButton(
@@ -176,7 +176,9 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       body: _resolving
           ? LoadingView(message: ref.watch(lookupStatusProvider))
           : _checkingPermission
-          ? const Center(child: CircularProgressIndicator(color: Colors.white))
+          ? Center(
+              child: CircularProgressIndicator(color: context.colors.onMedia),
+            )
           : _permission.isGranted
           ? _buildScanner(context)
           : _buildPermissionDenied(context),
@@ -206,7 +208,7 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             textAlign: TextAlign.center,
             style: Theme.of(
               context,
-            ).textTheme.bodyMedium?.copyWith(color: Colors.white),
+            ).textTheme.bodyMedium?.copyWith(color: context.colors.onMedia),
           ),
         ),
       ],
@@ -220,16 +222,16 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.camera_alt_outlined,
               size: 56,
-              color: Colors.white70,
+              color: context.colors.onMedia.withValues(alpha: 0.7),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Kamerazugriff wird benötigt, um Barcodes zu scannen und Filme in deiner Sammlung zu erkennen.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white),
+              style: TextStyle(color: context.colors.onMedia),
             ),
             const SizedBox(height: 20),
             if (_permission.isPermanentlyDenied)
@@ -245,13 +247,15 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
             const SizedBox(height: 12),
             OutlinedButton.icon(
               onPressed: _showTitleFallback,
-              icon: const Icon(Icons.keyboard, color: Colors.white),
-              label: const Text(
+              icon: Icon(Icons.keyboard, color: context.colors.onMedia),
+              label: Text(
                 'Stattdessen Titel eingeben',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: context.colors.onMedia),
               ),
               style: OutlinedButton.styleFrom(
-                side: const BorderSide(color: Colors.white70),
+                side: BorderSide(
+                  color: context.colors.onMedia.withValues(alpha: 0.7),
+                ),
               ),
             ),
           ],
@@ -269,7 +273,7 @@ class _ScanOverlay extends StatelessWidget {
         width: 260,
         height: 160,
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.dustyRose, width: 3),
+          border: Border.all(color: context.colors.accent, width: 3),
           borderRadius: BorderRadius.circular(16),
         ),
       ),

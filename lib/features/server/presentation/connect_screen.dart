@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../application/server_providers.dart';
 import '../data/pairing_link.dart';
@@ -130,9 +130,9 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Öffne das Speednema-Dashboard auf deinem Computer, wähle „Geräte“ und dann „Gerät verbinden“. Der Code ist drei Minuten gültig.',
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -174,7 +174,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   List<Widget> _confirm(PairingLink link) => [
     Card(
       child: ListTile(
-        leading: const Icon(Icons.dns_outlined, color: AppColors.sage),
+        leading: Icon(Icons.dns_outlined, color: context.colors.owned),
         title: Text(link.serverName),
         subtitle: Text('${link.host}:${link.port}'),
         trailing: _busy
@@ -197,9 +197,9 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
     const SizedBox(height: 20),
     Text('Anmeldung', style: Theme.of(context).textTheme.titleMedium),
     const SizedBox(height: 4),
-    const Text(
+    Text(
       'Melde dich mit deinem Konto an, um sofort verbunden zu sein. Ohne Anmeldung bestätigst du das Gerät im Dashboard.',
-      style: TextStyle(color: AppColors.neutralGray, fontSize: 13),
+      style: TextStyle(color: context.colors.textSecondary, fontSize: 13),
     ),
     const SizedBox(height: 12),
     TextField(
@@ -272,14 +272,14 @@ class _ErrorBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: AppColors.errorRed.withValues(alpha: 0.12),
+        color: context.colors.error.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: AppColors.errorRed.withValues(alpha: 0.5)),
+        border: Border.all(color: context.colors.error.withValues(alpha: 0.5)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.error_outline, color: AppColors.errorRed, size: 20),
+          Icon(Icons.error_outline, color: context.colors.error, size: 20),
           const SizedBox(width: 10),
           Expanded(child: Text(message)),
         ],

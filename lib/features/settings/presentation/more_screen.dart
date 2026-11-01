@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../cloud/application/cloud_providers.dart';
 import '../../collection/application/collection_filter_controller.dart';
@@ -34,7 +34,7 @@ class MoreScreen extends ConsumerWidget {
             child: ListTile(
               leading: Icon(
                 conflicts > 0 ? Icons.sync_problem : Icons.storage_outlined,
-                color: conflicts > 0 ? AppColors.amber : null,
+                color: conflicts > 0 ? context.colors.attention : null,
               ),
               title: const Text('Daten & Synchronisation'),
               subtitle: Text(
@@ -55,8 +55,8 @@ class MoreScreen extends ConsumerWidget {
                 leading: Icon(
                   Icons.cloud_outlined,
                   color: cloudSession == null
-                      ? AppColors.neutralGray
-                      : AppColors.sage,
+                      ? context.colors.textSecondary
+                      : context.colors.owned,
                 ),
                 title: const Text('Speednema Cloud'),
                 subtitle: Text(cloudSession?.email ?? 'Nicht angemeldet'),
@@ -70,7 +70,9 @@ class MoreScreen extends ConsumerWidget {
             child: ListTile(
               leading: Icon(
                 Icons.dns_outlined,
-                color: server == null ? AppColors.neutralGray : AppColors.sage,
+                color: server == null
+                    ? context.colors.textSecondary
+                    : context.colors.owned,
               ),
               title: const Text('Speednema Server'),
               subtitle: Text(
@@ -85,9 +87,9 @@ class MoreScreen extends ConsumerWidget {
           const SizedBox(height: 12),
           Card(
             child: ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.favorite_border,
-                color: AppColors.dustyRose,
+                color: context.colors.accent,
               ),
               title: const Text('Wunschliste'),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),

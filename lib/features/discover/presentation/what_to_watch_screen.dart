@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../watch/application/watch_providers.dart';
@@ -194,7 +194,7 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 'Verstanden: ${parsed.understood.join(' · ')}',
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             ),
           if (remote != null)
@@ -215,7 +215,7 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
               padding: const EdgeInsets.only(top: 6),
               child: Text(
                 ai!.notice!,
-                style: const TextStyle(color: AppColors.amber),
+                style: TextStyle(color: context.colors.attention),
               ),
             ),
           const SizedBox(height: 8),
@@ -304,7 +304,7 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
                           'deine Abos an und prüfe die Angebote oben rechts.'
                     : 'Nichts passt zu diesen Filtern.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             )
           else
@@ -312,7 +312,7 @@ class _WhatToWatchScreenState extends ConsumerState<WhatToWatchScreen> {
               ai != null && ai.engine != 'Regeln'
                   ? '${suggestions.length} Vorschläge, ausgewählt von ${ai.engine}'
                   : '${suggestions.length} Vorschläge',
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           for (final s in suggestions.take(60))
             Card(

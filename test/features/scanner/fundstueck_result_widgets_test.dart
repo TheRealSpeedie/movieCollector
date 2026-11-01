@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:speednema/app/theme/app_colors.dart';
+import 'package:speednema/app/theme/speednema_colors.dart';
 import 'package:speednema/shared/widgets/action_button.dart';
 import 'package:speednema/core/network/tmdb/tmdb_models.dart';
 import 'package:speednema/features/collections/application/collections_providers.dart';
@@ -155,18 +155,13 @@ void main() {
       expect(find.text('Alle gekauft'), findsNothing);
       expect(find.text('Alle offen'), findsNothing);
       expect(find.text('Speichern'), findsOneWidget);
-      expect(
-        _outlinedColor(tester, 'Alle als gekauft'),
-        AppColors.sage,
-      );
+      final colors = tester.element(find.text('Alle als gekauft')).colors;
+      expect(_outlinedColor(tester, 'Alle als gekauft'), colors.owned);
       expect(
         _outlinedColor(tester, 'Alle auf die Wunschliste'),
-        AppColors.dustyRose,
+        colors.accent,
       );
-      expect(
-        _outlinedColor(tester, 'Alle als offen'),
-        AppColors.amber,
-      );
+      expect(_outlinedColor(tester, 'Alle als offen'), colors.attention);
       await tester.scrollUntilVisible(
         find.text('Falscher Film? Manuell suchen'),
         200,

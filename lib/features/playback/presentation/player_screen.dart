@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../remote/application/remote_providers.dart';
@@ -601,8 +601,10 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 fit: BoxFit.contain,
               ),
               if (_loading || _buffering)
-                const Center(
-                  child: CircularProgressIndicator(color: AppColors.dustyRose),
+                Center(
+                  child: CircularProgressIndicator(
+                    color: context.colors.accent,
+                  ),
                 ),
               if (_error != null) _errorOverlay(),
               if (_controlsVisible && _error == null && !_loading)
@@ -634,7 +636,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   Widget _errorOverlay() {
     return Container(
-      color: AppColors.background,
+      color: context.colors.background,
       child: SafeArea(
         child: Stack(
           children: [

@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/household_providers.dart';
@@ -230,11 +230,11 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           'Im Haushalt teilt ihr eine Sammlung: Exemplare, Ausgaben und die '
           'Wunschliste. Was du gesehen hast und wie du Filme bewertest, '
           'bleibt deins.',
-          style: TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         for (final member in _h.members)
@@ -242,7 +242,7 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
             contentPadding: EdgeInsets.zero,
             leading: Icon(
               member.owner ? Icons.home_outlined : Icons.person_outline,
-              color: member.you ? AppColors.sage : null,
+              color: member.you ? context.colors.owned : null,
             ),
             title: Text(member.you ? '${member.name} (du)' : member.name),
             subtitle: Text(

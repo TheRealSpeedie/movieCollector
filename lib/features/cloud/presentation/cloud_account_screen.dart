@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../settings/application/settings_providers.dart';
@@ -137,11 +137,11 @@ class _SignInState extends ConsumerState<_SignIn> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           'Speednema Cloud hält deine Sammlung auf all deinen Geräten aktuell, '
           'ohne eigenen Server. Gespeichert werden deine E-Mail-Adresse und deine '
           'Sammlung, keine Filme. Die Sammlung bleibt immer auch auf deinem Gerät.',
-          style: TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         SegmentedButton<bool>(
@@ -180,7 +180,7 @@ class _SignInState extends ConsumerState<_SignIn> {
           ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+          Text(_error!, style: TextStyle(color: context.colors.error)),
         ],
         const SizedBox(height: 16),
         FilledButton(
@@ -188,11 +188,11 @@ class _SignInState extends ConsumerState<_SignIn> {
           child: Text(_register ? 'Konto erstellen' : 'Anmelden'),
         ),
         if (_register)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text(
               'Die ersten 30 Tage sind kostenlos.',
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           )
         else
@@ -251,9 +251,9 @@ class _Account extends ConsumerWidget {
         if (data != null && data['emailVerified'] != true)
           Card(
             child: ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.mark_email_unread_outlined,
-                color: AppColors.amber,
+                color: context.colors.attention,
               ),
               title: const Text('E-Mail-Adresse bestätigen'),
               subtitle: const Text(
@@ -279,8 +279,8 @@ class _Account extends ConsumerWidget {
                     ? Icons.verified_outlined
                     : Icons.error_outline,
                 color: subscription['active'] == true
-                    ? AppColors.sage
-                    : AppColors.amber,
+                    ? context.colors.owned
+                    : context.colors.attention,
               ),
               title: Text(
                 subscription['plan'] == 'trial'
@@ -355,7 +355,7 @@ class _Account extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: AppColors.errorRed),
+          style: TextButton.styleFrom(foregroundColor: context.colors.error),
           onPressed: () async {
             final password = await _ask(
               context,

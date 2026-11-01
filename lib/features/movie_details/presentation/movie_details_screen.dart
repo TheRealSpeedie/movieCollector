@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/movie.dart';
@@ -99,7 +99,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
           Center(
             child: Text(
               movie.originalTitle!,
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
               textAlign: TextAlign.center,
             ),
           ),
@@ -126,7 +126,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
           Text(
             movie.genres.join(' · '),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if (movie.overview != null && movie.overview!.isNotEmpty) ...[
@@ -194,11 +194,11 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
           error: (error, stack) => const SizedBox.shrink(),
           data: (barcodes) {
             if (barcodes.isEmpty) {
-              return const Padding(
+              return Padding(
                 padding: EdgeInsets.symmetric(vertical: 8),
                 child: Text(
                   'Noch keine Barcodes hinterlegt.',
-                  style: TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               );
             }
@@ -225,7 +225,7 @@ class _MovieDetailsScreenState extends ConsumerState<MovieDetailsScreen> {
         if (movie.lastMetadataSyncAt != null)
           Text(
             'Metadaten zuletzt aktualisiert: ${DateFormat('dd.MM.yyyy, HH:mm').format(movie.lastMetadataSyncAt!)}',
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
           ),
       ],
     );

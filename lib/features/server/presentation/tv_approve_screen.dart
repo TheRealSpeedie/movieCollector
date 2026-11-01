@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/server_providers.dart';
@@ -110,7 +110,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
           if (tv == null) ..._enter() else ..._confirm(tv),
           if (_error != null) ...[
             const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+            Text(_error!, style: TextStyle(color: context.colors.error)),
           ],
         ],
       ),
@@ -118,9 +118,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   }
 
   List<Widget> _enter() => [
-    const Text(
+    Text(
       'Öffne Speednema auf deinem Fernseher. Dort erscheint ein QR-Code und ein Code mit sechs Zeichen.',
-      style: TextStyle(color: AppColors.neutralGray),
+      style: TextStyle(color: context.colors.textSecondary),
     ),
     const SizedBox(height: 16),
     FilledButton.icon(
@@ -150,7 +150,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   List<Widget> _confirm(Map<String, dynamic> tv) => [
     Card(
       child: ListTile(
-        leading: const Icon(Icons.tv, color: AppColors.dustyRose),
+        leading: Icon(Icons.tv, color: context.colors.accent),
         title: Text(tv['deviceName'] as String),
         subtitle: Text('Server: ${tv['serverName']}'),
       ),
@@ -168,9 +168,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       style: Theme.of(context).textTheme.titleMedium,
     ),
     const SizedBox(height: 12),
-    const Text(
+    Text(
       'Verbinde den Fernseher nur, wenn Code und Kennung genauso auf dem Bildschirm stehen.',
-      style: TextStyle(color: AppColors.neutralGray),
+      style: TextStyle(color: context.colors.textSecondary),
     ),
     const SizedBox(height: 20),
     FilledButton(

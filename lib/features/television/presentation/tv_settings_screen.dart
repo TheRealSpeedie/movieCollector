@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../server/application/server_providers.dart';
 import 'tv_focusable.dart';
 
@@ -22,7 +22,7 @@ class TvSettingsScreen extends ConsumerWidget {
             width: 220,
             child: Text(
               label,
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ),
           Expanded(child: Text(value, style: const TextStyle(fontSize: 18))),
@@ -48,11 +48,11 @@ class TvSettingsScreen extends ConsumerWidget {
           ),
           line('Profil', credentials.username),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Tonspur und Untertitel richtest du in der Speednema-App auf '
             'dem Handy ein (Mehr → Sprache & Untertitel). Der Fernseher '
             'übernimmt sie für dein Profil.',
-            style: TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
           const SizedBox(height: 32),
           Align(

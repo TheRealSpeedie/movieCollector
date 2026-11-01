@@ -1,13 +1,7 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 import '../models/collection_status.dart';
-
-Color colorForStatus(CollectionStatus status) => switch (status) {
-  CollectionStatus.owned => AppColors.sage,
-  CollectionStatus.wishlist => AppColors.dustyRose,
-  CollectionStatus.open => AppColors.amber,
-};
 
 IconData iconForStatus(CollectionStatus status) => switch (status) {
   CollectionStatus.owned => Icons.check_circle,
@@ -23,7 +17,7 @@ class StatusChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color = colorForStatus(status);
+    final color = context.colors.forStatus(status);
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 8 : 12,
@@ -40,11 +34,11 @@ class StatusChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             status.germanLabel,
-            style: TextStyle(
-              color: color,
-              fontWeight: FontWeight.w600,
-              fontSize: compact ? 12 : 13,
-            ),
+            style:
+                (compact
+                        ? Theme.of(context).textTheme.labelMedium
+                        : Theme.of(context).textTheme.labelLarge)
+                    ?.copyWith(color: color, fontWeight: FontWeight.w600),
           ),
         ],
       ),
@@ -60,20 +54,23 @@ class MissingChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppColors.neutralGray.withValues(alpha: 0.16),
+        color: context.colors.textSecondary.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: const Row(
+      child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.circle_outlined, size: 16, color: AppColors.neutralGray),
+          Icon(
+            Icons.circle_outlined,
+            size: 16,
+            color: context.colors.textSecondary,
+          ),
           SizedBox(width: 4),
           Text(
             'Fehlt',
-            style: TextStyle(
-              color: AppColors.neutralGray,
+            style: Theme.of(context).textTheme.labelMedium?.copyWith(
+              color: context.colors.textSecondary,
               fontWeight: FontWeight.w600,
-              fontSize: 13,
             ),
           ),
         ],

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 
 class TvFocusable extends StatefulWidget {
   const TvFocusable({
@@ -45,7 +45,7 @@ class _TvFocusableState extends State<TvFocusable> {
         decoration: BoxDecoration(
           borderRadius: radius,
           border: Border.all(
-            color: _focused ? AppColors.dustyRose : Colors.transparent,
+            color: _focused ? context.colors.accent : Colors.transparent,
             width: 3,
           ),
         ),
@@ -82,14 +82,16 @@ class TvButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = primary ? AppColors.background : AppColors.charcoal;
+    final foreground = primary
+        ? context.colors.background
+        : context.colors.text;
     return TvFocusable(
       autofocus: autofocus,
       onSelect: onSelect,
       borderRadius: 28,
       child: Ink(
         decoration: BoxDecoration(
-          color: primary ? AppColors.dustyRose : AppColors.surface,
+          color: primary ? context.colors.accent : context.colors.surface,
           borderRadius: BorderRadius.circular(28),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),

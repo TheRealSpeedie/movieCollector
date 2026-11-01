@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../application/scan_providers.dart';
 import '../domain/scan_assessment.dart';
 
@@ -40,7 +40,7 @@ class ScanInsightsCard extends ConsumerWidget {
                   children: [
                     Icon(
                       _icon(insight.verdict),
-                      color: _color(insight),
+                      color: _color(insight, context.colors),
                       size: 20,
                     ),
                     const SizedBox(width: 10),
@@ -52,7 +52,7 @@ class ScanInsightsCard extends ConsumerWidget {
               const SizedBox(height: 4),
               Text(
                 'Dein Höchstpreis: ${assessment.maxPrice!.toStringAsFixed(2)} €',
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             ],
           ],
@@ -72,11 +72,12 @@ class ScanInsightsCard extends ConsumerWidget {
     ScanVerdict.newDiscovery => Icons.fiber_new_outlined,
   };
 
-  static Color _color(ScanInsight insight) => switch (insight.verdict) {
-    ScanVerdict.alreadyOwnedExact ||
-    ScanVerdict.otherEditionOwned => AppColors.sage,
-    ScanVerdict.wishlistMatch => AppColors.dustyRose,
-    _ when insight.isOpportunity => AppColors.amber,
-    _ => AppColors.neutralGray,
-  };
+  static Color _color(ScanInsight insight, SpeednemaColors colors) =>
+      switch (insight.verdict) {
+        ScanVerdict.alreadyOwnedExact ||
+        ScanVerdict.otherEditionOwned => colors.owned,
+        ScanVerdict.wishlistMatch => colors.accent,
+        _ when insight.isOpportunity => colors.attention,
+        _ => colors.textSecondary,
+      };
 }

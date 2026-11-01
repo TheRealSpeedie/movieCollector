@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/config/env.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../movies/application/movie_providers.dart';
@@ -74,8 +74,8 @@ class SettingsScreen extends ConsumerWidget {
                         ? Icons.check_circle_outline
                         : Icons.error_outline,
                     color: Env.isTmdbConfigured
-                        ? AppColors.sage
-                        : AppColors.errorRed,
+                        ? context.colors.owned
+                        : context.colors.error,
                   ),
                   title: const Text('TMDB'),
                   subtitle: Text(
@@ -86,9 +86,9 @@ class SettingsScreen extends ConsumerWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.qr_code_outlined,
-                    color: AppColors.neutralGray,
+                    color: context.colors.textSecondary,
                   ),
                   title: const Text('UPCitemdb'),
                   subtitle: Text(
@@ -129,12 +129,15 @@ class SettingsScreen extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: 16),
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(horizontal: 4),
             child: Text(
               'Dieses Produkt verwendet die TMDB API, wird jedoch nicht von TMDB unterstützt oder zertifiziert.\n'
               'Barcode-Daten werden über UPCitemdb bereitgestellt.',
-              style: TextStyle(color: AppColors.neutralGray, fontSize: 12),
+              style: TextStyle(
+                color: context.colors.textSecondary,
+                fontSize: 12,
+              ),
             ),
           ),
         ],

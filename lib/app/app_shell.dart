@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'theme/app_colors.dart';
+import 'theme/speednema_colors.dart';
 
 class AppShell extends StatelessWidget {
   const AppShell({super.key, required this.navigationShell});
@@ -18,7 +18,7 @@ class AppShell extends StatelessWidget {
           index,
           initialLocation: index == navigationShell.currentIndex,
         ),
-        destinations: const [
+        destinations: [
           NavigationDestination(
             icon: Icon(Icons.home_outlined),
             selectedIcon: Icon(Icons.home),
@@ -35,10 +35,10 @@ class AppShell extends StatelessWidget {
             label: 'Entdecken',
           ),
           NavigationDestination(
-            icon: Icon(Icons.qr_code_scanner, color: AppColors.dustyRose),
+            icon: Icon(Icons.qr_code_scanner, color: context.colors.accent),
             selectedIcon: Icon(
               Icons.qr_code_scanner,
-              color: AppColors.dustyRose,
+              color: context.colors.accent,
             ),
             label: 'Fundstück',
           ),

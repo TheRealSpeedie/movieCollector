@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../core/utils/season_format.dart';
 import '../../../shared/models/collection_status.dart';
@@ -101,7 +101,7 @@ class _SeriesBody extends ConsumerWidget {
           Center(
             child: Text(
               series.originalName!,
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ),
         const SizedBox(height: 12),
@@ -123,7 +123,7 @@ class _SeriesBody extends ConsumerWidget {
           Text(
             series.genres.join(' · '),
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         const SizedBox(height: 16),
@@ -199,7 +199,7 @@ class _SeriesBody extends ConsumerWidget {
               ListTile(
                 leading: Icon(
                   iconForStatus(status),
-                  color: colorForStatus(status),
+                  color: context.colors.forStatus(status),
                 ),
                 title: Text(status.germanLabel),
                 onTap: () => Navigator.pop(context, status.name),

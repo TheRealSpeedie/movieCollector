@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/collection_with_entries.dart';
 import '../../../shared/widgets/poster_image.dart';
@@ -35,9 +35,9 @@ class DiscoverScreen extends ConsumerWidget {
         children: [
           Card(
             child: ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.auto_awesome_outlined,
-                color: AppColors.amber,
+                color: context.colors.attention,
               ),
               title: const Text('Was soll ich schauen?'),
               subtitle: const Text(
@@ -58,9 +58,9 @@ class DiscoverScreen extends ConsumerWidget {
           ),
           Card(
             child: ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.favorite_border,
-                color: AppColors.dustyRose,
+                color: context.colors.accent,
               ),
               title: const Text('Wunschliste'),
               subtitle: Text('$wishlist Titel'),

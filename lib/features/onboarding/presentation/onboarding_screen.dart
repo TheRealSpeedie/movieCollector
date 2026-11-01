@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/errors/user_facing_error.dart';
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/media_format.dart';
 import '../../../core/providers/core_providers.dart';
@@ -132,7 +132,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
               child: LinearProgressIndicator(
                 value: (_page + 1) / pages.length,
-                backgroundColor: AppColors.divider,
+                backgroundColor: context.colors.hairline,
               ),
             ),
             Expanded(
@@ -161,7 +161,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       children: [
         Text(title, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: 8),
-        Text(text, style: const TextStyle(color: AppColors.neutralGray)),
+        Text(text, style: TextStyle(color: context.colors.textSecondary)),
         const SizedBox(height: 24),
         ...children,
         const SizedBox(height: 24),
@@ -401,7 +401,7 @@ class _Point extends StatelessWidget {
   @override
   Widget build(BuildContext context) => ListTile(
     contentPadding: EdgeInsets.zero,
-    leading: Icon(icon, color: AppColors.dustyRose),
+    leading: Icon(icon, color: context.colors.accent),
     title: Text(text),
   );
 }
@@ -416,7 +416,7 @@ class _Choice extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
     child: ListTile(
-      leading: Icon(icon, color: AppColors.dustyRose),
+      leading: Icon(icon, color: context.colors.accent),
       title: Text(text),
       trailing: const Icon(Icons.arrow_forward_ios, size: 14),
       onTap: onTap,

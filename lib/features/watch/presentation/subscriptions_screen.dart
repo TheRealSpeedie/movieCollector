@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/network/tmdb/tmdb_watch_models.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -59,7 +59,7 @@ class _SubscriptionsScreenState extends ConsumerState<SubscriptionsScreen> {
                 'du ohne Zusatzkosten schauen kannst, und meldet, wenn ein '
                 'Film deiner Wunschliste dort verfügbar wird. Region: '
                 '${ref.watch(regionProvider)}.',
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
               const SizedBox(height: 12),
               TextField(
@@ -88,9 +88,12 @@ class _SubscriptionsScreenState extends ConsumerState<SubscriptionsScreen> {
                         ),
                 ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Anbieterdaten: JustWatch über TMDB.',
-                style: TextStyle(color: AppColors.neutralGray, fontSize: 12),
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ],
           );

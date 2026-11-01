@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/collection_with_entries.dart';
@@ -189,7 +189,7 @@ class _StatsRow extends StatelessWidget {
                 ),
                 Text(
                   '$total Filme',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ],
             ),
@@ -199,17 +199,17 @@ class _StatsRow extends StatelessWidget {
                 _StatItem(
                   label: CollectionStatus.owned.germanLabel,
                   value: counts?[CollectionStatus.owned] ?? 0,
-                  color: AppColors.sage,
+                  color: context.colors.owned,
                 ),
                 _StatItem(
                   label: CollectionStatus.wishlist.germanLabel,
                   value: counts?[CollectionStatus.wishlist] ?? 0,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 _StatItem(
                   label: CollectionStatus.open.germanLabel,
                   value: counts?[CollectionStatus.open] ?? 0,
-                  color: AppColors.amber,
+                  color: context.colors.attention,
                 ),
               ],
             ),
@@ -247,7 +247,7 @@ class _StatItem extends StatelessWidget {
           const SizedBox(height: 2),
           Text(
             label,
-            style: const TextStyle(fontSize: 12, color: AppColors.neutralGray),
+            style: TextStyle(fontSize: 12, color: context.colors.textSecondary),
           ),
         ],
       ),
@@ -263,16 +263,20 @@ class _FundstueckCta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: const Color(0xFF252830),
+      color: context.colors.surfaceRaised,
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         borderRadius: BorderRadius.circular(18),
         onTap: onTap,
-        child: const Padding(
+        child: Padding(
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 22),
           child: Row(
             children: [
-              Icon(Icons.qr_code_scanner, color: AppColors.dustyRose, size: 32),
+              Icon(
+                Icons.qr_code_scanner,
+                color: context.colors.accent,
+                size: 32,
+              ),
               SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -281,7 +285,7 @@ class _FundstueckCta extends StatelessWidget {
                     Text(
                       'Fundstück-Check',
                       style: TextStyle(
-                        color: Colors.white,
+                        color: context.colors.text,
                         fontWeight: FontWeight.w700,
                         fontSize: 18,
                       ),
@@ -289,12 +293,19 @@ class _FundstueckCta extends StatelessWidget {
                     SizedBox(height: 4),
                     Text(
                       'Barcode scannen und sofort wissen, ob du den Film schon hast',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
+                      style: TextStyle(
+                        color: context.colors.textSecondary,
+                        fontSize: 13,
+                      ),
                     ),
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: context.colors.textSecondary,
+                size: 16,
+              ),
             ],
           ),
         ),
@@ -392,16 +403,16 @@ class _CollectionProgressCard extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: progress,
                         minHeight: 6,
-                        backgroundColor: AppColors.divider,
-                        color: AppColors.sage,
+                        backgroundColor: context.colors.hairline,
+                        color: context.colors.owned,
                       ),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '$owned / $total gekauft',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
-                        color: AppColors.neutralGray,
+                        color: context.colors.textSecondary,
                       ),
                     ),
                   ],

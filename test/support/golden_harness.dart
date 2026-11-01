@@ -37,7 +37,13 @@ Future<bool> loadAppFonts() async {
 
   final roboto = FontLoader('Roboto');
   for (final weight in [
-    'thin', 'light', 'regular', 'medium', 'bold', 'black', 'italic',
+    'thin',
+    'light',
+    'regular',
+    'medium',
+    'bold',
+    'black',
+    'italic',
   ]) {
     final file = 'roboto-$weight.ttf';
     if (File('${dir.path}/$file').existsSync()) roboto.addFont(read(file));
@@ -58,7 +64,7 @@ Future<void> pumpScreen(
   GoldenDevice device = GoldenDevice.phone,
   double textScale = 1.0,
   List<Override> overrides = const [],
-  ThemeData? theme,
+  Brightness brightness = Brightness.dark,
 }) async {
   tester.view
     ..physicalSize = device.size
@@ -69,7 +75,7 @@ Future<void> pumpScreen(
       overrides: overrides,
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: theme ?? AppTheme.dark,
+        theme: brightness == Brightness.dark ? AppTheme.dark : AppTheme.light,
         locale: const Locale('de'),
         supportedLocales: AppLocalizations.supportedLocales,
         localizationsDelegates: AppLocalizations.localizationsDelegates,
@@ -86,8 +92,8 @@ Future<void> pumpScreen(
   await tester.pumpAndSettle();
 }
 
-/// Renders [child] at every device and text scale and compares each image
-/// with `goldens/<name>_<device>_<scale>x.png`.
+/// Renders [child] in both appearances, at every device and text scale, and
+/// compares each image with `goldens/<name>_<appearance>_<device>_<scale>x.png`.
 ///
 /// Goldens are reviewed by eye before they are accepted. Regenerate with
 /// `flutter test --tags golden --update-goldens`. Font rendering differs a
@@ -99,30 +105,38 @@ void screenGoldens(
   List<Override> Function()? overrides,
   List<GoldenDevice> devices = const [GoldenDevice.phone, GoldenDevice.tablet],
   List<double> textScales = const [1.0, 2.0],
+  List<Brightness> appearances = const [Brightness.dark, Brightness.light],
 }) {
-  for (final device in devices) {
-    for (final scale in textScales) {
-      testWidgets('$name on ${device.name} at ${scale}x text', (tester) async {
-        // Real file reads never finish inside the test's fake clock.
-        final loaded = await tester.runAsync(loadAppFonts) ?? false;
-        if (!loaded) {
-          markTestSkipped('Flutter SDK fonts not found; golden skipped.');
-          return;
-        }
-        await pumpScreen(
-          tester,
-          child(),
-          device: device,
-          textScale: scale,
-          overrides: overrides?.call() ?? const [],
+  for (final appearance in appearances) {
+    for (final device in devices) {
+      for (final scale in textScales) {
+        testWidgets(
+          '$name, ${appearance.name}, on ${device.name} at ${scale}x text',
+          (tester) async {
+            // Real file reads never finish inside the test's fake clock.
+            final loaded = await tester.runAsync(loadAppFonts) ?? false;
+            if (!loaded) {
+              markTestSkipped('Flutter SDK fonts not found; golden skipped.');
+              return;
+            }
+            await pumpScreen(
+              tester,
+              child(),
+              device: device,
+              textScale: scale,
+              overrides: overrides?.call() ?? const [],
+              brightness: appearance,
+            );
+            await expectLater(
+              find.byType(MaterialApp),
+              matchesGoldenFile(
+                'goldens/${name}_${appearance.name}_${device.name}_${scale.toStringAsFixed(0)}x.png',
+              ),
+            );
+          },
+          tags: ['golden'],
         );
-        await expectLater(
-          find.byType(MaterialApp),
-          matchesGoldenFile(
-            'goldens/${name}_${device.name}_${scale.toStringAsFixed(0)}x.png',
-          ),
-        );
-      }, tags: ['golden']);
+      }
     }
   }
 }

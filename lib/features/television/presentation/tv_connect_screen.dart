@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/data/pairing_service.dart';
@@ -145,11 +145,13 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
               : _manual
               ? 'Es wurde kein Server gefunden. Gib die Adresse deines Servers ein, zum Beispiel 192.168.1.20.'
               : 'Öffne Speednema auf deinem Handy, wähle „Fernseher koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
-          style: theme.titleMedium?.copyWith(color: AppColors.neutralGray),
+          style: theme.titleMedium?.copyWith(
+            color: context.colors.textSecondary,
+          ),
         ),
         if (_error != null) ...[
           const SizedBox(height: 16),
-          Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+          Text(_error!, style: TextStyle(color: context.colors.error)),
         ],
         const SizedBox(height: 24),
         if (_manual) ...[
@@ -191,8 +193,8 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
     final pairing = _pairing;
     if (pairing == null) {
       return _searching
-          ? const CircularProgressIndicator(color: AppColors.dustyRose)
-          : const Icon(Icons.tv, size: 96, color: AppColors.neutralGray);
+          ? CircularProgressIndicator(color: context.colors.accent)
+          : Icon(Icons.tv, size: 96, color: context.colors.textSecondary);
     }
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -220,7 +222,7 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
         Text(
           '${_serverName ?? ''} · ${formatFingerprint(pairing.link.fingerprint)}',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
       ],
     );

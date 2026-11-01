@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../discover/domain/watch_suggestions.dart';
 import '../../watch/application/watch_providers.dart';
 
@@ -24,7 +24,7 @@ class InsightsCard extends ConsumerWidget {
           children: [
             for (final hit in insights.wishlistInSubscription.take(3))
               ListTile(
-                leading: const Icon(Icons.favorite, color: AppColors.dustyRose),
+                leading: Icon(Icons.favorite, color: context.colors.accent),
                 title: Text('${hit.candidate.title} ist in deinem Abo'),
                 subtitle: Text(
                   'Von deiner Wunschliste, jetzt bei ${hit.provider}',

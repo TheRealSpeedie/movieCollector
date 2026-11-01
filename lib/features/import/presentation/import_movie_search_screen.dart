@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/network/tmdb/tmdb_models.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -136,10 +136,10 @@ class _ImportMovieSearchScreenState
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (row != null) ...[
-                  const Text(
+                  Text(
                     'Importierter Titel',
                     style: TextStyle(
-                      color: AppColors.neutralGray,
+                      color: context.colors.textSecondary,
                       fontSize: 12,
                     ),
                   ),

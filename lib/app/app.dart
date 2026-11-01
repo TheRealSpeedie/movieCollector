@@ -20,9 +20,9 @@ class SpeednemaApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       routerConfig: appRouter,
       locale: const Locale('de', 'DE'),
       supportedLocales: AppLocalizations.supportedLocales,

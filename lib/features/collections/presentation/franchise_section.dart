@@ -2,12 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/action_button.dart';
 import '../../../shared/widgets/poster_image.dart';
-import '../../../shared/widgets/status_chip.dart';
 import '../application/collections_providers.dart';
 import '../domain/movie_collection_info.dart';
 
@@ -135,10 +134,10 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
+                  Text(
                     'Teil einer Filmreihe',
                     style: TextStyle(
-                      color: AppColors.neutralGray,
+                      color: context.colors.textSecondary,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -158,8 +157,8 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
                       bucket,
                       style: TextStyle(
                         color: preview.ownedCount == preview.totalCount
-                            ? AppColors.sage
-                            : AppColors.neutralGray,
+                            ? context.colors.owned
+                            : context.colors.textSecondary,
                       ),
                     ),
                   ],
@@ -190,7 +189,7 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
               key: const Key('franchise-all-owned'),
               label: 'Alle als gekauft',
               icon: Icons.check_circle_outline,
-              color: AppColors.sage,
+              color: context.colors.owned,
               onTap: _saving ? () {} : () => _setAll(CollectionStatus.owned),
             ),
             const SizedBox(height: 8),
@@ -198,7 +197,7 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
               key: const Key('franchise-all-wishlist'),
               label: 'Alle auf die Wunschliste',
               icon: Icons.favorite_border,
-              color: AppColors.dustyRose,
+              color: context.colors.accent,
               onTap: _saving ? () {} : () => _setAll(CollectionStatus.wishlist),
             ),
             const SizedBox(height: 8),
@@ -206,7 +205,7 @@ class _FranchiseCardState extends ConsumerState<FranchiseCard> {
               key: const Key('franchise-all-open'),
               label: 'Alle als offen',
               icon: Icons.hourglass_bottom,
-              color: AppColors.amber,
+              color: context.colors.attention,
               onTap: _saving ? () {} : () => _setAll(CollectionStatus.open),
             ),
             const SizedBox(height: 12),
@@ -333,7 +332,7 @@ class _FranchiseRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
         color: current
-            ? AppColors.dustyRose.withValues(alpha: 0.12)
+            ? context.colors.accent.withValues(alpha: 0.12)
             : Colors.transparent,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
@@ -344,7 +343,7 @@ class _FranchiseRow extends StatelessWidget {
                 width: 22,
                 child: Text(
                   '$index',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ),
               SizedBox(
@@ -373,17 +372,17 @@ class _FranchiseRow extends StatelessWidget {
                       if (part.year != null)
                         Text(
                           '${part.year}',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.neutralGray,
+                            color: context.colors.textSecondary,
                           ),
                         ),
                       if (scanned)
-                        const Text(
+                        Text(
                           'Aktuell gescannt',
                           style: TextStyle(
                             fontSize: 12,
-                            color: AppColors.dustyRose,
+                            color: context.colors.accent,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -418,7 +417,7 @@ class _FranchiseRow extends StatelessWidget {
                     Text(
                       option.germanLabel,
                       style: TextStyle(
-                        color: _statusColor(option),
+                        color: context.colors.forStatus(option),
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -431,5 +430,3 @@ class _FranchiseRow extends StatelessWidget {
     );
   }
 }
-
-Color _statusColor(CollectionStatus status) => colorForStatus(status);

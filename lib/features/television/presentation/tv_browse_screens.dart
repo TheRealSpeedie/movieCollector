@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../server/application/server_providers.dart';
@@ -65,9 +65,9 @@ class TvContinueScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             if (data.resume.isEmpty)
-              const Text(
+              Text(
                 'Nichts angefangen. Was du schaust, erscheint hier.',
-                style: TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               )
             else
               Expanded(
@@ -183,7 +183,7 @@ class _PosterGrid extends StatelessWidget {
           const SizedBox(height: 16),
         ],
         if (titles.isEmpty)
-          Text(empty, style: const TextStyle(color: AppColors.neutralGray))
+          Text(empty, style: TextStyle(color: context.colors.textSecondary))
         else
           Expanded(
             child: GridView.extent(

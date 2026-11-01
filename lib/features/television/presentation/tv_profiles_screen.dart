@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -89,8 +89,8 @@ class TvProfilesScreen extends ConsumerWidget {
                             CircleAvatar(
                               radius: 48,
                               backgroundColor: profile.current
-                                  ? AppColors.dustyRose
-                                  : AppColors.surface,
+                                  ? context.colors.accent
+                                  : context.colors.surface,
                               child: Text(
                                 profile.name.substring(0, 1).toUpperCase(),
                                 style: const TextStyle(fontSize: 40),
@@ -108,8 +108,8 @@ class TvProfilesScreen extends ConsumerWidget {
                                 if (profile.maxAgeRating != null)
                                   'ab ${profile.maxAgeRating}',
                               ].join(' · '),
-                              style: const TextStyle(
-                                color: AppColors.neutralGray,
+                              style: TextStyle(
+                                color: context.colors.textSecondary,
                               ),
                             ),
                           ],

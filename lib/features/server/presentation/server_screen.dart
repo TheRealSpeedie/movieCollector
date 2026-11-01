@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -251,12 +251,12 @@ class ResumeCard extends StatelessWidget {
                 aspectRatio: 16 / 9,
                 borderRadius: 0,
               ),
-              Container(color: Colors.black38),
-              const Center(
+              Container(color: context.colors.scrim.withValues(alpha: 0.38)),
+              Center(
                 child: Icon(
                   Icons.play_circle_outline,
                   size: 44,
-                  color: Colors.white,
+                  color: context.colors.onMedia,
                 ),
               ),
               Positioned(
@@ -271,8 +271,8 @@ class ResumeCard extends StatelessWidget {
                       item.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.colors.onMedia,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -282,8 +282,8 @@ class ResumeCard extends StatelessWidget {
                           : item.subtitle ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: context.colors.onMedia.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -298,8 +298,8 @@ class ResumeCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: item.fraction.toDouble(),
                     minHeight: 4,
-                    backgroundColor: Colors.black54,
-                    color: AppColors.dustyRose,
+                    backgroundColor: context.colors.scrim,
+                    color: context.colors.accent,
                   ),
                 ),
             ],
