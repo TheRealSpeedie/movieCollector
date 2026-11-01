@@ -83,16 +83,23 @@ class PairingService {
     return _credentials(link, keys, result);
   }
 
+  /// Starts a pairing the device shows as a short code, approved by someone
+  /// signed in. TVs use it; so do phones that found the server on the
+  /// network or by address ([deviceType] `phone`).
   Future<TvPairing> startTv(
     String baseUrl,
     String deviceName, {
     String? fingerprint,
+    String deviceType = 'tv',
   }) async {
     final identity = await verifyServerIdentity(dio, baseUrl, fingerprint);
     try {
       final response = await dio.post<Map<String, dynamic>>(
         '$baseUrl/api/pairing/tv-sessions',
-        data: {'deviceName': deviceName},
+        data: {
+          'deviceName': deviceName,
+          if (deviceType != 'tv') 'deviceType': deviceType,
+        },
       );
       final data = response.data!;
       final link = PairingLink.parse(data['link'] as String);

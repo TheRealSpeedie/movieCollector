@@ -6,6 +6,7 @@ import 'package:qr_flutter/qr_flutter.dart';
 
 import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../server/data/server_discovery.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/data/pairing_service.dart';
 import '../../server/presentation/tv_approve_screen.dart';
@@ -14,7 +15,6 @@ import 'tv_focusable.dart';
 const tvDeviceName = 'Fernseher';
 const _sessionLifetime = Duration(seconds: 150);
 const _pollInterval = Duration(seconds: 2);
-const _defaultPort = 8096;
 
 class TvConnectScreen extends ConsumerStatefulWidget {
   const TvConnectScreen({super.key});
@@ -50,8 +50,7 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
   Future<({String baseUrl, String? fingerprint, String name})?> _find() async {
     final typed = _address.text.trim();
     if (typed.isNotEmpty) {
-      final host = typed.contains(':') ? typed : '$typed:$_defaultPort';
-      return (baseUrl: 'http://$host', fingerprint: null, name: typed);
+      return (baseUrl: serverBaseUrl(typed), fingerprint: null, name: typed);
     }
     final found = await ref.read(serverDiscoveryProvider).discover();
     final server = found.firstOrNull;
@@ -144,7 +143,7 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
               ? 'Der Speednema-Server wird im Heimnetz gesucht …'
               : _manual
               ? 'Es wurde kein Server gefunden. Gib die Adresse deines Servers ein, zum Beispiel 192.168.1.20.'
-              : 'Öffne Speednema auf deinem Handy, wähle „Fernseher koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
+              : 'Öffne Speednema auf deinem Handy, wähle „Gerät koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
           style: theme.titleMedium?.copyWith(
             color: context.colors.textSecondary,
           ),

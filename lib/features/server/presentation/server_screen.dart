@@ -88,7 +88,7 @@ class _Connected extends ConsumerWidget {
                 }
               },
               itemBuilder: (context) => const [
-                PopupMenuItem(value: 'tv', child: Text('Fernseher koppeln')),
+                PopupMenuItem(value: 'tv', child: Text('Gerät koppeln')),
                 PopupMenuItem(
                   value: 'sync',
                   child: Text('Sammlung abgleichen'),

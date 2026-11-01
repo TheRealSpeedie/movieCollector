@@ -104,7 +104,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   Widget build(BuildContext context) {
     final tv = _tv;
     return Scaffold(
-      appBar: AppBar(title: const Text('Fernseher koppeln')),
+      appBar: AppBar(title: const Text('Gerät koppeln')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

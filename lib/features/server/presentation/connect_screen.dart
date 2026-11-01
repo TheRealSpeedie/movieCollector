@@ -8,6 +8,7 @@ import '../../../core/errors/app_exception.dart';
 import '../application/server_providers.dart';
 import '../data/pairing_link.dart';
 import '../data/pairing_service.dart';
+import 'code_pairing_panel.dart';
 
 class ConnectScreen extends ConsumerStatefulWidget {
   const ConnectScreen({super.key});
@@ -119,6 +120,11 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
   }
 
   List<Widget> _chooseSource() => [
+    // Without a QR code at hand: find the server, or type its address.
+    CodePairingPanel(deviceName: () => _deviceName.text.trim()),
+    const SizedBox(height: 24),
+    const Divider(),
+    const SizedBox(height: 16),
     Card(
       child: Padding(
         padding: const EdgeInsets.all(16),
@@ -147,27 +153,34 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
         ),
       ),
     ),
-    const SizedBox(height: 16),
-    TextField(
-      controller: _linkField,
-      decoration: InputDecoration(
-        labelText: 'Oder Kopplungslink einfügen',
-        hintText: 'speednema://pair?…',
-        suffixIcon: IconButton(
-          icon: const Icon(Icons.content_paste),
-          tooltip: 'Aus Zwischenablage einfügen',
-          onPressed: _paste,
+    const SizedBox(height: 8),
+    // Rarely needed: a link sent by message instead of shown as QR code.
+    ExpansionTile(
+      tilePadding: EdgeInsets.zero,
+      title: const Text('Kopplungslink einfügen'),
+      children: [
+        TextField(
+          controller: _linkField,
+          decoration: InputDecoration(
+            labelText: 'Oder Kopplungslink einfügen',
+            hintText: 'speednema://pair?…',
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.content_paste),
+              tooltip: 'Aus Zwischenablage einfügen',
+              onPressed: _paste,
+            ),
+          ),
+          onSubmitted: _accept,
         ),
-      ),
-      onSubmitted: _accept,
-    ),
-    const SizedBox(height: 12),
-    Align(
-      alignment: Alignment.centerRight,
-      child: OutlinedButton(
-        onPressed: () => _accept(_linkField.text),
-        child: const Text('Weiter'),
-      ),
+        const SizedBox(height: 12),
+        Align(
+          alignment: Alignment.centerRight,
+          child: OutlinedButton(
+            onPressed: () => _accept(_linkField.text),
+            child: const Text('Weiter'),
+          ),
+        ),
+      ],
     ),
   ];
 
