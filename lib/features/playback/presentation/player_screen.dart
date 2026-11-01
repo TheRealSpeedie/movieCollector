@@ -138,6 +138,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         if (done) _finish();
       }),
       _player.stream.error.listen((message) {
+        // mpv also reports problems that do not stop the film, such as a
+        // subtitle track that fails to load. Only an error while the media
+        // is still opening replaces playback; later ones are logged.
+        if (!_loading) {
+          debugPrint('Player: $message');
+          return;
+        }
         if (mounted) {
           setState(
             () => _error = ServerRejectedException(
@@ -234,6 +241,16 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         requestedHeight: _requestedHeight,
         preferences: _preferences,
       );
+      if (!mounted) {
+        // Left while the server was starting: release the session (and
+        // any conversion it started) now instead of after the idle timeout.
+        unawaited(
+          _api
+              .stop(session.id, position: startSeconds, duration: 0)
+              .catchError((Object _) {}),
+        );
+        return;
+      }
       _session = session;
       final headers = await _client.authHeaders();
       await _player.open(
@@ -264,6 +281,15 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
             'Diese Datei ist nicht mehr auf dem Server vorhanden.',
             404,
           );
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      // Anything else (for example the platform player failing to open)
+      // must end the spinner with an explanation.
+      if (mounted) {
+        setState(() {
+          _error = e;
           _loading = false;
         });
       }

@@ -135,15 +135,6 @@ class PlayerControls extends StatelessWidget {
                     ],
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Text(
-                    modeLabel,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: context.colors.onMedia.withValues(alpha: 0.7),
-                    ),
-                  ),
-                ),
               ],
             ),
             const Spacer(),
@@ -201,11 +192,32 @@ class PlayerControls extends StatelessWidget {
                     icon: const Icon(Icons.subtitles_outlined),
                     onPressed: onTracks,
                   ),
-                  IconButton(
-                    color: context.colors.onMedia,
-                    tooltip: 'Qualität',
-                    icon: const Icon(Icons.tune),
-                    onPressed: onQuality,
+                  // Quality and how the file is played (direct, remuxed,
+                  // converted) are for when something looks wrong; they
+                  // stay off the picture until asked for.
+                  PopupMenuButton<String>(
+                    tooltip: 'Weitere Optionen',
+                    icon: Icon(Icons.more_vert, color: context.colors.onMedia),
+                    onSelected: (value) {
+                      if (value == 'quality') onQuality();
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'quality',
+                        child: ListTile(
+                          leading: Icon(Icons.tune),
+                          title: Text('Qualität'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        enabled: false,
+                        child: ListTile(
+                          leading: const Icon(Icons.info_outline),
+                          title: const Text('Wiedergabe'),
+                          subtitle: Text(modeLabel),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
