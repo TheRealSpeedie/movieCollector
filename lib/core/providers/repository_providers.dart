@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../features/settings/application/settings_providers.dart';
 import '../../features/editions/application/catalog_providers.dart';
 import '../../features/collections/data/collection_repository.dart';
 import '../../features/editions/data/physical_edition_repository.dart';
@@ -24,6 +25,7 @@ final movieRepositoryProvider = Provider<MovieRepository>((ref) {
     ref.watch(appDatabaseProvider),
     ref.watch(tmdbApiClientProvider),
     ref.watch(collectionRepositoryProvider),
+    defaultFormat: () => _preferredFormat(ref),
   );
 });
 
@@ -60,6 +62,7 @@ final tvRepositoryProvider = Provider<TvRepository>((ref) {
   return TvRepository(
     ref.watch(appDatabaseProvider),
     ref.watch(tmdbApiClientProvider),
+    defaultFormat: () => _preferredFormat(ref),
   );
 });
 
@@ -79,3 +82,14 @@ final importRepositoryProvider = Provider<ImportRepository>((ref) {
     editionRepository: ref.watch(physicalEditionRepositoryProvider),
   );
 });
+
+/// The person's first preferred format, read when it is used, so changing
+/// it in Einstellungen applies at once. A convenience only: if preferences
+/// cannot be read, the film is still added, with an unknown format.
+String? _preferredFormat(Ref ref) {
+  try {
+    return ref.read(userPreferencesProvider).preferredFormats.firstOrNull;
+  } catch (_) {
+    return null;
+  }
+}

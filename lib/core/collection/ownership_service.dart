@@ -10,7 +10,12 @@ import '../database/app_database.dart';
 /// `user_status` on movies and seasons is a cache of both that the rest of the
 /// app reads; [recompute] keeps it in step.
 class OwnershipService {
-  OwnershipService(this._db);
+  OwnershipService(this._db, {this.defaultFormat});
+
+  /// The format a new single edition starts with when the person marks a
+  /// title as owned without choosing one (their preferred format). Only the
+  /// user-facing add paths pass it; sync and restore never invent formats.
+  final String? Function()? defaultFormat;
 
   final AppDatabase _db;
 
@@ -203,6 +208,7 @@ UPDATE tv_seasons SET user_status = CASE
           PhysicalEditionsCompanion.insert(
             productTitle: Value(movie.title),
             mediaKind: PhysicalEditionKind.singleMovie.name,
+            format: Value.absentIfNull(defaultFormat?.call()),
           ),
         );
     await _linkMovie(editionId, movieId);
@@ -227,6 +233,7 @@ UPDATE tv_seasons SET user_status = CASE
             ),
             mediaKind: PhysicalEditionKind.singleTvSeason.name,
             tmdbTvSeriesId: Value(series.tmdbId),
+            format: Value.absentIfNull(defaultFormat?.call()),
           ),
         );
     await _linkSeason(editionId, seasonId);

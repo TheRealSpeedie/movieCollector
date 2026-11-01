@@ -138,7 +138,13 @@ class CopiesSection extends ConsumerWidget {
                               '${_copyTitle(copy)} · gehört '
                               '${names[copy.ownerId] ?? 'jemand anderem im Haushalt'}',
                             ),
-                            subtitle: Text(_copyDetails(copy, own: false)),
+                            // Why it cannot be changed, said in the row,
+                            // not only in a tooltip touch users rarely find.
+                            subtitle: Text(
+                              '${_copyDetails(copy, own: false)}\n'
+                              'Nur ${names[copy.ownerId] ?? 'die Person, der es gehört'} '
+                              'kann es ändern.',
+                            ),
                             trailing: const Tooltip(
                               message:
                                   'Nur die Besitzerin oder der Besitzer kann es ändern',
