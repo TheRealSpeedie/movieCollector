@@ -163,51 +163,14 @@ void main() {
     verifyNever(barcodeProvider.lookup(any));
   });
 
-  test('a physical UPCMDB title is searched as the cleaned movie title', () async {
-    when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
-    when(networkInfo.isConnected).thenAnswer((_) async => true);
-    when(tmdbApiClient.searchMovies('Interstellar', year: 2014)).thenAnswer(
-      (_) async => const [TmdbSearchResult(id: 157336, title: 'Interstellar')],
-    );
-    final localResolver = BarcodeResolver(
-      barcodeRepository: barcodeRepository,
-      barcodeProvider: barcodeProvider,
-      tmdbApiClient: tmdbApiClient,
-      networkInfo: networkInfo,
-      lookupService: BarcodeLookupService(
-        upcItemDb: barcodeProvider,
-        upcmdb: _CountingUpcmdb(
-          const UpcmdbFound(
-            UpcmdbRecord(
-              title: 'Interstellar 4K UHD Steelbook Limited Edition Blu-ray',
-              year: 2014,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final result = await localResolver.resolve(gtin);
-
-    expect(result, isA<BarcodeNeedsConfirmation>());
-    verify(tmdbApiClient.searchMovies('Interstellar', year: 2014)).called(1);
-    verifyNever(barcodeProvider.lookup(any));
-  });
-
   test(
-    'a distributor suffix still confirms the localized TMDB movie',
+    'a physical UPCMDB title is searched as the cleaned movie title',
     () async {
       when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
       when(networkInfo.isConnected).thenAnswer((_) async => true);
-      const cleaned = 'Pirates Of The Caribbean - Am Ende Der Welt';
-      when(tmdbApiClient.searchMovies(cleaned)).thenAnswer(
-        (_) async => [
-          TmdbSearchResult(
-            id: 285,
-            title: 'Pirates of the Caribbean - Am Ende der Welt',
-            originalTitle: "Pirates of the Caribbean: At World's End",
-            releaseDate: DateTime(2007),
-          ),
+      when(tmdbApiClient.searchMovies('Interstellar', year: 2014)).thenAnswer(
+        (_) async => const [
+          TmdbSearchResult(id: 157336, title: 'Interstellar'),
         ],
       );
       final localResolver = BarcodeResolver(
@@ -220,9 +183,8 @@ void main() {
           upcmdb: _CountingUpcmdb(
             const UpcmdbFound(
               UpcmdbRecord(
-                title:
-                    'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
-                publisher: 'Buena Vista Home Entertainment',
+                title: 'Interstellar 4K UHD Steelbook Limited Edition Blu-ray',
+                year: 2014,
               ),
             ),
           ),
@@ -232,33 +194,69 @@ void main() {
       final result = await localResolver.resolve(gtin);
 
       expect(result, isA<BarcodeNeedsConfirmation>());
-      final confirmation = result as BarcodeNeedsConfirmation;
-      expect(confirmation.searchTitle, cleaned);
-      expect(confirmation.candidates.single.result.id, 285);
-      expect(confirmation.candidates.single.confidence, greaterThan(0.9));
-      verify(tmdbApiClient.searchMovies(cleaned)).called(1);
-      verifyNever(
-        tmdbApiClient.searchMovies(
-          'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
-        ),
-      );
+      verify(tmdbApiClient.searchMovies('Interstellar', year: 2014)).called(1);
       verifyNever(barcodeProvider.lookup(any));
     },
   );
 
+  test('a distributor suffix still confirms the localized TMDB movie', () async {
+    when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
+    when(networkInfo.isConnected).thenAnswer((_) async => true);
+    const cleaned = 'Pirates Of The Caribbean - Am Ende Der Welt';
+    when(tmdbApiClient.searchMovies(cleaned)).thenAnswer(
+      (_) async => [
+        TmdbSearchResult(
+          id: 285,
+          title: 'Pirates of the Caribbean - Am Ende der Welt',
+          originalTitle: "Pirates of the Caribbean: At World's End",
+          releaseDate: DateTime(2007),
+        ),
+      ],
+    );
+    final localResolver = BarcodeResolver(
+      barcodeRepository: barcodeRepository,
+      barcodeProvider: barcodeProvider,
+      tmdbApiClient: tmdbApiClient,
+      networkInfo: networkInfo,
+      lookupService: BarcodeLookupService(
+        upcItemDb: barcodeProvider,
+        upcmdb: _CountingUpcmdb(
+          const UpcmdbFound(
+            UpcmdbRecord(
+              title:
+                  'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+              publisher: 'Buena Vista Home Entertainment',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final result = await localResolver.resolve(gtin);
+
+    expect(result, isA<BarcodeNeedsConfirmation>());
+    final confirmation = result as BarcodeNeedsConfirmation;
+    expect(confirmation.searchTitle, cleaned);
+    expect(confirmation.candidates.single.result.id, 285);
+    expect(confirmation.candidates.single.confidence, greaterThan(0.9));
+    verify(tmdbApiClient.searchMovies(cleaned)).called(1);
+    verifyNever(
+      tmdbApiClient.searchMovies(
+        'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+      ),
+    );
+    verifyNever(barcodeProvider.lookup(any));
+  });
+
   test('an empty year-filtered search is retried without the year', () async {
     when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
     when(networkInfo.isConnected).thenAnswer((_) async => true);
-    when(tmdbApiClient.searchMovies('Heat', year: 1995)).thenAnswer(
-      (_) async => const [],
-    );
+    when(
+      tmdbApiClient.searchMovies('Heat', year: 1995),
+    ).thenAnswer((_) async => const []);
     when(tmdbApiClient.searchMovies('Heat')).thenAnswer(
       (_) async => [
-        TmdbSearchResult(
-          id: 949,
-          title: 'Heat',
-          releaseDate: DateTime(1995),
-        ),
+        TmdbSearchResult(id: 949, title: 'Heat', releaseDate: DateTime(1995)),
       ],
     );
     final localResolver = BarcodeResolver(

@@ -91,7 +91,10 @@ void main() {
       expect(find.text('Zur Wunschliste'), findsOneWidget);
       expect(find.text('Als offen speichern'), findsOneWidget);
       expect(find.text('Manuell suchen'), findsOneWidget);
-      expect(find.text('Wie möchtest du diesen Film speichern?'), findsOneWidget);
+      expect(
+        find.text('Wie möchtest du diesen Film speichern?'),
+        findsOneWidget,
+      );
       expect(find.text('Falscher Film? Manuell suchen'), findsNothing);
       expect(find.text('Speichern'), findsNothing);
     });
@@ -157,10 +160,7 @@ void main() {
       expect(find.text('Speichern'), findsOneWidget);
       final colors = tester.element(find.text('Alle als gekauft')).colors;
       expect(_outlinedColor(tester, 'Alle als gekauft'), colors.owned);
-      expect(
-        _outlinedColor(tester, 'Alle auf die Wunschliste'),
-        colors.accent,
-      );
+      expect(_outlinedColor(tester, 'Alle auf die Wunschliste'), colors.accent);
       expect(_outlinedColor(tester, 'Alle als offen'), colors.attention);
       await tester.scrollUntilVisible(
         find.text('Falscher Film? Manuell suchen'),

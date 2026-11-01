@@ -27,30 +27,31 @@ void main() {
     expect(record.mediaType, 'movie');
   });
 
-  test('an invalid UPCMDB body is a failure and does not invent a product', () async {
-    final dio = Dio(BaseOptions(baseUrl: 'https://upcmdb.invalid'));
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          handler.resolve(
-            Response(
-              requestOptions: options,
-              statusCode: 200,
-              data: 'not-a-product',
-            ),
-          );
-        },
-      ),
-    );
-    final client = UpcmdbClient(
-      DioClient(dio: dio, networkInfo: _Online()),
-    );
+  test(
+    'an invalid UPCMDB body is a failure and does not invent a product',
+    () async {
+      final dio = Dio(BaseOptions(baseUrl: 'https://upcmdb.invalid'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: 'not-a-product',
+              ),
+            );
+          },
+        ),
+      );
+      final client = UpcmdbClient(DioClient(dio: dio, networkInfo: _Online()));
 
-    final result = await client.lookupGtin('0123456789055');
+      final result = await client.lookupGtin('0123456789055');
 
-    expect(result, isA<UpcmdbFailed>());
-    expect((result as UpcmdbFailed).reason, 'invalid');
-  });
+      expect(result, isA<UpcmdbFailed>());
+      expect((result as UpcmdbFailed).reason, 'invalid');
+    },
+  );
 }
 
 class _Online implements NetworkInfo {

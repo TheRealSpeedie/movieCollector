@@ -96,14 +96,17 @@ StatusDescriptor classifyError(Object error) => switch (error) {
     message: 'Verbinde es noch einmal, dann geht es weiter wie vorher.',
     remedy: Remedy.reconnectServer,
   ),
-  // The server's own text is English and technical; keep it for Details.
-  ServerRejectedException() => StatusDescriptor(
-    kind: StatusKind.unexpected,
-    title: 'Der Server hat das nicht angenommen',
-    message:
-        'Versuche es noch einmal. Hilft das nicht, sieh im Dashboard nach.',
-    technical: (error as AppException).message,
-  ),
+  // German words from the server's code or status; its own (English) text
+  // is for Details only.
+  ServerRejectedException(:final message, :final detail, :final statusCode) =>
+    StatusDescriptor(
+      kind: statusCode >= 500
+          ? StatusKind.serviceUnavailable
+          : StatusKind.unexpected,
+      title: 'Das hat nicht geklappt',
+      message: message,
+      technical: detail,
+    ),
   CloudUnreachableException() => const StatusDescriptor(
     kind: StatusKind.serviceUnavailable,
     title: 'Speednema Cloud ist gerade nicht erreichbar',

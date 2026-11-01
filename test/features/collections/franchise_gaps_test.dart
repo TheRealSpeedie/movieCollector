@@ -77,9 +77,7 @@ void main() {
   });
 
   test('while loading nothing is claimed', () async {
-    final gaps = await gapsFor(
-      movies: StreamController<List<Movie>>().stream,
-    );
+    final gaps = await gapsFor(movies: StreamController<List<Movie>>().stream);
     expect(gaps, isA<FranchiseGapsLoading>());
   });
 
@@ -92,14 +90,17 @@ void main() {
     expect(franchiseGapsSummary(gaps), isNot(contains('vollständig')));
   });
 
-  test('"complete" only when series are known and nothing is missing', () async {
-    final gaps = await gapsFor(
-      movies: Stream.value([collectionMovieFixture()]),
-      collections: Stream.value([series(complete: true)]),
-    );
-    expect(gaps, isA<FranchiseGapsComplete>());
-    expect(franchiseGapsSummary(gaps), 'Deine Reihe ist vollständig');
-  });
+  test(
+    '"complete" only when series are known and nothing is missing',
+    () async {
+      final gaps = await gapsFor(
+        movies: Stream.value([collectionMovieFixture()]),
+        collections: Stream.value([series(complete: true)]),
+      );
+      expect(gaps, isA<FranchiseGapsComplete>());
+      expect(franchiseGapsSummary(gaps), 'Deine Reihe ist vollständig');
+    },
+  );
 
   test('missing films are counted', () async {
     final gaps = await gapsFor(
@@ -110,9 +111,7 @@ void main() {
     expect(franchiseGapsSummary(gaps), 'Ein Film fehlt in deinen Reihen');
   });
 
-  testWidgets('Entdecken never calls an empty shelf complete', (
-    tester,
-  ) async {
+  testWidgets('Entdecken never calls an empty shelf complete', (tester) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [

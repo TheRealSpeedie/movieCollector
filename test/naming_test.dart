@@ -18,7 +18,15 @@ void main() {
   const roots = ['lib', 'docs', 'android/app/src', 'ios/Runner'];
   const singleFiles = ['README.md', 'pubspec.yaml', 'env.example.json'];
   const extensions = {
-    '.dart', '.md', '.kt', '.kts', '.xml', '.plist', '.json', '.yaml', '.swift',
+    '.dart',
+    '.md',
+    '.kt',
+    '.kts',
+    '.xml',
+    '.plist',
+    '.json',
+    '.yaml',
+    '.swift',
   };
 
   Iterable<File> sources() sync* {

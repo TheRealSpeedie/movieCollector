@@ -17,7 +17,12 @@ class ComponentGallery extends StatelessWidget {
   static const films = [
     ('Arrival', '2016', CollectionStatus.owned, MediaBadge.playable()),
     ('Blade Runner 2049', '2017', CollectionStatus.wishlist, null),
-    ('Der Herr der Ringe: Die Gefährten', '2001', CollectionStatus.open, MediaBadge.text('2/3')),
+    (
+      'Der Herr der Ringe: Die Gefährten',
+      '2001',
+      CollectionStatus.open,
+      MediaBadge.text('2/3'),
+    ),
     ('Dune', '2021', CollectionStatus.owned, null),
   ];
 
@@ -74,9 +79,15 @@ class ComponentGallery extends StatelessWidget {
               runSpacing: 8,
               children: [
                 ConnectionBadge(tone: ConnectionTone.ok, label: 'Verbunden'),
-                ConnectionBadge(tone: ConnectionTone.attention, label: 'Neu anmelden'),
+                ConnectionBadge(
+                  tone: ConnectionTone.attention,
+                  label: 'Neu anmelden',
+                ),
                 ConnectionBadge(tone: ConnectionTone.offline, label: 'Offline'),
-                ConnectionBadge(tone: ConnectionTone.none, label: 'Nicht eingerichtet'),
+                ConnectionBadge(
+                  tone: ConnectionTone.none,
+                  label: 'Nicht eingerichtet',
+                ),
               ],
             ),
           ),
@@ -88,7 +99,8 @@ class ComponentGallery extends StatelessWidget {
           ),
           SettingsGroup(
             title: 'Medien',
-            footer: 'Speednema nutzt TMDB für Titel, Poster und Beschreibungen.',
+            footer:
+                'Speednema nutzt TMDB für Titel, Poster und Beschreibungen.',
             children: [
               SettingsTile.navigation(
                 icon: Icons.movie_outlined,

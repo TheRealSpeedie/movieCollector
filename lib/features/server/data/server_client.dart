@@ -23,6 +23,7 @@ class ServerClient {
     required CredentialStore store,
     required ServerDiscovery discovery,
     required this.onRevoked,
+    this.onReachability,
     Dio? dio,
     DateTime Function()? now,
   }) : _credentials = credentials,
@@ -71,6 +72,10 @@ class ServerClient {
   final DateTime Function() _now;
   final void Function() onRevoked;
 
+  /// Told after each request whether the server answered at all (any HTTP
+  /// response counts) or could not be reached.
+  final void Function(bool reachable)? onReachability;
+
   ServerCredentials _credentials;
   String? _accessToken;
   DateTime _expiresAt = DateTime.fromMillisecondsSinceEpoch(0);
@@ -107,6 +112,26 @@ class ServerClient {
     Map<String, dynamic>? query,
     Object? body,
   }) async {
+    try {
+      final result = await _sendOnce(method, path, query, body);
+      onReachability?.call(true);
+      return result;
+    } on ServerUnreachableException {
+      onReachability?.call(false);
+      rethrow;
+    } on ServerRejectedException {
+      // It answered; the request itself was refused.
+      onReachability?.call(true);
+      rethrow;
+    }
+  }
+
+  Future<dynamic> _sendOnce(
+    String method,
+    String path,
+    Map<String, dynamic>? query,
+    Object? body,
+  ) async {
     try {
       return await _attempt(method, path, query, body);
     } on ServerUnreachableException {
@@ -217,14 +242,10 @@ class ServerClient {
       case DioExceptionType.connectionError:
         return const ServerUnreachableException();
       default:
-        final status = e.response?.statusCode ?? 0;
-        final data = e.response?.data;
-        final message = data is Map && data['error'] is String
-            ? data['error'] as String
-            : status == 429
-            ? 'Zu viele Anfragen. Bitte warte einen Moment.'
-            : 'Der Server hat die Anfrage abgelehnt.';
-        return ServerRejectedException(message, status);
+        return ServerRejectedException.fromResponse(
+          e.response?.statusCode ?? 0,
+          e.response?.data,
+        );
     }
   }
 }

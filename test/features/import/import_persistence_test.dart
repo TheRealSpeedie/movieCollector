@@ -476,13 +476,16 @@ void main() {
         _movieRow(index: 2, title: 'Karate Kid', tmdbId: 1885),
       ], CollectionStatus.owned);
 
-    expect(report.failedSourceRows, 1);
-    expect(report.successfulSourceRows, 2);
-    expect(report.importedMovies, 2);
-    final stored = await db.select(db.movies).get();
-    expect(stored.map((m) => m.tmdbId), unorderedEquals([68726, 1885]));
-    final editionRows = await db.select(db.physicalEditions).get();
-    expect(editionRows.every((row) => row.mediaKind != 'movieBundle'), isTrue);
+      expect(report.failedSourceRows, 1);
+      expect(report.successfulSourceRows, 2);
+      expect(report.importedMovies, 2);
+      final stored = await db.select(db.movies).get();
+      expect(stored.map((m) => m.tmdbId), unorderedEquals([68726, 1885]));
+      final editionRows = await db.select(db.physicalEditions).get();
+      expect(
+        editionRows.every((row) => row.mediaKind != 'movieBundle'),
+        isTrue,
+      );
     },
   );
 

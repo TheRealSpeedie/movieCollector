@@ -64,10 +64,7 @@ void main() {
     final info = await repository.watchFranchise(295, 3).first;
 
     expect(info!.name, 'Pirates of the Caribbean');
-    expect(
-      info.parts.map((part) => part.tmdbMovieId),
-      [1, 3, 5, 4],
-    );
+    expect(info.parts.map((part) => part.tmdbMovieId), [1, 3, 5, 4]);
     expect(info.parts[1].isCurrent, isTrue);
 
     expect(await repository.resolveFranchiseId(1), 295);

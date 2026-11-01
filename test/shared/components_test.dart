@@ -92,9 +92,7 @@ void main() {
     expect(retried, 1);
   });
 
-  testWidgets('skeletons hold still when reduced motion is on', (
-    tester,
-  ) async {
+  testWidgets('skeletons hold still when reduced motion is on', (tester) async {
     await tester.pumpWidget(
       const MediaQuery(
         data: MediaQueryData(disableAnimations: true),

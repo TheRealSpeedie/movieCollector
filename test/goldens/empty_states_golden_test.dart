@@ -1,4 +1,3 @@
-import 'package:flutter_test/flutter_test.dart';
 import 'package:speednema/core/config/config_providers.dart';
 import 'package:speednema/features/collections/application/collections_providers.dart';
 import 'package:speednema/features/collections/presentation/missing_movies_screen.dart';

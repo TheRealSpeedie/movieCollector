@@ -9,9 +9,12 @@ import 'package:speednema/app/theme/speednema_colors.dart';
 /// appearances. Text needs 4.5:1; outlines and focus rings need 3:1.
 void main() {
   double luminance(Color c) {
-    double channel(double v) =>
-        v <= 0.03928 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
-    return 0.2126 * channel(c.r) + 0.7152 * channel(c.g) + 0.0722 * channel(c.b);
+    double channel(double v) => v <= 0.03928
+        ? v / 12.92
+        : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+    return 0.2126 * channel(c.r) +
+        0.7152 * channel(c.g) +
+        0.0722 * channel(c.b);
   }
 
   double contrast(Color a, Color b) {
@@ -56,7 +59,10 @@ void main() {
     });
 
     test('$name: labels on accent buttons read (4.5:1)', () {
-      expect(contrast(palette.onAccent, palette.accent), greaterThanOrEqualTo(4.5));
+      expect(
+        contrast(palette.onAccent, palette.accent),
+        greaterThanOrEqualTo(4.5),
+      );
     });
 
     test('$name: theme exposes the palette as an extension', () {

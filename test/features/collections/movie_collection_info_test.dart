@@ -46,11 +46,7 @@ void main() {
         title: 'The Curse of the Black Pearl',
         releaseDate: DateTime(2003, 7, 9),
       ),
-      part(
-        id: 2,
-        title: "Dead Man's Chest",
-        releaseDate: DateTime(2006, 7, 7),
-      ),
+      part(id: 2, title: "Dead Man's Chest", releaseDate: DateTime(2006, 7, 7)),
       part(
         id: 3,
         title: "At World's End",
@@ -75,8 +71,16 @@ void main() {
     final info = series(
       currentId: 3,
       entries: [
-        part(id: 5, title: 'Dead Men Tell No Tales', releaseDate: DateTime(2017)),
-        part(id: 1, title: 'The Curse of the Black Pearl', releaseDate: DateTime(2003)),
+        part(
+          id: 5,
+          title: 'Dead Men Tell No Tales',
+          releaseDate: DateTime(2017),
+        ),
+        part(
+          id: 1,
+          title: 'The Curse of the Black Pearl',
+          releaseDate: DateTime(2003),
+        ),
         part(id: 4, title: 'On Stranger Tides'),
         part(id: 2, title: "Dead Man's Chest", releaseDate: DateTime(2006)),
         part(id: 3, title: "At World's End", releaseDate: DateTime(2007)),
@@ -126,7 +130,10 @@ void main() {
     expect(highlighted.ownedCount, other.ownedCount);
     expect(highlighted.wishlistCount, other.wishlistCount);
     expect(highlighted.openCount, other.openCount);
-    expect(highlighted.parts.singleWhere((part) => part.tmdbMovieId == 3).isCurrent, isTrue);
+    expect(
+      highlighted.parts.singleWhere((part) => part.tmdbMovieId == 3).isCurrent,
+      isTrue,
+    );
     expect(other.parts.every((part) => !part.isCurrent), isTrue);
   });
 

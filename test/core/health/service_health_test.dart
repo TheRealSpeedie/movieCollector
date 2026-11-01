@@ -89,13 +89,16 @@ void main() {
       expect(reported.single, isA<HealthOffline>());
     });
 
-    test('a failing connection is a network problem, not a key problem', () async {
-      await expectLater(
-        client(unreachable).get<dynamic>('/x'),
-        throwsA(isA<NoInternetException>()),
-      );
-      expect(reported.single, isA<HealthOffline>());
-    });
+    test(
+      'a failing connection is a network problem, not a key problem',
+      () async {
+        await expectLater(
+          client(unreachable).get<dynamic>('/x'),
+          throwsA(isA<NoInternetException>()),
+        );
+        expect(reported.single, isA<HealthOffline>());
+      },
+    );
 
     test('a server error marks the service unavailable', () async {
       await expectLater(
@@ -142,17 +145,22 @@ void main() {
       );
     });
 
-    test('without any key TMDB is not configured, and success cannot override it', () {
-      final c = container();
-      // The test build has no TMDB_ACCESS_TOKEN.
-      expect(c.read(tmdbKeySourceProvider), TmdbKeySource.none);
-      final health = c.read(serviceHealthProvider(ExternalService.tmdb).notifier);
-      health.report(HealthOk(DateTime.now()));
-      expect(
-        c.read(serviceHealthProvider(ExternalService.tmdb)),
-        isA<HealthNotConfigured>(),
-      );
-    });
+    test(
+      'without any key TMDB is not configured, and success cannot override it',
+      () {
+        final c = container();
+        // The test build has no TMDB_ACCESS_TOKEN.
+        expect(c.read(tmdbKeySourceProvider), TmdbKeySource.none);
+        final health = c.read(
+          serviceHealthProvider(ExternalService.tmdb).notifier,
+        );
+        health.report(HealthOk(DateTime.now()));
+        expect(
+          c.read(serviceHealthProvider(ExternalService.tmdb)),
+          isA<HealthNotConfigured>(),
+        );
+      },
+    );
 
     test('repeated successes do not notify listeners again', () {
       final c = container(userToken: 'own');
@@ -161,7 +169,9 @@ void main() {
         serviceHealthProvider(ExternalService.tmdb),
         (_, _) => notifications++,
       );
-      final health = c.read(serviceHealthProvider(ExternalService.tmdb).notifier);
+      final health = c.read(
+        serviceHealthProvider(ExternalService.tmdb).notifier,
+      );
       health.report(HealthOk(DateTime.now()));
       health.report(HealthOk(DateTime.now()));
       expect(notifications, 1);
@@ -200,12 +210,31 @@ void main() {
       expect(s.remedy, Remedy.reconnectServer);
     });
 
-    test('English server text is kept for details, not shown', () {
-      final s = classifyError(
-        const ServerRejectedException('This folder does not exist.', 400),
+    test(
+      'server errors are shown in German, the English text only as details',
+      () {
+        final e = ServerRejectedException.fromResponse(403, {
+          'error': 'The PIN is not correct.',
+          'code': 'pin_incorrect',
+        });
+        expect(e.message, 'Die PIN stimmt nicht.');
+        expect(describeError(e), 'Die PIN stimmt nicht.');
+        final s = classifyError(e);
+        expect(s.message, 'Die PIN stimmt nicht.');
+        expect(s.technical, 'The PIN is not correct.');
+      },
+    );
+
+    test('without a code the status decides the German words', () {
+      final busy = ServerRejectedException.fromResponse(503, {
+        'error': 'Something odd happened in English.',
+      });
+      expect(busy.message, isNot(contains('English')));
+      expect(classifyError(busy).kind, StatusKind.serviceUnavailable);
+      expect(
+        ServerRejectedException.fromResponse(429, null).message,
+        contains('Zu viele Versuche'),
       );
-      expect(s.message, isNot(contains('folder')));
-      expect(s.technical, 'This folder does not exist.');
     });
 
     test('unknown errors stay generic, with the raw text in details', () {

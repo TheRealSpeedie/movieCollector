@@ -139,7 +139,13 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
       }),
       _player.stream.error.listen((message) {
         if (mounted) {
-          setState(() => _error = ServerRejectedException(message, 0));
+          setState(
+            () => _error = ServerRejectedException(
+              'Das Video konnte nicht abgespielt werden.',
+              0,
+              detail: message,
+            ),
+          );
         }
       }),
     ]);

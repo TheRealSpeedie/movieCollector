@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../../../core/errors/app_exception.dart';
+import '../../../core/errors/server_error_text.dart';
 
 /// The signed-in Speednema Cloud account on this device.
 class CloudSession {
@@ -257,9 +258,6 @@ class CloudClient {
   Future<AppException> _map(DioException e, bool authorized) async {
     final status = e.response?.statusCode ?? 0;
     final data = e.response?.data;
-    final message = data is Map && data['error'] is String
-        ? data['error'] as String
-        : null;
     if (status == 0) {
       return const CloudUnreachableException();
     }
@@ -272,9 +270,11 @@ class CloudClient {
       );
     }
     if (status == 402) {
+      final code = data is Map && data['code'] is String
+          ? data['code'] as String
+          : 'subscription_ended';
       return CloudSubscriptionException(
-        message ??
-            'Dein Speednema-Cloud-Abo ist abgelaufen. Deine Sammlung bleibt auf dem Gerät.',
+        serverErrorText(code: code, status: status),
       );
     }
     if (status == 429) {
@@ -283,9 +283,6 @@ class CloudClient {
         429,
       );
     }
-    return ServerRejectedException(
-      message ?? 'Speednema Cloud hat die Anfrage abgelehnt ($status).',
-      status,
-    );
+    return ServerRejectedException.fromResponse(status, data);
   }
 }

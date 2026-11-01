@@ -7,6 +7,8 @@ import '../../../shared/models/collection_status.dart';
 import '../../cloud/application/cloud_providers.dart';
 import '../../collection/application/collection_filter_controller.dart';
 import '../../collections/application/franchise_gaps.dart';
+import '../../server/application/server_connection.dart';
+import '../../../shared/widgets/connection_badge.dart';
 import '../../server/application/server_providers.dart';
 import '../../settings/application/settings_providers.dart';
 import '../../settings/data/settings_repository.dart';
@@ -17,6 +19,7 @@ class MoreScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final connection = ref.watch(serverConnectionProvider);
     final gaps = ref.watch(franchiseGapsProvider);
 
     final server = ref.watch(serverSessionProvider).valueOrNull;
@@ -70,15 +73,17 @@ class MoreScreen extends ConsumerWidget {
             child: ListTile(
               leading: Icon(
                 Icons.dns_outlined,
-                color: server == null
-                    ? context.colors.textSecondary
-                    : context.colors.owned,
+                color: context.colors.textSecondary,
               ),
-              title: const Text('Speednema Server'),
-              subtitle: Text(
-                server == null
-                    ? 'Nicht verbunden'
-                    : '${server.serverName} · ${server.username}',
+              title: Text(server?.serverName ?? 'Speednema Server'),
+              subtitle: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ConnectionBadge(
+                  tone: connection.tone,
+                  label: server == null
+                      ? 'Optional – für Streaming und Haushalt'
+                      : connection.label,
+                ),
               ),
               trailing: const Icon(Icons.arrow_forward_ios, size: 14),
               onTap: () => context.push('/server'),

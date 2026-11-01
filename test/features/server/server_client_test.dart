@@ -120,27 +120,51 @@ void main() {
     },
   );
 
-  test('reports the server error message for rejected requests', () async {
-    final dio = fakeDio((o) {
-      if (o.path.endsWith('/api/auth/refresh')) {
-        return jsonBody({
-          'accessToken': 'a',
-          'expiresIn': 600,
-          'refreshToken': 'r',
-        });
-      }
-      return jsonBody({'error': 'This file is not available.'}, 404);
-    });
+  test(
+    'rejected requests are described in German; the server text is kept as detail',
+    () async {
+      Dio rejecting(Map<String, Object?> body) => fakeDio((o) {
+        if (o.path.endsWith('/api/auth/refresh')) {
+          return jsonBody({
+            'accessToken': 'a',
+            'expiresIn': 600,
+            'refreshToken': 'r',
+          });
+        }
+        return jsonBody(body, 404);
+      });
 
-    await expectLater(
-      build(dio).get('/api/files/9'),
-      throwsA(
-        isA<ServerRejectedException>()
-            .having((e) => e.statusCode, 'status', 404)
-            .having((e) => e.message, 'message', 'This file is not available.'),
-      ),
-    );
-  });
+      await expectLater(
+        build(
+          rejecting({'error': 'This file is not available.'}),
+        ).get('/api/files/9'),
+        throwsA(
+          isA<ServerRejectedException>()
+              .having((e) => e.statusCode, 'status', 404)
+              .having(
+                (e) => e.message,
+                'message',
+                'Das gibt es auf dem Server nicht mehr.',
+              )
+              .having((e) => e.detail, 'detail', 'This file is not available.'),
+        ),
+      );
+      await expectLater(
+        build(
+          rejecting({
+            'error':
+                'This file is not available right now. Check that its drive is connected.',
+            'code': 'file_offline',
+          }),
+        ).get('/api/files/9'),
+        throwsA(
+          isA<ServerRejectedException>()
+              .having((e) => e.code, 'code', 'file_offline')
+              .having((e) => e.message, 'message', contains('Laufwerk')),
+        ),
+      );
+    },
+  );
 
   test('reports an unreachable server when nothing can be found', () async {
     final discovery = FakeDiscovery();

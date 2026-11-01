@@ -49,11 +49,7 @@ void main() {
 
     test('separates other distributor suffixes', () {
       final samples = [
-        (
-          'Heat by Warner Home Video',
-          'Heat',
-          'Warner Home Video',
-        ),
+        ('Heat by Warner Home Video', 'Heat', 'Warner Home Video'),
         (
           'Jaws by Universal Pictures Home Entertainment',
           'Jaws',

@@ -26,7 +26,9 @@ void main() {
     // Colors.black is true black behind video and camera, correct in both
     // appearances; transparent is not a colour.
     final fixed = offending(
-      RegExp(r'\bColor\(0x[0-9A-Fa-f]+\)|\bColors\.(?!black\b|transparent\b)\w+'),
+      RegExp(
+        r'\bColor\(0x[0-9A-Fa-f]+\)|\bColors\.(?!black\b|transparent\b)\w+',
+      ),
       allowed: {
         // QR codes need a white quiet zone to scan, whatever the theme.
         'lib/features/television/presentation/tv_connect_screen.dart',
@@ -36,7 +38,9 @@ void main() {
   });
 
   test('no palette constants outside the theme', () {
-    final palette = offending(RegExp(r'\b(AppColors|DarkTokens|LightTokens)\.'));
+    final palette = offending(
+      RegExp(r'\b(AppColors|DarkTokens|LightTokens)\.'),
+    );
     expect(palette, isEmpty, reason: palette.join('\n'));
   });
 

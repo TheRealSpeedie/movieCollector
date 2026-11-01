@@ -11,12 +11,9 @@ import 'package:speednema/core/network/network_info.dart' as _i11;
 import 'package:speednema/core/network/tmdb/tmdb_api_client.dart' as _i10;
 import 'package:speednema/core/network/tmdb/tmdb_models.dart' as _i3;
 import 'package:speednema/core/network/tmdb/tmdb_watch_models.dart' as _i4;
-import 'package:speednema/core/network/upcitemdb/upcitemdb_client.dart'
-    as _i9;
-import 'package:speednema/core/network/upcitemdb/upcitemdb_models.dart'
-    as _i2;
-import 'package:speednema/features/scanner/data/barcode_repository.dart'
-    as _i5;
+import 'package:speednema/core/network/upcitemdb/upcitemdb_client.dart' as _i9;
+import 'package:speednema/core/network/upcitemdb/upcitemdb_models.dart' as _i2;
+import 'package:speednema/features/scanner/data/barcode_repository.dart' as _i5;
 import 'package:speednema/shared/models/movie.dart' as _i7;
 
 // ignore_for_file: type=lint

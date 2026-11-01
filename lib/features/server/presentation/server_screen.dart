@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../shared/widgets/inline_notice.dart';
+import '../../../shared/widgets/status_view.dart';
+import '../application/server_connection.dart';
 import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -37,20 +40,19 @@ class _NotConnected extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final revoked = ref.watch(serverRevokedProvider);
+    final connection = ref.watch(serverConnectionProvider);
     return Scaffold(
       appBar: AppBar(title: const Text('Speednema Server')),
-      body: EmptyState(
+      body: StatusView(
+        kind: revoked ? StatusKind.authRequired : StatusKind.empty,
         icon: revoked ? Icons.link_off : Icons.dns_outlined,
         title: revoked
             ? 'Dieses Gerät wurde getrennt'
             : 'Kein Server verbunden',
-        message: revoked
-            ? 'Der Server hat dieses Gerät entfernt. Verbinde es erneut mit einem neuen QR-Code.'
-            : 'Verbinde dein Handy mit dem Speednema-Server, um deine Filme und Serien im Heimnetz zu schauen.',
-        action: FilledButton.icon(
-          onPressed: () => context.push('/server/connect'),
-          icon: const Icon(Icons.qr_code_scanner),
-          label: const Text('Server verbinden'),
+        message: connection.explanation,
+        primary: StatusAction(
+          revoked ? 'Neu verbinden' : 'Server verbinden',
+          () => context.push('/server/connect'),
         ),
       ),
     );
@@ -105,7 +107,28 @@ class _Connected extends ConsumerWidget {
             ],
           ),
         ),
-        body: const TabBarView(children: [_DiscoverTab(), _LibraryTab()]),
+        body: Column(
+          children: [
+            if (ref.watch(serverConnectionProvider)
+                case final ServerOffline offline)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: InlineNotice(
+                  kind: StatusKind.serviceUnavailable,
+                  title: offline.label,
+                  message: offline.explanation,
+                  // The library tab retries on its own; home data is shared.
+                  action: StatusAction(
+                    'Erneut versuchen',
+                    () => ref.invalidate(serverHomeProvider),
+                  ),
+                ),
+              ),
+            const Expanded(
+              child: TabBarView(children: [_DiscoverTab(), _LibraryTab()]),
+            ),
+          ],
+        ),
       ),
     );
   }

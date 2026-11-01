@@ -92,13 +92,10 @@ void main() {
     test('an encrypted movieshelf-backup still restores', () async {
       final file = Map<String, Object?>.from(
         jsonDecode(
-              await backup.encrypt(
-                {
-                  ...await backup.exportJson(),
-                  'format': BackupService.legacyFormat,
-                },
-                'richtig langes passwort',
-              ),
+              await backup.encrypt({
+                ...await backup.exportJson(),
+                'format': BackupService.legacyFormat,
+              }, 'richtig langes passwort'),
             )
             as Map,
       )..['format'] = BackupService.legacyEncryptedFormat;
