@@ -25,7 +25,9 @@ void main() {
 
   List<Override> base() => [
     sharedPreferencesProvider.overrideWithValue(prefs),
-    allMoviesProvider.overrideWith((ref) => Stream.value([ownedMovieFixture()])),
+    allMoviesProvider.overrideWith(
+      (ref) => Stream.value([ownedMovieFixture()]),
+    ),
     allCollectionsProvider.overrideWith((ref) => Stream.value([])),
     syncConflictsProvider.overrideWith((ref) => Stream.value([])),
     credentialStoreProvider.overrideWithValue(MemoryStore()),

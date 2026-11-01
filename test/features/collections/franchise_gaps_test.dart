@@ -1,14 +1,11 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:speednema/core/config/config_providers.dart';
 import 'package:speednema/features/collections/application/collections_providers.dart';
 import 'package:speednema/features/collections/application/franchise_gaps.dart';
-import 'package:speednema/features/discover/presentation/discover_screen.dart';
 import 'package:speednema/features/movies/application/movie_providers.dart';
-import 'package:speednema/features/tv/application/tv_providers.dart';
 import 'package:speednema/shared/models/collection_with_entries.dart';
 import 'package:speednema/shared/models/movie.dart';
 
@@ -111,24 +108,6 @@ void main() {
     expect(franchiseGapsSummary(gaps), 'Ein Film fehlt in deinen Reihen');
   });
 
-  testWidgets('Entdecken never calls an empty shelf complete', (tester) async {
-    await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          allMoviesProvider.overrideWith((ref) => Stream.value([])),
-          allCollectionsProvider.overrideWith((ref) => Stream.value([])),
-          allTvSeriesProvider.overrideWith((ref) => Stream.value([])),
-          tmdbConfiguredProvider.overrideWithValue(true),
-        ],
-        child: const MaterialApp(home: DiscoverScreen()),
-      ),
-    );
-    await tester.pumpAndSettle();
-
-    expect(find.textContaining('vollständig'), findsNothing);
-    expect(
-      find.text('Füge Filme hinzu, um Lücken in Reihen zu sehen'),
-      findsOneWidget,
-    );
-  });
+  // The screen-level checks for every state live in
+  // test/features/discover/discover_screen_test.dart.
 }

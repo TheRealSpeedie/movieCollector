@@ -27,22 +27,25 @@ void main() {
     expect(state.explanation, contains('funktioniert ohne Server'));
   });
 
-  test('paired but not yet asked is connecting, then follows real requests', () async {
-    final c = await container();
-    expect(c.read(serverConnectionProvider), isA<ServerConnecting>());
+  test(
+    'paired but not yet asked is connecting, then follows real requests',
+    () async {
+      final c = await container();
+      expect(c.read(serverConnectionProvider), isA<ServerConnecting>());
 
-    final reach = c.read(serverReachabilityProvider.notifier);
-    reach.report(true);
-    final connected = c.read(serverConnectionProvider);
-    expect(connected, isA<ServerConnected>());
+      final reach = c.read(serverReachabilityProvider.notifier);
+      reach.report(true);
+      final connected = c.read(serverConnectionProvider);
+      expect(connected, isA<ServerConnected>());
 
-    reach.report(false);
-    final offline = c.read(serverConnectionProvider);
-    expect(offline, isA<ServerOffline>());
-    // Offline keeps when it last worked and reassures about local data.
-    expect((offline as ServerOffline).lastOk, isNotNull);
-    expect(offline.explanation, contains('Sammlung bleibt'));
-  });
+      reach.report(false);
+      final offline = c.read(serverConnectionProvider);
+      expect(offline, isA<ServerOffline>());
+      // Offline keeps when it last worked and reassures about local data.
+      expect((offline as ServerOffline).lastOk, isNotNull);
+      expect(offline.explanation, contains('Sammlung bleibt'));
+    },
+  );
 
   test('a device the server removed must reconnect', () async {
     final c = await container();

@@ -27,9 +27,8 @@ void main() {
                     appBar: AppBar(title: Text('$name-Seite')),
                     body: Center(
                       child: TextButton(
-                        onPressed: () => context.go(
-                          '/${name.toLowerCase()}/detail',
-                        ),
+                        onPressed: () =>
+                            context.go('/${name.toLowerCase()}/detail'),
                         child: Text('$name öffnen'),
                       ),
                     ),
@@ -37,9 +36,8 @@ void main() {
                   routes: [
                     GoRoute(
                       path: 'detail',
-                      builder: (_, _) => Scaffold(
-                        appBar: AppBar(title: Text('$name-Detail')),
-                      ),
+                      builder: (_, _) =>
+                          Scaffold(appBar: AppBar(title: Text('$name-Detail'))),
                     ),
                   ],
                 ),
@@ -57,10 +55,7 @@ void main() {
     addTearDown(tester.view.reset);
     await tester.pumpWidget(
       ProviderScope(
-        child: MaterialApp.router(
-          theme: AppTheme.dark,
-          routerConfig: router(),
-        ),
+        child: MaterialApp.router(theme: AppTheme.dark, routerConfig: router()),
       ),
     );
     await tester.pumpAndSettle();
@@ -79,7 +74,10 @@ void main() {
         final r = tester.widget<NavigationRail>(find.byType(NavigationRail));
         expect(r.extended, extended);
         // "+" lives in the rail on wide layouts.
-        expect(find.byTooltip('Hinzufügen'), extended ? findsNothing : findsOneWidget);
+        expect(
+          find.byTooltip('Hinzufügen'),
+          extended ? findsNothing : findsOneWidget,
+        );
         if (extended) expect(find.text('Hinzufügen'), findsOneWidget);
       }
       for (final name in names) {
@@ -88,26 +86,27 @@ void main() {
     });
   }
 
-  testWidgets('switching tabs keeps where each one was; tapping again returns to its start', (
-    tester,
-  ) async {
-    await pumpAt(tester, 390);
-    await tester.tap(find.text('Sammlung'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Sammlung öffnen'));
-    await tester.pumpAndSettle();
-    expect(find.text('Sammlung-Detail'), findsOneWidget);
+  testWidgets(
+    'switching tabs keeps where each one was; tapping again returns to its start',
+    (tester) async {
+      await pumpAt(tester, 390);
+      await tester.tap(find.text('Sammlung'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sammlung öffnen'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sammlung-Detail'), findsOneWidget);
 
-    await tester.tap(find.text('Mehr'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Sammlung'));
-    await tester.pumpAndSettle();
-    expect(find.text('Sammlung-Detail'), findsOneWidget);
+      await tester.tap(find.text('Mehr'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Sammlung'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sammlung-Detail'), findsOneWidget);
 
-    await tester.tap(find.text('Sammlung'));
-    await tester.pumpAndSettle();
-    expect(find.text('Sammlung-Seite'), findsOneWidget);
-  });
+      await tester.tap(find.text('Sammlung'));
+      await tester.pumpAndSettle();
+      expect(find.text('Sammlung-Seite'), findsOneWidget);
+    },
+  );
 
   for (final device in GoldenDevice.values) {
     for (final appearance in Brightness.values) {

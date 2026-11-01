@@ -56,6 +56,16 @@ Future<bool> loadAppFonts() async {
   return true;
 }
 
+/// Poster images cache through path_provider, which has no plugin in widget
+/// tests. Answer with a temporary folder so screens with posters can render.
+void mockPathProvider() {
+  TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+      .setMockMethodCallHandler(
+        const MethodChannel('plugins.flutter.io/path_provider'),
+        (call) async => Directory.systemTemp.path,
+      );
+}
+
 /// Pumps [child] the way the app shows it: app theme, German strings,
 /// Riverpod [overrides], at [device] size and [textScale].
 Future<void> pumpScreen(
@@ -66,6 +76,7 @@ Future<void> pumpScreen(
   List<Override> overrides = const [],
   Brightness brightness = Brightness.dark,
 }) async {
+  mockPathProvider();
   tester.view
     ..physicalSize = device.size
     ..devicePixelRatio = 1.0;

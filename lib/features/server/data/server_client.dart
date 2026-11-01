@@ -119,9 +119,9 @@ class ServerClient {
     } on ServerUnreachableException {
       onReachability?.call(false);
       rethrow;
-    } on ServerRejectedException {
-      // It answered; the request itself was refused.
-      onReachability?.call(true);
+    } on ServerRejectedException catch (e) {
+      // An HTTP answer means the server is there, even if it refused.
+      if (e.statusCode > 0) onReachability?.call(true);
       rethrow;
     }
   }
@@ -242,6 +242,12 @@ class ServerClient {
       case DioExceptionType.connectionError:
         return const ServerUnreachableException();
       default:
+        // No answer at all (for example the address cannot be resolved) is
+        // unreachable, not a refusal. A certificate that does not match the
+        // pinned one stays a refusal: that is not a network hiccup.
+        if (e.response == null && e.type != DioExceptionType.badCertificate) {
+          return const ServerUnreachableException();
+        }
         return ServerRejectedException.fromResponse(
           e.response?.statusCode ?? 0,
           e.response?.data,

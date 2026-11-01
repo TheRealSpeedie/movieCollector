@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:speednema/core/errors/app_exception.dart';
@@ -163,6 +165,40 @@ void main() {
               .having((e) => e.message, 'message', contains('Laufwerk')),
         ),
       );
+    },
+  );
+
+  test(
+    'no answer at all is unreachable, not a refusal, and not "connected"',
+    () async {
+      final reach = <bool>[];
+      final dio = fakeDio((o) {
+        if (o.path.endsWith('/api/auth/refresh')) {
+          return jsonBody({
+            'accessToken': 'a',
+            'expiresIn': 600,
+            'refreshToken': 'r',
+          });
+        }
+        throw DioException(
+          requestOptions: o,
+          error: const SocketException('Failed host lookup'),
+        );
+      });
+      final client = ServerClient(
+        credentials: sampleCredentials(),
+        store: MemoryStore(sampleCredentials()),
+        discovery: FakeDiscovery(),
+        onRevoked: () {},
+        onReachability: reach.add,
+        dio: dio,
+      );
+
+      await expectLater(
+        client.get('/api/home'),
+        throwsA(isA<ServerUnreachableException>()),
+      );
+      expect(reach.last, isFalse);
     },
   );
 

@@ -36,19 +36,14 @@ class PosterImage extends StatelessWidget {
     );
   }
 
+  /// A still tile while loading (a shelf of spinners is noise) and a film
+  /// icon when there is no poster or it failed.
   Widget _placeholder(BuildContext context, {bool loading = false}) {
     return Container(
       color: context.colors.hairline,
       alignment: Alignment.center,
       child: loading
-          ? SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: context.colors.textSecondary,
-              ),
-            )
+          ? null
           : Icon(
               Icons.movie_outlined,
               color: context.colors.textSecondary,

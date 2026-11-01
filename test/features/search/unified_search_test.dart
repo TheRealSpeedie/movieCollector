@@ -99,26 +99,27 @@ void main() {
     expect(find.text('Keine Treffer'), findsNothing);
   });
 
-  testWidgets('a TMDB result already owned opens the film instead of adding it', (
-    tester,
-  ) async {
-    await pump(
-      tester,
-      tmdb: true,
-      results: const [
-        TmdbSearchResult(id: 603, title: 'The Matrix'),
-        TmdbSearchResult(id: 604, title: 'The Matrix Reloaded'),
-      ],
-    );
-    // One chip marks the TMDB result; the section header says the same.
-    expect(find.text('In deiner Sammlung'), findsNWidgets(2));
+  testWidgets(
+    'a TMDB result already owned opens the film instead of adding it',
+    (tester) async {
+      await pump(
+        tester,
+        tmdb: true,
+        results: const [
+          TmdbSearchResult(id: 603, title: 'The Matrix'),
+          TmdbSearchResult(id: 604, title: 'The Matrix Reloaded'),
+        ],
+      );
+      // One chip marks the TMDB result; the section header says the same.
+      expect(find.text('In deiner Sammlung'), findsNWidgets(2));
 
-    await tester.tap(find.text('The Matrix').last);
-    for (var i = 0; i < 5; i++) {
-      await tester.pump(const Duration(milliseconds: 100));
-    }
-    expect(find.text('Film'), findsOneWidget);
-  });
+      await tester.tap(find.text('The Matrix').last);
+      for (var i = 0; i < 5; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+      expect(find.text('Film'), findsOneWidget);
+    },
+  );
 
   testWidgets('a new film leads to adding it', (tester) async {
     await pump(

@@ -11,6 +11,8 @@ Future<void> showAddSheet(BuildContext context) {
   return showModalBottomSheet<void>(
     context: context,
     useSafeArea: true,
+    // Sized by its content; scrolls when large text makes it taller.
+    isScrollControlled: true,
     builder: (sheet) {
       void open(VoidCallback go) {
         Navigator.of(sheet).pop();
@@ -18,7 +20,7 @@ Future<void> showAddSheet(BuildContext context) {
       }
 
       return SafeArea(
-        child: Padding(
+        child: SingleChildScrollView(
           padding: const EdgeInsets.only(bottom: AppSpacing.s),
           child: Column(
             mainAxisSize: MainAxisSize.min,
