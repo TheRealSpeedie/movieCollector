@@ -22,7 +22,11 @@ class MovieSearchController
       return;
     }
     state = const AsyncValue.loading();
-    state = await AsyncValue.guard(() => _tmdb.searchMovies(trimmed));
+    final result = await AsyncValue.guard(() => _tmdb.searchMovies(trimmed));
+    // A slower reply to an earlier query must not replace newer results,
+    // and nothing may be set once the search screen has closed.
+    if (!mounted || trimmed != _lastQuery) return;
+    state = result;
   }
 }
 

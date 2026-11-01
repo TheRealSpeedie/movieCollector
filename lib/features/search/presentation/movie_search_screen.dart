@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/config_providers.dart';
+import '../../../core/errors/app_exception.dart';
+import '../../../core/health/service_health.dart';
+
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -82,6 +86,12 @@ class _MovieSearchScreenState extends ConsumerState<MovieSearchScreen> {
               .search(_controller.text),
         ),
         data: (results) {
+          if (!ref.watch(tmdbConfiguredProvider)) {
+            // Say it before anyone types, not as "Keine Treffer" after.
+            return const ErrorView(
+              error: ServiceNotConfiguredException(ExternalService.tmdb),
+            );
+          }
           if (_controller.text.trim().isEmpty) {
             return const EmptyState(
               icon: Icons.search,

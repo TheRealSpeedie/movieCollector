@@ -4,6 +4,7 @@ import 'package:media_kit/media_kit.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'app/app.dart';
+import 'core/config/config_providers.dart';
 import 'core/providers/shared_preferences_provider.dart';
 import 'features/onboarding/application/onboarding_gate.dart';
 import 'features/playback/application/playback_hooks.dart';
@@ -18,11 +19,17 @@ Future<void> main() async {
   CertificatePins.install();
   final prefs = await SharedPreferences.getInstance();
   onboardingGate.value = SettingsRepository(prefs).onboardingDone;
+  // A key the user entered for movie information. Unreadable storage must
+  // not stop the app from starting; the built-in key is used then.
+  final tmdbUserToken = await TmdbTokenStore().read().catchError(
+    (Object _) => null,
+  );
 
   runApp(
     ProviderScope(
       overrides: [
         sharedPreferencesProvider.overrideWithValue(prefs),
+        tmdbUserTokenProvider.overrideWith((ref) => tmdbUserToken),
         playbackPreferencesProvider.overrideWith(
           (ref) => ref.watch(userPreferencesProvider).toServerJson(),
         ),

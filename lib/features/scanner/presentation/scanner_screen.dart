@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
@@ -142,7 +143,12 @@ class _ScannerScreenState extends ConsumerState<ScannerScreen>
       backgroundColor: _resolving ? context.colors.background : Colors.black,
       appBar: AppBar(
         backgroundColor: _resolving ? context.colors.background : Colors.black,
-        foregroundColor: context.colors.onMedia,
+        // Over the camera the bar is black; while resolving it sits on the
+        // page, so its text follows the appearance.
+        foregroundColor: _resolving
+            ? context.colors.text
+            : context.colors.onMedia,
+        systemOverlayStyle: _resolving ? null : SystemUiOverlayStyle.light,
         title: const Text('Fundstück-Check'),
         actions: [
           IconButton(

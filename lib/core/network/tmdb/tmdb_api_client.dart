@@ -8,6 +8,13 @@ class TmdbApiClient {
 
   final DioClient _client;
 
+  /// Asks TMDB whether the key is accepted. Throws the same errors as any
+  /// request (not configured, rejected, offline, unavailable); the outcome
+  /// also updates the service health.
+  Future<void> checkCredentials() async {
+    await _client.get<Map<String, dynamic>>('/authentication');
+  }
+
   Future<List<TmdbSearchResult>> searchMovies(
     String query, {
     int page = 1,

@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../app/theme/speednema_colors.dart';
 import '../../../core/config/env.dart';
+import '../../../core/health/health_providers.dart';
+import '../../../core/health/service_health.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../movies/application/movie_providers.dart';
 
@@ -70,19 +73,17 @@ class SettingsScreen extends ConsumerWidget {
               children: [
                 ListTile(
                   leading: Icon(
-                    Env.isTmdbConfigured
-                        ? Icons.check_circle_outline
-                        : Icons.error_outline,
-                    color: Env.isTmdbConfigured
-                        ? context.colors.owned
-                        : context.colors.error,
+                    Icons.movie_outlined,
+                    color: context.colors.textSecondary,
                   ),
-                  title: const Text('TMDB'),
+                  title: const Text('Filminfos (TMDB)'),
                   subtitle: Text(
-                    Env.isTmdbConfigured
-                        ? 'Konfiguriert'
-                        : 'Kein Zugriffstoken hinterlegt',
+                    ref
+                        .watch(serviceHealthProvider(ExternalService.tmdb))
+                        .summary,
                   ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () => context.push('/settings/metadata'),
                 ),
                 const Divider(height: 1),
                 ListTile(

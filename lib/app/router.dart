@@ -10,6 +10,7 @@ import '../features/discover/domain/watch_suggestions.dart';
 import '../features/discover/presentation/discover_screen.dart';
 import '../features/discover/presentation/what_to_watch_screen.dart';
 import '../features/settings/presentation/language_screen.dart';
+import '../features/settings/presentation/metadata_settings_screen.dart';
 import '../features/watch/presentation/subscriptions_screen.dart';
 import '../features/home/presentation/home_screen.dart';
 import '../features/household/presentation/household_screen.dart';
@@ -158,6 +159,11 @@ final appRouter = GoRouter(
       path: '/settings/language',
       parentNavigatorKey: rootNavigatorKey,
       builder: (context, state) => const LanguageScreen(),
+    ),
+    GoRoute(
+      path: '/settings/metadata',
+      parentNavigatorKey: rootNavigatorKey,
+      builder: (context, state) => const MetadataSettingsScreen(),
     ),
     GoRoute(
       path: '/settings/streaming',

@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../config/config_providers.dart';
 import '../config/env.dart';
 import '../constants/api_constants.dart';
 import '../database/app_database.dart';
+import '../health/health_providers.dart';
+import '../health/service_health.dart';
 import '../network/dio_client.dart';
 import '../network/network_info.dart';
 import '../network/tmdb/tmdb_api_client.dart';
@@ -19,13 +22,19 @@ final appDatabaseProvider = Provider<AppDatabase>((ref) {
 final networkInfoProvider = Provider<NetworkInfo>((ref) => NetworkInfoImpl());
 
 final tmdbDioProvider = Provider<Dio>(
-  (ref) => buildTmdbDio(Env.tmdbAccessToken),
+  (ref) => buildTmdbDio(ref.watch(tmdbTokenProvider)),
 );
 
 final tmdbDioClientProvider = Provider<DioClient>((ref) {
+  final token = ref.watch(tmdbTokenProvider);
   return DioClient(
     dio: ref.watch(tmdbDioProvider),
     networkInfo: ref.watch(networkInfoProvider),
+    service: ExternalService.tmdb,
+    credential: () => token,
+    onHealth: ref
+        .read(serviceHealthProvider(ExternalService.tmdb).notifier)
+        .report,
   );
 });
 
@@ -47,6 +56,10 @@ final upcItemDbDioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
     dio: ref.watch(upcItemDbDioProvider),
     networkInfo: ref.watch(networkInfoProvider),
+    service: ExternalService.upcItemDb,
+    onHealth: ref
+        .read(serviceHealthProvider(ExternalService.upcItemDb).notifier)
+        .report,
   );
 });
 
@@ -62,6 +75,11 @@ final upcmdbDioClientProvider = Provider<DioClient>((ref) {
   return DioClient(
     dio: ref.watch(upcmdbDioProvider),
     networkInfo: ref.watch(networkInfoProvider),
+    service: ExternalService.upcmdb,
+    credential: () => Env.upcmdbApiKey.trim(),
+    onHealth: ref
+        .read(serviceHealthProvider(ExternalService.upcmdb).notifier)
+        .report,
   );
 });
 

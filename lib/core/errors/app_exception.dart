@@ -1,3 +1,4 @@
+import '../health/service_health.dart';
 import 'user_facing_error.dart';
 
 sealed class AppException implements Exception, UserFacingError {
@@ -44,6 +45,31 @@ class InvalidApiConfigException extends AppException {
   const InvalidApiConfigException([
     super.message = 'Die API-Konfiguration ist ungültig oder fehlt.',
   ]);
+}
+
+/// A service is needed but has no key in this build and none was entered.
+/// Thrown before any request is sent.
+class ServiceNotConfiguredException extends InvalidApiConfigException {
+  const ServiceNotConfiguredException(this.service)
+    : super(
+        service == ExternalService.tmdb
+            ? 'Filminfos sind noch nicht eingerichtet.'
+            : 'Dieser Dienst ist noch nicht eingerichtet.',
+      );
+
+  final ExternalService service;
+}
+
+/// The service rejected the key that was sent (HTTP 401 or 403).
+class ServiceCredentialsInvalidException extends InvalidApiConfigException {
+  const ServiceCredentialsInvalidException(this.service)
+    : super(
+        service == ExternalService.tmdb
+            ? 'TMDB hat den Schlüssel abgelehnt. Prüfe ihn in den Einstellungen.'
+            : 'Der Dienst hat den Schlüssel abgelehnt.',
+      );
+
+  final ExternalService service;
 }
 
 class DuplicateMovieException extends AppException {
