@@ -47,7 +47,6 @@ void main() {
   // Fixed font sizes ignore the type scale. Budgets only go down: when a
   // screen is redesigned, lower or remove its entry.
   const fontSizeBudget = {
-    'lib/features/collection/presentation/collection_screen.dart': 7,
     'lib/features/collections/presentation/collection_detail_screen.dart': 1,
     'lib/features/collections/presentation/collections_screen.dart': 1,
     'lib/features/collections/presentation/franchise_section.dart': 2,

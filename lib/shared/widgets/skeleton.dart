@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../app/theme/speednema_colors.dart';
 import '../../app/theme/tokens.g.dart';
+import 'poster_grid.dart';
 import 'shelf_row.dart';
 
 /// Placeholders shaped like the content that is loading, so a screen shows
@@ -119,25 +120,18 @@ class SkeletonShelfRow extends StatelessWidget {
 
 /// Stand-in for a poster grid.
 class SkeletonPosterGrid extends StatelessWidget {
-  const SkeletonPosterGrid({super.key, this.maxItemWidth = 150});
-
-  final double maxItemWidth;
+  const SkeletonPosterGrid({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Same layout as the real grid, so nothing jumps when posters arrive.
     return Skeleton(
-      child: GridView.builder(
-        physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(AppSpacing.l),
-        gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
-          maxCrossAxisExtent: maxItemWidth,
-          mainAxisSpacing: AppSpacing.l,
-          crossAxisSpacing: AppSpacing.m,
-          childAspectRatio: 0.55,
-        ),
-        itemCount: 12,
-        itemBuilder: (_, _) => LayoutBuilder(
-          builder: (_, c) => _PosterPlaceholder(width: c.maxWidth),
+      child: IgnorePointer(
+        child: PosterGrid(
+          itemCount: 12,
+          itemBuilder: (_, _) => LayoutBuilder(
+            builder: (_, c) => _PosterPlaceholder(width: c.maxWidth),
+          ),
         ),
       ),
     );

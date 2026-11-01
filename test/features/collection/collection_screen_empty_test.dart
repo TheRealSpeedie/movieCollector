@@ -47,17 +47,20 @@ void main() {
     await pumpEmptyCollection(tester);
 
     expect(find.text('Deine Sammlung ist noch leer'), findsOneWidget);
-    expect(find.text('Film suchen'), findsOneWidget);
+    expect(find.text('Ersten Film hinzufügen'), findsOneWidget);
   });
 
-  testWidgets('tapping the empty-state action navigates to search', (
+  testWidgets('the empty-state action offers every way to add, including search', (
     tester,
   ) async {
     await pumpEmptyCollection(tester);
 
-    await tester.tap(find.text('Film suchen'));
+    await tester.tap(find.text('Ersten Film hinzufügen'));
     await tester.pumpAndSettle();
+    expect(find.text('Barcode scannen'), findsOneWidget);
 
+    await tester.tap(find.text('Titel suchen'));
+    await tester.pumpAndSettle();
     expect(find.text('Suche'), findsOneWidget);
   });
 }
