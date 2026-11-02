@@ -83,7 +83,7 @@ class _PairScanScreenState extends State<PairScanScreen> {
               right: 24,
               bottom: 64,
               child: Text(
-                'Öffne im Dashboard „Geräte“ und wähle „Gerät verbinden“. Scanne dann den QR-Code.',
+                'Öffne im Dashboard „Geräte“ und wähle „Handy verbinden“. Scanne dann den QR-Code.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: context.colors.onMedia),
               ),

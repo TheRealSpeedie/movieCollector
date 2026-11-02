@@ -137,7 +137,7 @@ class _ConnectScreenState extends ConsumerState<ConnectScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Öffne das Speednema-Dashboard auf deinem Computer, wähle „Geräte“ und dann „Gerät verbinden“. Der Code ist drei Minuten gültig.',
+              'Öffne das Speednema-Dashboard auf deinem Computer, wähle „Geräte“ und dann „Handy verbinden“. Der Code ist drei Minuten gültig.',
               style: TextStyle(color: context.colors.textSecondary),
             ),
             const SizedBox(height: 16),

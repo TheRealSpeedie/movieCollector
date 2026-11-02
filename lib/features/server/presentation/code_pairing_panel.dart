@@ -155,7 +155,7 @@ class _CodePairingPanelState extends ConsumerState<CodePairingPanel> {
         ),
         const SizedBox(height: AppSpacing.m),
         Text(
-          'Gib den Code im Dashboard deines Servers unter „Geräte“ ein, oder '
+          'Gib den Code im Dashboard deines Servers unter „Geräte“ › „Mit Code verbinden“ ein, oder '
           'auf einem Handy, das schon verbunden ist, unter Mehr › Speednema '
           'Server › Gerät koppeln. Er gilt zwei Minuten.',
           style: text.bodyMedium?.copyWith(color: colors.textSecondary),
