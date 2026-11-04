@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../application/scan_providers.dart';
 
 /// "Zuletzt gescannt" with the barcodes that wait for a connection.
@@ -68,8 +68,8 @@ class RecentScansSheet extends ConsumerWidget {
                           ? Icons.check_circle_outline
                           : Icons.qr_code,
                       color: scan.verdict == 'pending'
-                          ? AppColors.amber
-                          : AppColors.neutralGray,
+                          ? context.colors.attention
+                          : context.colors.textSecondary,
                     ),
                     title: Text(scan.title ?? scan.code),
                     subtitle: Text(

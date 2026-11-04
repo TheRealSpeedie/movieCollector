@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -70,7 +70,7 @@ class _PlayerPicker extends ConsumerWidget {
                 child: EmptyState(
                   icon: Icons.tv_off_outlined,
                   title: 'Kein Fernseher verbunden',
-                  message: 'Öffne Movie Shelf auf deinem Fernseher.',
+                  message: 'Öffne Speednema auf deinem Fernseher.',
                 ),
               )
             : Column(
@@ -113,7 +113,7 @@ class RemoteScreen extends ConsumerWidget {
                 icon: Icons.tv_off_outlined,
                 title: 'Kein Fernseher verbunden',
                 message:
-                    'Öffne Movie Shelf auf deinem Fernseher. Sobald er mit dem Server verbunden ist, erscheint er hier.',
+                    'Öffne Speednema auf deinem Fernseher. Sobald er mit dem Server verbunden ist, erscheint er hier.',
               )
             : ListView(
                 padding: const EdgeInsets.all(16),
@@ -144,7 +144,7 @@ class _PlayerCard extends ConsumerWidget {
           children: [
             Row(
               children: [
-                const Icon(Icons.tv, color: AppColors.dustyRose),
+                Icon(Icons.tv, color: context.colors.accent),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
@@ -156,9 +156,9 @@ class _PlayerCard extends ConsumerWidget {
             ),
             const SizedBox(height: 12),
             if (!state.active)
-              const Text(
+              Text(
                 'Bereit. Wähle einen Titel und öffne ihn auf dem Fernseher.',
-                style: TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               )
             else ...[
               Text(
@@ -168,20 +168,20 @@ class _PlayerCard extends ConsumerWidget {
               if (state.subtitle != null)
                 Text(
                   state.subtitle!,
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               const SizedBox(height: 12),
               LinearProgressIndicator(
                 value: state.fraction,
                 minHeight: 4,
-                backgroundColor: AppColors.divider,
-                color: AppColors.dustyRose,
+                backgroundColor: context.colors.hairline,
+                color: context.colors.accent,
               ),
               const SizedBox(height: 4),
               Text(
                 '${formatClock(state.positionSeconds)} / ${formatClock(state.durationSeconds)}',
-                style: const TextStyle(
-                  color: AppColors.neutralGray,
+                style: TextStyle(
+                  color: context.colors.textSecondary,
                   fontSize: 12,
                 ),
               ),

@@ -2,299 +2,166 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/app_shell.dart';
+import '../../../app/theme/speednema_colors.dart';
+import '../../../app/theme/tokens.g.dart';
+import '../../../core/config/config_providers.dart';
 import '../../../core/constants/app_constants.dart';
+import '../../../core/providers/dismissed_notices.dart';
 import '../../../shared/models/collection_status.dart';
-import '../../../shared/models/collection_with_entries.dart';
-import '../../../shared/widgets/poster_image.dart';
+import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/inline_notice.dart';
+import '../../../shared/widgets/media_card.dart';
+import '../../../shared/widgets/section_header.dart';
+import '../../../shared/widgets/shelf_row.dart';
+import '../../../shared/widgets/skeleton.dart';
+import '../../../shared/widgets/status_view.dart';
+import '../../add/presentation/add_sheet.dart';
 import '../../collections/application/collections_providers.dart';
+import '../../discover/domain/watch_suggestions.dart';
 import '../../movies/application/movie_providers.dart';
+import '../../server/application/server_connection.dart';
 import '../../server/application/server_providers.dart';
+import '../../server/domain/server_models.dart';
 import '../../server/presentation/server_screen.dart';
 import '../../sync/application/sync_providers.dart';
-import 'insights_card.dart';
+import '../../watch/application/watch_providers.dart';
+import 'empty_shelf.dart';
 
+/// Home follows the person's actual state: a welcome while the shelf is
+/// empty, otherwise what to watch next and what is new. Sections appear only
+/// when they have something to show; problems are notes above the content,
+/// never instead of it.
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final movies = ref.watch(allMoviesProvider);
-    final counts = ref.watch(collectionCountsProvider);
-    final recent = ref.watch(recentlyAddedMoviesProvider);
-    final collections = ref.watch(allCollectionsProvider);
+    final narrow = MediaQuery.sizeOf(context).width < Breakpoints.medium;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppConstants.appName,
-          style: const TextStyle(fontWeight: FontWeight.w700),
-        ),
+        title: const Text(AppConstants.appName),
+        actions: [
+          // On wider layouts the navigation rail carries "+".
+          if (narrow) const AddButton(),
+        ],
       ),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            ref.invalidate(allMoviesProvider);
-            ref.invalidate(allCollectionsProvider);
-            ref.invalidate(serverHomeProvider);
-          },
-          child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-            children: [
-              _StatsRow(
-                total: movies.valueOrNull?.length ?? 0,
-                counts: counts.valueOrNull,
-              ),
-              const SizedBox(height: 20),
-              _FundstueckCta(onTap: () => context.go('/scanner')),
-              const SizedBox(height: 24),
-              const _ServerResume(),
-              const InsightsCard(),
-              _QuickActions(),
-              const SizedBox(height: 24),
-              if ((recent.valueOrNull ?? []).isNotEmpty) ...[
-                _SectionHeader(
-                  title: 'Zuletzt hinzugefügt',
-                  onSeeAll: () => context.go('/collection'),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  height: 190,
-                  child: ListView.separated(
-                    scrollDirection: Axis.horizontal,
-                    itemCount: recent.valueOrNull!.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 12),
-                    itemBuilder: (context, index) {
-                      final movie = recent.valueOrNull![index];
-                      return SizedBox(
-                        width: 120,
-                        child: GestureDetector(
-                          onTap: () => context.push('/movie/${movie.id}'),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                child: PosterImage(
-                                  posterPath: movie.posterPath,
-                                ),
-                              ),
-                              const SizedBox(height: 6),
-                              Text(
-                                movie.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 13,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 24),
-              ],
-              if ((collections.valueOrNull ?? []).isNotEmpty) ...[
-                _SectionHeader(
-                  title: 'Deine Reihen',
-                  onSeeAll: () => context.push('/collections'),
-                ),
-                const SizedBox(height: 12),
-                ...collections.valueOrNull!
-                    .take(3)
-                    .map(
-                      (collection) => Padding(
-                        padding: const EdgeInsets.only(bottom: 12),
-                        child: _CollectionProgressCard(
-                          name: collection.name,
-                          posterPath: collection.posterPath,
-                          owned: collection.ownedCount,
-                          total: collection.totalCount,
-                          onTap: () =>
-                              context.push('/collections/${collection.id}'),
-                        ),
-                      ),
-                    ),
-              ],
-            ],
-          ),
+      body: movies.when(
+        skipLoadingOnReload: true,
+        loading: () => ListView(
+          children: const [
+            SizedBox(height: AppSpacing.l),
+            SkeletonShelfRow(),
+            SizedBox(height: AppSpacing.xl),
+            SkeletonShelfRow(),
+          ],
         ),
+        error: (error, _) => ErrorView(
+          error: error,
+          onRetry: () => ref.invalidate(allMoviesProvider),
+        ),
+        data: (list) =>
+            list.isEmpty ? const _Welcome() : _Populated(total: list.length),
       ),
     );
   }
 }
 
-class _ServerResume extends ConsumerWidget {
-  const _ServerResume();
+/// The first impression: what Speednema is for, and one way to start.
+class _Welcome extends ConsumerWidget {
+  const _Welcome();
+
+  static const _tmdbNotice = 'tmdb:notConfigured';
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    if (ref.watch(serverClientProvider) == null) return const SizedBox.shrink();
-    final resume = ref.watch(serverHomeProvider).valueOrNull?.resume ?? [];
-    final pending = ref.watch(syncConflictsProvider).valueOrNull?.length ?? 0;
-    if (resume.isEmpty && pending == 0) return const SizedBox.shrink();
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        if (pending > 0) ...[
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.sync_problem),
-              title: const Text('Abgleich nötig'),
-              subtitle: Text(
-                '$pending Angaben wurden auf zwei Geräten verschieden geändert.',
-              ),
-              trailing: const Icon(Icons.arrow_forward_ios, size: 14),
-              onTap: () => context.push('/server/sync'),
-            ),
-          ),
-          const SizedBox(height: 24),
-        ],
-        if (resume.isNotEmpty) ...[
-          _SectionHeader(
-            title: 'Weiter schauen',
-            onSeeAll: () => context.push('/server'),
-          ),
-          const SizedBox(height: 12),
-          ResumeRow(items: resume),
-          const SizedBox(height: 24),
-        ],
-      ],
-    );
-  }
-}
+    final colors = context.colors;
+    final text = Theme.of(context).textTheme;
+    final showTmdb =
+        !ref.watch(tmdbConfiguredProvider) &&
+        !ref.watch(dismissedNoticesProvider).contains(_tmdbNotice);
 
-class _StatsRow extends StatelessWidget {
-  const _StatsRow({required this.total, required this.counts});
-
-  final int total;
-  final Map<CollectionStatus, int>? counts;
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  'Deine Sammlung',
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                Text(
-                  '$total Filme',
-                  style: const TextStyle(color: AppColors.neutralGray),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                _StatItem(
-                  label: CollectionStatus.owned.germanLabel,
-                  value: counts?[CollectionStatus.owned] ?? 0,
-                  color: AppColors.sage,
-                ),
-                _StatItem(
-                  label: CollectionStatus.wishlist.germanLabel,
-                  value: counts?[CollectionStatus.wishlist] ?? 0,
-                  color: AppColors.dustyRose,
-                ),
-                _StatItem(
-                  label: CollectionStatus.open.germanLabel,
-                  value: counts?[CollectionStatus.open] ?? 0,
-                  color: AppColors.amber,
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
-  const _StatItem({
-    required this.label,
-    required this.value,
-    required this.color,
-  });
-
-  final String label;
-  final int value;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Column(
+    Widget capability(IconData icon, String line) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            '$value',
-            style: TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w700,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: const TextStyle(fontSize: 12, color: AppColors.neutralGray),
-          ),
+          Icon(icon, color: colors.textSecondary),
+          const SizedBox(width: AppSpacing.m),
+          Expanded(child: Text(line, style: text.bodyLarge)),
         ],
       ),
     );
-  }
-}
 
-class _FundstueckCta extends StatelessWidget {
-  const _FundstueckCta({required this.onTap});
-
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: const Color(0xFF252830),
-      borderRadius: BorderRadius.circular(18),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(18),
-        onTap: onTap,
-        child: const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 22),
-          child: Row(
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 460),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.qr_code_scanner, color: AppColors.dustyRose, size: 32),
-              SizedBox(width: 16),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Fundstück-Check',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 18,
-                      ),
-                    ),
-                    SizedBox(height: 4),
-                    Text(
-                      'Barcode scannen und sofort wissen, ob du den Film schon hast',
-                      style: TextStyle(color: Colors.white70, fontSize: 13),
-                    ),
-                  ],
+              if (showTmdb) ...[
+                InlineNotice(
+                  kind: StatusKind.notConfigured,
+                  title: 'Filminfos sind noch nicht eingerichtet',
+                  message:
+                      'Ohne sie findet die Suche nur, was schon in deiner '
+                      'Sammlung ist.',
+                  action: StatusAction(
+                    'Einrichten',
+                    () => context.push('/settings/metadata'),
+                  ),
+                  onDismiss: () => ref
+                      .read(dismissedNoticesProvider.notifier)
+                      .dismiss(_tmdbNotice),
+                ),
+                const SizedBox(height: AppSpacing.xl),
+              ],
+              const Center(child: EmptyShelf()),
+              const SizedBox(height: AppSpacing.xl),
+              Semantics(
+                header: true,
+                child: Text(
+                  'Dein Regal ist noch leer.',
+                  style: text.displaySmall,
                 ),
               ),
-              Icon(Icons.arrow_forward_ios, color: Colors.white70, size: 16),
+              const SizedBox(height: AppSpacing.s),
+              Text(
+                'Erfasse Filme und Serien, die du besitzt oder sehen '
+                'möchtest – auf Disc oder digital.',
+                style: text.bodyLarge?.copyWith(color: colors.textSecondary),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  onPressed: () => showAddSheet(context),
+                  icon: const Icon(Icons.add),
+                  label: const Text('Ersten Film hinzufügen'),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              capability(
+                Icons.qr_code_scanner,
+                'Barcode scannen und sofort wissen, ob du einen Film schon hast',
+              ),
+              capability(
+                Icons.collections_bookmark_outlined,
+                'Wunschliste und fehlende Teile deiner Reihen im Blick',
+              ),
+              capability(
+                Icons.dns_outlined,
+                'Mit eigenem Server Filme streamen und mit dem Haushalt teilen',
+              ),
+              const SizedBox(height: AppSpacing.m),
+              TextButton(
+                onPressed: () => context.push('/server/connect'),
+                child: const Text('Eigenen Server verbinden (optional)'),
+              ),
             ],
           ),
         ),
@@ -303,113 +170,219 @@ class _FundstueckCta extends StatelessWidget {
   }
 }
 
-class _QuickActions extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => context.push('/search'),
-            icon: const Icon(Icons.search),
-            label: const Text('Nach Titel suchen'),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: OutlinedButton.icon(
-            onPressed: () => context.push('/import'),
-            icon: const Icon(Icons.upload_file_outlined),
-            label: const Text('Importieren'),
-          ),
-        ),
-      ],
-    );
-  }
-}
+class _Populated extends ConsumerWidget {
+  const _Populated({required this.total});
 
-class _SectionHeader extends StatelessWidget {
-  const _SectionHeader({required this.title, this.onSeeAll});
-
-  final String title;
-  final VoidCallback? onSeeAll;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(title, style: Theme.of(context).textTheme.titleMedium),
-        if (onSeeAll != null)
-          TextButton(onPressed: onSeeAll, child: const Text('Alle ansehen')),
-      ],
-    );
-  }
-}
-
-class _CollectionProgressCard extends StatelessWidget {
-  const _CollectionProgressCard({
-    required this.name,
-    required this.posterPath,
-    required this.owned,
-    required this.total,
-    required this.onTap,
-  });
-
-  final String name;
-  final String? posterPath;
-  final int owned;
   final int total;
-  final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
-    final progress = total == 0 ? 0.0 : owned / total;
-    return Card(
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              SizedBox(
-                width: 56,
-                child: PosterImage(posterPath: posterPath, borderRadius: 10),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final counts = ref.watch(collectionCountsProvider).valueOrNull ?? const {};
+    final wishlist = counts[CollectionStatus.wishlist] ?? 0;
+    final connection = ref.watch(serverConnectionProvider);
+    final conflicts = ref.watch(syncConflictsProvider).valueOrNull?.length ?? 0;
+    final resume = ref.watch(serverClientProvider) == null
+        ? const <ResumeItem>[]
+        : ref.watch(serverHomeProvider).valueOrNull?.resume ??
+              const <ResumeItem>[];
+    ref.watch(wishlistOfferWatcherProvider);
+    final insights = ref.watch(collectionInsightsProvider).valueOrNull;
+    final candidates =
+        ref.watch(watchCandidatesProvider).valueOrNull ??
+        const <WatchCandidate>[];
+    // Unwatched titles you can actually watch tonight: on the shelf or on
+    // the server.
+    final tonight = [
+      for (final c in candidates)
+        if (!c.watched &&
+            c.movieId != null &&
+            (c.ownedFormats.isNotEmpty || c.onServer))
+          c,
+    ].take(12).toList();
+    final inSubscription = insights?.wishlistInSubscription ?? const [];
+    final recent =
+        ref.watch(recentlyAddedMoviesProvider).valueOrNull ?? const [];
+    final gaps = ref.watch(missingMoviesProvider).valueOrNull ?? const [];
+
+    final films = total == 1 ? '1 Film' : '$total Filme';
+    final summary = wishlist == 0
+        ? films
+        : '$films · $wishlist auf der Wunschliste';
+
+    Widget notice(Widget child) => Padding(
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.l,
+        0,
+        AppSpacing.l,
+        AppSpacing.m,
+      ),
+      child: child,
+    );
+    const gap = SizedBox(height: AppSpacing.xl);
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        ref.invalidate(allMoviesProvider);
+        ref.invalidate(allCollectionsProvider);
+        ref.invalidate(serverHomeProvider);
+      },
+      child: ListView(
+        padding: const EdgeInsets.only(bottom: AppSpacing.xxl),
+        children: [
+          // Aligned with the section titles; the whole line is the target.
+          InkWell(
+            onTap: () => context.go('/collection'),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+                child: Row(
                   children: [
-                    Text(
-                      name,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                    const SizedBox(height: 6),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: LinearProgressIndicator(
-                        value: progress,
-                        minHeight: 6,
-                        backgroundColor: AppColors.divider,
-                        color: AppColors.sage,
+                    Flexible(
+                      child: Text(
+                        summary,
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: colors.textSecondary,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      '$owned / $total gekauft',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.neutralGray,
-                      ),
+                    Icon(
+                      Icons.chevron_right,
+                      size: 18,
+                      color: colors.textSecondary,
                     ),
                   ],
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+          if (connection is ServerAuthRequired)
+            notice(
+              InlineNotice(
+                kind: StatusKind.authRequired,
+                title: 'Dein Server kennt dieses Gerät nicht mehr',
+                message:
+                    'Deine Sammlung auf diesem Gerät ist weiter verfügbar.',
+                action: StatusAction(
+                  'Neu verbinden',
+                  () => context.push('/server/connect'),
+                ),
+              ),
+            )
+          else if (connection is ServerOffline)
+            notice(
+              InlineNotice(
+                kind: StatusKind.serviceUnavailable,
+                title: 'Server nicht erreichbar',
+                message:
+                    'Deine Sammlung auf diesem Gerät ist weiter verfügbar.',
+                action: StatusAction(
+                  'Erneut versuchen',
+                  () => ref.invalidate(serverHomeProvider),
+                ),
+              ),
+            ),
+          if (conflicts > 0)
+            notice(
+              InlineNotice(
+                kind: StatusKind.partial,
+                title: conflicts == 1
+                    ? 'Eine Angabe wurde auf zwei Geräten verschieden geändert'
+                    : '$conflicts Angaben wurden auf zwei Geräten verschieden '
+                          'geändert',
+                message: 'Nichts wird überschrieben, bis du wählst.',
+                action: StatusAction('Ansehen', () => context.push('/sync')),
+              ),
+            ),
+          if (resume.isNotEmpty) ...[
+            SectionHeader(
+              title: 'Weiterschauen',
+              actionLabel: 'Alle',
+              onAction: () => context.push('/server'),
+            ),
+            const SizedBox(height: AppSpacing.s),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.l),
+              child: ResumeRow(items: resume),
+            ),
+            gap,
+          ],
+          if (tonight.isNotEmpty) ...[
+            ShelfRow(
+              title: 'Für heute Abend',
+              onAction: () => context.push('/discover/watch'),
+              itemCount: tonight.length,
+              itemBuilder: (context, i) {
+                final c = tonight[i];
+                return MediaCard(
+                  title: c.title,
+                  posterPath: c.posterPath,
+                  subtitle: c.year?.toString(),
+                  badge: c.onServer ? const MediaBadge.playable() : null,
+                  onTap: () => context.push('/movie/${c.movieId}'),
+                );
+              },
+            ),
+            gap,
+          ],
+          if (inSubscription.isNotEmpty) ...[
+            ShelfRow(
+              title: 'Jetzt in deinen Abos',
+              itemCount: inSubscription.length,
+              itemBuilder: (context, i) {
+                final hit = inSubscription[i];
+                final id = hit.candidate.movieId;
+                return MediaCard(
+                  title: hit.candidate.title,
+                  posterPath: hit.candidate.posterPath,
+                  subtitle: hit.provider,
+                  status: CollectionStatus.wishlist,
+                  onTap: id == null ? null : () => context.push('/movie/$id'),
+                );
+              },
+            ),
+            gap,
+          ],
+          if (recent.isNotEmpty) ...[
+            ShelfRow(
+              title: 'Zuletzt hinzugefügt',
+              onAction: () => context.go('/collection'),
+              itemCount: recent.length,
+              itemBuilder: (context, i) {
+                final m = recent[i];
+                return MediaCard(
+                  title: m.title,
+                  posterPath: m.posterPath,
+                  subtitle: m.releaseYear?.toString(),
+                  status: m.status,
+                  onTap: () => context.push('/movie/${m.id}'),
+                );
+              },
+            ),
+            gap,
+          ],
+          if (gaps.isNotEmpty)
+            ShelfRow(
+              title: 'Reihen vervollständigen',
+              onAction: () => context.push('/missing'),
+              itemCount: gaps.length,
+              itemBuilder: (context, i) {
+                final g = gaps[i];
+                final all = g.collection.entries.length;
+                final missing = g.missingEntries.length;
+                return MediaCard(
+                  title: g.collection.name,
+                  posterPath: g.collection.posterPath,
+                  subtitle: missing == 1
+                      ? '1 Teil fehlt'
+                      : '$missing Teile fehlen',
+                  badge: MediaBadge.text('${all - missing}/$all'),
+                  onTap: () => context.push('/collections/${g.collection.id}'),
+                );
+              },
+            ),
+        ],
       ),
     );
   }

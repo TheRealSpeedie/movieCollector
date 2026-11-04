@@ -4,9 +4,9 @@ import 'dart:typed_data';
 
 import 'package:cryptography/cryptography.dart';
 import 'package:dio/dio.dart';
-import 'package:movie_shelf/features/server/data/credential_store.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
-import 'package:movie_shelf/features/server/data/server_discovery.dart';
+import 'package:speednema/features/server/data/credential_store.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
+import 'package:speednema/features/server/data/server_discovery.dart';
 
 typedef Handler = FutureOr<ResponseBody> Function(RequestOptions options);
 
@@ -106,7 +106,7 @@ Future<Map<String, Object?>> identityResponse(String nonce) async {
   final pair = await ed.newKeyPairFromSeed(_seed);
   final publicKey = (await pair.extractPublicKey()).bytes;
   final signature = await ed.sign(
-    utf8.encode('movieshelf-identity|$nonce'),
+    utf8.encode('speednema-identity|$nonce'),
     keyPair: pair,
   );
   return {

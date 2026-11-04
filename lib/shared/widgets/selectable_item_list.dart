@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 import '../../core/matching/item_selection.dart';
 
 class SelectableListItem {
@@ -43,8 +43,8 @@ class SelectableItemList extends StatelessWidget {
       children: [
         Text(
           '$selectedCount / ${items.length} ausgewählt',
-          style: const TextStyle(
-            color: AppColors.neutralGray,
+          style: TextStyle(
+            color: context.colors.textSecondary,
             fontWeight: FontWeight.w600,
           ),
         ),

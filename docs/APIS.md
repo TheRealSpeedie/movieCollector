@@ -1,6 +1,6 @@
 # External APIs
 
-Movie Shelf calls two external services. Both are strictly for **enrichment/resolution**;
+Speednema calls two external services. Both are strictly for **enrichment/resolution**;
 neither is ever the source of truth for what the user owns (see
 [docs/ARCHITECTURE.md](ARCHITECTURE.md)).
 
@@ -9,7 +9,7 @@ neither is ever the source of truth for what the user owns (see
 - Base URL: `https://api.themoviedb.org/3`
 - Authentication: **Bearer token** (`Authorization: Bearer <TMDB_ACCESS_TOKEN>`), TMDB's
   current recommended auth scheme for the "API Read Access Token" (distinct from the legacy
-  `api_key` query-parameter scheme, which Movie Shelf does not use).
+  `api_key` query-parameter scheme, which Speednema does not use).
 - Configured via `lib/core/network/dio_client.dart` (`buildTmdbDio`) and
   `lib/core/network/tmdb/tmdb_api_client.dart` (`TmdbApiClient`).
 
@@ -45,7 +45,7 @@ never crashes or shows a placeholder.
 
 ### Rate limiting & caching
 
-TMDB does not publish a hard fixed rate limit for the current API; Movie Shelf still treats
+TMDB does not publish a hard fixed rate limit for the current API; Speednema still treats
 HTTP `429` responses as a first-class case (`RateLimitException`, mapped in
 `DioClient.mapDioException`) so the UI can show a clear "try again later" message rather than
 a raw error. Beyond that, the app avoids unnecessary calls entirely:
@@ -60,7 +60,7 @@ a raw error. Beyond that, the app avoids unnecessary calls entirely:
 
 An unknown barcode is looked up in this order, and the answer is cached (`barcode_lookup_cache`: hits 30 days, misses 7 days, errors 10 minutes):
 
-1. The edition catalog of the own server or Movie Shelf Cloud, when one is connected (entries described by people).
+1. The edition catalog of the own server or Speednema Cloud, when one is connected (entries described by people).
 2. UPCMDB, when `UPCMDB_API_KEY` is set (12- and 13-digit codes; often returns the IMDb id, which TMDB resolves exactly).
 3. UPCitemdb.
 
@@ -87,7 +87,7 @@ Barcodes already confirmed once resolve from the local database without any requ
 
 ### Authentication
 
-The free trial tier requires no authentication at all — Movie Shelf uses it by default when
+The free trial tier requires no authentication at all — Speednema uses it by default when
 `UPCITEMDB_USER_KEY` is empty. If you configure a paid-tier key, the client switches base URL
 to the `prod/v1` host and sends the `user_key` / `key_type` headers UPCitemdb's paid plans
 require (`Env.isUpcItemDbProConfigured` decides which base URL/headers to use — see
@@ -140,6 +140,6 @@ Both API credentials are compiled into the app binary via `--dart-define-from-fi
 time (see [docs/SETUP.md](SETUP.md)). This is standard for hobby/personal Flutter apps but
 **does not provide real secrecy**: a sufficiently motivated user can extract embedded strings
 from a compiled APK/IPA. This is an acceptable tradeoff for a private, personal collection
-app using free-tier keys with no billing risk. If Movie Shelf is ever distributed publicly,
+app using free-tier keys with no billing risk. If Speednema is ever distributed publicly,
 proxy TMDB/UPCitemdb requests through a small backend that holds the real credentials, and
 have the app talk to your backend instead of embedding keys directly.

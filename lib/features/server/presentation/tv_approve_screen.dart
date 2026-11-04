@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/server_providers.dart';
@@ -44,7 +44,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       final own = ref.read(serverSessionProvider).valueOrNull;
       if (link.mode != 'tv') {
         throw const PairingFailedException(
-          'Dieser Code gehört nicht zu einem Fernseher. Öffne auf dem Fernseher Movie Shelf und scanne den dortigen Code.',
+          'Dieser Code gehört nicht zu einem Fernseher. Öffne auf dem Fernseher Speednema und scanne den dortigen Code.',
         );
       }
       if (own != null && own.fingerprint != link.fingerprint) {
@@ -54,11 +54,12 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       }
       await _lookup(link.sessionId);
     } on AppException catch (e) {
-      setState(() => _error = e.message);
+      if (mounted) setState(() => _error = e.message);
     }
   }
 
   Future<void> _lookup(String idOrCode) async {
+    if (!mounted) return;
     setState(() {
       _busy = true;
       _error = null;
@@ -69,9 +70,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
                   .read(serverClientProvider)!
                   .get('/api/pairing/tv-sessions/${idOrCode.trim()}')
               as Map<String, dynamic>;
-      setState(() => _tv = tv);
+      if (mounted) setState(() => _tv = tv);
     } on Object catch (e) {
-      setState(() => _error = describeError(e));
+      if (mounted) setState(() => _error = describeError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -93,7 +94,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       );
       context.pop();
     } on Object catch (e) {
-      setState(() => _error = describeError(e));
+      if (mounted) setState(() => _error = describeError(e));
     } finally {
       if (mounted) setState(() => _busy = false);
     }
@@ -103,14 +104,14 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   Widget build(BuildContext context) {
     final tv = _tv;
     return Scaffold(
-      appBar: AppBar(title: const Text('Fernseher koppeln')),
+      appBar: AppBar(title: const Text('Gerät koppeln')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           if (tv == null) ..._enter() else ..._confirm(tv),
           if (_error != null) ...[
             const SizedBox(height: 16),
-            Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+            Text(_error!, style: TextStyle(color: context.colors.error)),
           ],
         ],
       ),
@@ -118,9 +119,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   }
 
   List<Widget> _enter() => [
-    const Text(
-      'Öffne Movie Shelf auf deinem Fernseher. Dort erscheint ein QR-Code und ein Code mit sechs Zeichen.',
-      style: TextStyle(color: AppColors.neutralGray),
+    Text(
+      'Öffne Speednema auf deinem Fernseher. Dort erscheint ein QR-Code und ein Code mit sechs Zeichen.',
+      style: TextStyle(color: context.colors.textSecondary),
     ),
     const SizedBox(height: 16),
     FilledButton.icon(
@@ -150,7 +151,7 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
   List<Widget> _confirm(Map<String, dynamic> tv) => [
     Card(
       child: ListTile(
-        leading: const Icon(Icons.tv, color: AppColors.dustyRose),
+        leading: Icon(Icons.tv, color: context.colors.accent),
         title: Text(tv['deviceName'] as String),
         subtitle: Text('Server: ${tv['serverName']}'),
       ),
@@ -168,9 +169,9 @@ class _TvApproveScreenState extends ConsumerState<TvApproveScreen> {
       style: Theme.of(context).textTheme.titleMedium,
     ),
     const SizedBox(height: 12),
-    const Text(
+    Text(
       'Verbinde den Fernseher nur, wenn Code und Kennung genauso auf dem Bildschirm stehen.',
-      style: TextStyle(color: AppColors.neutralGray),
+      style: TextStyle(color: context.colors.textSecondary),
     ),
     const SizedBox(height: 20),
     FilledButton(

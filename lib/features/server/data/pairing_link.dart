@@ -45,17 +45,17 @@ class PairingLink {
   }
 
   static bool looksLikePairingLink(String value) =>
-      value.trim().startsWith('movieshelf://pair');
+      value.trim().startsWith('speednema://pair');
 
   static PairingLink parse(String value) {
     final uri = Uri.tryParse(value.trim());
     final query = uri?.queryParameters ?? const {};
     if (uri == null ||
-        uri.scheme != 'movieshelf' ||
+        uri.scheme != 'speednema' ||
         uri.host != 'pair' ||
         query['v'] != '1') {
       throw const PairingFailedException(
-        'Das ist kein Movie-Shelf-Kopplungscode.',
+        'Das ist kein Speednema-Kopplungscode.',
       );
     }
     final port = int.tryParse(query['p'] ?? '');
@@ -83,7 +83,7 @@ class PairingLink {
         tls: query['tls'] == '1',
         fingerprint: fingerprint,
         serverId: query['id'] ?? '',
-        serverName: query['n'] ?? 'Movie Shelf',
+        serverName: query['n'] ?? 'Speednema',
         securePort: int.tryParse(query['sp'] ?? ''),
         certificateSha256: query['cfp'],
       );

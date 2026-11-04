@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/matching/item_selection.dart';
-import 'package:movie_shelf/core/utils/season_format.dart';
+import 'package:speednema/core/matching/item_selection.dart';
+import 'package:speednema/core/utils/season_format.dart';
 
 void main() {
   group('ItemSelection', () {

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../server/domain/server_models.dart';
 
 sealed class TrackChoice {
@@ -95,14 +95,14 @@ class PlayerControls extends StatelessWidget {
   Widget build(BuildContext context) {
     final max = total > 0 ? total : 1.0;
     return Container(
-      color: Colors.black54,
+      color: context.colors.scrim,
       child: SafeArea(
         child: Column(
           children: [
             Row(
               children: [
                 IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  icon: Icon(Icons.arrow_back, color: context.colors.onMedia),
                   tooltip: 'Zurück',
                   onPressed: onBack,
                 ),
@@ -114,30 +114,25 @@ class PlayerControls extends StatelessWidget {
                         title,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: context.colors.onMedia,
+                              fontWeight: FontWeight.w700,
+                            ),
                       ),
                       if (subtitle != null)
                         Text(
                           subtitle!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(
+                                color: context.colors.onMedia.withValues(
+                                  alpha: 0.7,
+                                ),
+                              ),
                         ),
                     ],
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Text(
-                    modeLabel,
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
                   ),
                 ),
               ],
@@ -148,7 +143,7 @@ class PlayerControls extends StatelessWidget {
               children: [
                 IconButton(
                   iconSize: 36,
-                  color: Colors.white,
+                  color: context.colors.onMedia,
                   tooltip: '10 Sekunden zurück',
                   icon: const Icon(Icons.replay_10),
                   onPressed: () => onSkip(-10),
@@ -163,7 +158,7 @@ class PlayerControls extends StatelessWidget {
                 const SizedBox(width: 24),
                 IconButton(
                   iconSize: 36,
-                  color: Colors.white,
+                  color: context.colors.onMedia,
                   tooltip: '10 Sekunden vor',
                   icon: const Icon(Icons.forward_10),
                   onPressed: () => onSkip(10),
@@ -177,7 +172,7 @@ class PlayerControls extends StatelessWidget {
                 children: [
                   Text(
                     formatClock(current),
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: context.colors.onMedia),
                   ),
                   Expanded(
                     child: Slider(
@@ -189,19 +184,40 @@ class PlayerControls extends StatelessWidget {
                   ),
                   Text(
                     formatClock(total),
-                    style: const TextStyle(color: Colors.white),
+                    style: TextStyle(color: context.colors.onMedia),
                   ),
                   IconButton(
-                    color: Colors.white,
+                    color: context.colors.onMedia,
                     tooltip: 'Ton und Untertitel',
                     icon: const Icon(Icons.subtitles_outlined),
                     onPressed: onTracks,
                   ),
-                  IconButton(
-                    color: Colors.white,
-                    tooltip: 'Qualität',
-                    icon: const Icon(Icons.tune),
-                    onPressed: onQuality,
+                  // Quality and how the file is played (direct, remuxed,
+                  // converted) are for when something looks wrong; they
+                  // stay off the picture until asked for.
+                  PopupMenuButton<String>(
+                    tooltip: 'Weitere Optionen',
+                    icon: Icon(Icons.more_vert, color: context.colors.onMedia),
+                    onSelected: (value) {
+                      if (value == 'quality') onQuality();
+                    },
+                    itemBuilder: (context) => [
+                      const PopupMenuItem(
+                        value: 'quality',
+                        child: ListTile(
+                          leading: Icon(Icons.tune),
+                          title: Text('Qualität'),
+                        ),
+                      ),
+                      PopupMenuItem(
+                        enabled: false,
+                        child: ListTile(
+                          leading: const Icon(Icons.info_outline),
+                          title: const Text('Wiedergabe'),
+                          subtitle: Text(modeLabel),
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -270,7 +286,7 @@ class TrackSheet extends StatelessWidget {
                   track.id == selectedAudio.id
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 title: Text(
                   _embeddedLabel(track.id, track.title, track.language),
@@ -284,7 +300,7 @@ class TrackSheet extends StatelessWidget {
                   track.index == defaultAudio?.index
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 title: Text(track.label),
                 onTap: () =>
@@ -299,7 +315,7 @@ class TrackSheet extends StatelessWidget {
                         ? Icons.radio_button_checked
                         : Icons.radio_button_off)
                   : Icons.radio_button_off,
-              color: AppColors.dustyRose,
+              color: context.colors.accent,
             ),
             title: const Text('Aus'),
             onTap: () => Navigator.of(context).pop(
@@ -315,7 +331,7 @@ class TrackSheet extends StatelessWidget {
                   track.id == selectedSubtitle.id
                       ? Icons.radio_button_checked
                       : Icons.radio_button_off,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 title: Text(
                   _embeddedLabel(track.id, track.title, track.language),
@@ -325,9 +341,9 @@ class TrackSheet extends StatelessWidget {
           else ...[
             for (final track in textSubtitles)
               ListTile(
-                leading: const Icon(
+                leading: Icon(
                   Icons.radio_button_off,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 title: Text(track.label),
                 onTap: () =>
@@ -344,7 +360,7 @@ class TrackSheet extends StatelessWidget {
                 subtitle.id == currentExternal?.id
                     ? Icons.radio_button_checked
                     : Icons.radio_button_off,
-                color: AppColors.dustyRose,
+                color: context.colors.accent,
               ),
               title: Text(subtitle.label),
               onTap: () =>
@@ -413,7 +429,7 @@ class QualitySheet extends StatelessWidget {
                 height == current
                     ? Icons.radio_button_checked
                     : Icons.radio_button_off,
-                color: AppColors.dustyRose,
+                color: context.colors.accent,
               ),
               title: Text(height == null ? 'Original' : '${height}p'),
               subtitle: height == null
@@ -451,7 +467,9 @@ class _SheetNote extends StatelessWidget {
     padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
     child: Text(
       text,
-      style: const TextStyle(color: AppColors.neutralGray, fontSize: 13),
+      style: Theme.of(
+        context,
+      ).textTheme.bodyMedium?.copyWith(color: context.colors.textSecondary),
     ),
   );
 }

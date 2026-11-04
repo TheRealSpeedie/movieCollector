@@ -9,7 +9,7 @@ import 'package:uuid/uuid.dart';
 class SyncIds {
   SyncIds._();
 
-  /// Fixed namespace for every Movie Shelf UUIDv5. Never change it: existing
+  /// Fixed namespace for every Speednema UUIDv5. Never change it: existing
   /// collections on phones and servers depend on it.
   static const namespace = '0b6f3e8a-4c1d-5e2f-9a7b-8c3d2e1f0a95';
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/matching/item_selection.dart';
 import '../../../core/network/tmdb/tmdb_models.dart';
 import '../../../core/providers/core_providers.dart';
@@ -291,9 +291,9 @@ class _ImportSelectionScreenState extends ConsumerState<ImportSelectionScreen> {
                   ),
                   if (_tvDetails!.specials != null) ...[
                     const SizedBox(height: 8),
-                    const Text(
+                    Text(
                       'Optional:',
-                      style: TextStyle(color: AppColors.neutralGray),
+                      style: TextStyle(color: context.colors.textSecondary),
                     ),
                     CheckboxListTile(
                       contentPadding: EdgeInsets.zero,

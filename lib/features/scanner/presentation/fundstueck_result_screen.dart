@@ -2,10 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'verdict_panel.dart';
+import '../../../shared/widgets/status_view.dart';
+import '../application/scan_providers.dart';
 import 'scan_insights_card.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/matching/media_title_parser.dart';
 import '../../../core/network/tmdb/tmdb_models.dart';
 import '../../../core/providers/repository_providers.dart';
@@ -78,6 +81,7 @@ class _FundstueckResultScreenState
                 barcode: result.barcode,
               ),
               BarcodeLookupFailed() => LookupFailedView(
+                barcode: result.barcode,
                 message: result.message,
               ),
               BarcodeWeakMatch() => WeakMatchView(result: result),
@@ -153,147 +157,151 @@ class KnownMovieView extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final banner = switch (movie.status) {
-      CollectionStatus.owned => (
-        '✓ Bereits in deiner Sammlung',
-        AppColors.sage,
-      ),
-      CollectionStatus.wishlist => (
-        '♡ Auf deiner Wunschliste',
-        AppColors.dustyRose,
-      ),
-      CollectionStatus.open => ('Als offen gespeichert', AppColors.amber),
-    };
+    final AssessmentRequest? request = movie.tmdbId == null
+        ? null
+        : (
+            editionId: null,
+            tmdbId: movie.tmdbId,
+            tmdbCollectionId: movie.tmdbCollectionId,
+            format: null,
+            // A barcode that is already mapped identifies the release.
+            exact: barcodeToSave == null,
+          );
 
-    return ListView(
-      padding: const EdgeInsets.all(16),
+    return Column(
       children: [
-        if (movie.tmdbId != null)
-          ScanInsightsCard(
-            request: (
-              editionId: null,
-              tmdbId: movie.tmdbId,
-              tmdbCollectionId: movie.tmdbCollectionId,
-              format: null,
-              // A barcode that is already mapped identifies the release.
-              exact: barcodeToSave == null,
-            ),
-          ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: banner.$2.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          alignment: Alignment.center,
-          child: Text(
-            banner.$1,
-            style: TextStyle(
-              color: banner.$2,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
-          ),
-        ),
-        const SizedBox(height: 20),
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              width: 120,
-              child: PosterImage(posterPath: movie.posterPath),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              VerdictPanel(request: request, status: movie.status),
+              const SizedBox(height: 16),
+              if (request != null)
+                ScanInsightsCard(request: request, belowVerdict: true),
+              Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    movie.title,
-                    style: Theme.of(context).textTheme.titleLarge,
+                  SizedBox(
+                    width: 120,
+                    child: PosterImage(posterPath: movie.posterPath),
                   ),
-                  if (movie.releaseYear != null)
-                    Text(
-                      '${movie.releaseYear}',
-                      style: const TextStyle(color: AppColors.neutralGray),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          movie.title,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        if (movie.releaseYear != null)
+                          Text(
+                            '${movie.releaseYear}',
+                            style: TextStyle(
+                              color: context.colors.textSecondary,
+                            ),
+                          ),
+                        const SizedBox(height: 8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 4,
+                          children: [
+                            if (movie.runtime != null)
+                              Chip(label: Text('${movie.runtime} Min.')),
+                            if (movie.certification != null)
+                              Chip(label: Text('FSK ${movie.certification}')),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        StatusChip(status: movie.status),
+                      ],
                     ),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 4,
-                    children: [
-                      if (movie.runtime != null)
-                        Chip(label: Text('${movie.runtime} Min.')),
-                      if (movie.certification != null)
-                        Chip(label: Text('FSK ${movie.certification}')),
-                    ],
                   ),
-                  const SizedBox(height: 8),
-                  StatusChip(status: movie.status),
                 ],
               ),
-            ),
-          ],
-        ),
-        if (movie.genres.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(
-            movie.genres.join(', '),
-            style: const TextStyle(color: AppColors.neutralGray),
+              if (movie.genres.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  movie.genres.join(', '),
+                  style: TextStyle(color: context.colors.textSecondary),
+                ),
+              ],
+              if (movie.overview != null && movie.overview!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(movie.overview!),
+              ],
+              if (barcodeToSave != null && barcodeToSave!.isNotEmpty) ...[
+                const SizedBox(height: 16),
+                OutlinedButton.icon(
+                  onPressed: () async {
+                    await ref
+                        .read(fundstueckControllerProvider.notifier)
+                        .confirmAndSave(
+                          candidate: TmdbSearchResult(
+                            id: movie.tmdbId ?? 0,
+                            title: movie.title,
+                          ),
+                          status: movie.status,
+                          barcode: barcodeToSave,
+                        );
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Barcode gespeichert.')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.qr_code),
+                  label: const Text('Diesen Barcode merken'),
+                ),
+              ],
+              if (movie.tmdbId != null) ...[
+                const SizedBox(height: 20),
+                FranchiseSection(tmdbMovieId: movie.tmdbId!),
+              ],
+            ],
           ),
-        ],
-        if (movie.overview != null && movie.overview!.isNotEmpty) ...[
-          const SizedBox(height: 12),
-          Text(movie.overview!),
-        ],
-        if (barcodeToSave != null && barcodeToSave!.isNotEmpty) ...[
-          const SizedBox(height: 16),
-          OutlinedButton.icon(
-            onPressed: () async {
-              await ref
-                  .read(fundstueckControllerProvider.notifier)
-                  .confirmAndSave(
-                    candidate: TmdbSearchResult(
-                      id: movie.tmdbId ?? 0,
-                      title: movie.title,
-                    ),
-                    status: movie.status,
-                    barcode: barcodeToSave,
-                  );
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Barcode gespeichert.')),
-                );
-              }
-            },
-            icon: const Icon(Icons.qr_code),
-            label: const Text('Diesen Barcode merken'),
-          ),
-        ],
-        const SizedBox(height: 16),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton(
-                onPressed: () => context.push('/movie/${movie.id}'),
-                child: const Text('Details öffnen'),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: FilledButton(
-                onPressed: () => context.pop(),
-                child: const Text('Weiter scannen'),
-              ),
-            ),
-          ],
         ),
-        if (movie.tmdbId != null) ...[
-          const SizedBox(height: 20),
-          FranchiseSection(tmdbMovieId: movie.tmdbId!),
-        ],
+        // Where the thumb is: the next scan first, details second.
+        _ScanActions(
+          primary: FilledButton.icon(
+            onPressed: () => context.pop(),
+            icon: const Icon(Icons.qr_code_scanner),
+            label: const Text('Nächster Scan'),
+          ),
+          secondary: OutlinedButton(
+            onPressed: () => context.push('/movie/${movie.id}'),
+            child: const Text('Details'),
+          ),
+        ),
       ],
+    );
+  }
+}
+
+/// The result's actions, pinned at the bottom within one-handed reach.
+class _ScanActions extends StatelessWidget {
+  const _ScanActions({required this.primary, required this.secondary});
+
+  final Widget primary;
+  final Widget secondary;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: context.colors.background,
+        border: Border(top: BorderSide(color: context.colors.hairline)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Row(
+          children: [
+            Expanded(child: secondary),
+            const SizedBox(width: 12),
+            Expanded(flex: 2, child: primary),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -344,7 +352,7 @@ class MissingMovieView extends ConsumerWidget {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        ScanInsightsCard(
+        VerdictPanel(
           request: (
             editionId: null,
             tmdbId: movie.id,
@@ -353,37 +361,37 @@ class MissingMovieView extends ConsumerWidget {
             exact: false,
           ),
         ),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 14),
-          decoration: BoxDecoration(
-            color: AppColors.neutralGray.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(14),
-          ),
-          alignment: Alignment.center,
-          child: const Text(
-            'Diese Veröffentlichung wurde gefunden.',
-            style: TextStyle(
-              color: AppColors.charcoal,
-              fontWeight: FontWeight.w700,
-              fontSize: 16,
-            ),
+        const SizedBox(height: 16),
+        ScanInsightsCard(
+          belowVerdict: true,
+          request: (
+            editionId: null,
+            tmdbId: movie.id,
+            tmdbCollectionId: null,
+            format: physicalFormat,
+            exact: false,
           ),
         ),
         const SizedBox(height: 8),
         Text(
           'Erkannt von: „$productTitle“',
-          style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+          style: Theme.of(
+            context,
+          ).textTheme.bodySmall?.copyWith(color: context.colors.textSecondary),
         ),
         if (physicalFormat != null)
           Text(
             _formatLabel(physicalFormat!),
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         if (kDebugMode && source != null)
           Text(
             'Quelle: $source',
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: context.colors.textSecondary,
+            ),
           ),
         const SizedBox(height: 16),
         Row(
@@ -405,7 +413,7 @@ class MissingMovieView extends ConsumerWidget {
                   if (movie.releaseYear != null)
                     Text(
                       '${movie.releaseYear}',
-                      style: const TextStyle(color: AppColors.neutralGray),
+                      style: TextStyle(color: context.colors.textSecondary),
                     ),
                   const SizedBox(height: 8),
                   Container(
@@ -414,16 +422,20 @@ class MissingMovieView extends ConsumerWidget {
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: (isConfident ? AppColors.sage : AppColors.amber)
-                          .withValues(alpha: 0.15),
+                      color:
+                          (isConfident
+                                  ? context.colors.owned
+                                  : context.colors.attention)
+                              .withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
                       isConfident ? 'Hohe Übereinstimmung' : 'Bitte bestätigen',
-                      style: TextStyle(
-                        color: isConfident ? AppColors.sage : AppColors.amber,
+                      style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                        color: isConfident
+                            ? context.colors.owned
+                            : context.colors.attention,
                         fontWeight: FontWeight.w600,
-                        fontSize: 12,
                       ),
                     ),
                   ),
@@ -489,21 +501,21 @@ class MissingMovieView extends ConsumerWidget {
           ActionButton(
             label: 'Als gekauft speichern',
             icon: Icons.check_circle_outline,
-            color: AppColors.sage,
+            color: context.colors.owned,
             onTap: () => _save(context, ref, CollectionStatus.owned),
           ),
           const SizedBox(height: 8),
           ActionButton(
             label: 'Zur Wunschliste',
             icon: Icons.favorite_border,
-            color: AppColors.dustyRose,
+            color: context.colors.accent,
             onTap: () => _save(context, ref, CollectionStatus.wishlist),
           ),
           const SizedBox(height: 8),
           ActionButton(
             label: 'Als offen speichern',
             icon: Icons.hourglass_bottom,
-            color: AppColors.amber,
+            color: context.colors.attention,
             onTap: () => _save(context, ref, CollectionStatus.open),
           ),
           const SizedBox(height: 8),
@@ -582,10 +594,10 @@ class NoMatchView extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
+            Icon(
               Icons.help_outline,
               size: 48,
-              color: AppColors.neutralGray,
+              color: context.colors.textSecondary,
             ),
             const SizedBox(height: 16),
             const Text(
@@ -596,7 +608,7 @@ class NoMatchView extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 'Erkanntes Produkt: „$productTitle“',
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             ],
             const SizedBox(height: 20),
@@ -629,7 +641,7 @@ class OfflineView extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(Icons.wifi_off, size: 48, color: AppColors.neutralGray),
+            Icon(Icons.wifi_off, size: 48, color: context.colors.textSecondary),
             const SizedBox(height: 16),
             const Text(
               'Dieser Barcode ist auf diesem Gerät noch nicht bekannt. '
@@ -770,7 +782,7 @@ class MovieBundleConfirmationView extends ConsumerWidget {
             ActionButton(
               label: 'Als gekauft speichern',
               icon: Icons.check_circle_outline,
-              color: AppColors.sage,
+              color: context.colors.owned,
               onTap: () => ref
                   .read(fundstueckControllerProvider.notifier)
                   .confirmMovieBundle(
@@ -864,7 +876,7 @@ class TvConfirmationView extends ConsumerWidget {
               ActionButton(
                 label: 'Als gekauft speichern',
                 icon: Icons.check_circle_outline,
-                color: AppColors.sage,
+                color: context.colors.owned,
                 onTap: () => ref
                     .read(fundstueckControllerProvider.notifier)
                     .confirmTvSeasons(
@@ -938,18 +950,31 @@ class ProductUnknownView extends StatelessWidget {
   }
 }
 
-class LookupFailedView extends StatelessWidget {
-  const LookupFailedView({super.key, required this.message});
+/// The lookup itself failed (network, a service): say so and offer the
+/// two ways forward, trying again or entering the title.
+class LookupFailedView extends ConsumerWidget {
+  const LookupFailedView({
+    super.key,
+    required this.barcode,
+    required this.message,
+  });
 
+  final String barcode;
   final String message;
 
   @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Text(message, textAlign: TextAlign.center),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return StatusView(
+      kind: StatusKind.serviceUnavailable,
+      title: 'Der Barcode konnte gerade nicht geprüft werden',
+      message: message,
+      primary: StatusAction(
+        'Erneut versuchen',
+        () => ref
+            .read(fundstueckControllerProvider.notifier)
+            .scanBarcode(barcode),
       ),
+      secondary: StatusAction('Titel eingeben', () => context.push('/search')),
     );
   }
 }

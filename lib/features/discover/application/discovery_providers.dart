@@ -26,7 +26,7 @@ final aiConsentProvider = NotifierProvider<AiConsent, bool>(AiConsent.new);
 final onDeviceModelProvider = Provider<OnDeviceModel?>((ref) => null);
 
 /// AI suggestions offered by the own server (with its administrator's
-/// setup) or Movie Shelf Cloud. Null when neither offers them.
+/// setup) or Speednema Cloud. Null when neither offers them.
 final remoteRankerProvider = FutureProvider<RemoteDiscoveryRanker?>((
   ref,
 ) async {
@@ -50,7 +50,7 @@ final remoteRankerProvider = FutureProvider<RemoteDiscoveryRanker?>((
       final status = await cloud!.get('/api/discover/status') as Map;
       if (status['available'] == true) {
         return RemoteDiscoveryRanker(
-          label: 'KI über Movie Shelf Cloud',
+          label: 'KI über Speednema Cloud',
           post: (path, body) => cloud.post(path, body: body),
         );
       }

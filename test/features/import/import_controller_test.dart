@@ -1,12 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/features/import/application/import_controller.dart';
-import 'package:movie_shelf/features/import/data/import_repository.dart';
-import 'package:movie_shelf/features/import/domain/import_models.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/models/match_candidate.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/import/application/import_controller.dart';
+import 'package:speednema/features/import/data/import_repository.dart';
+import 'package:speednema/features/import/domain/import_models.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/models/match_candidate.dart';
 
 import 'import_controller_test.mocks.dart';
 

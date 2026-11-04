@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -37,12 +37,12 @@ class CollectionsScreen extends ConsumerWidget {
             children: [
               if ((missingCount.valueOrNull ?? 0) > 0)
                 Card(
-                  color: AppColors.dustyRose.withValues(alpha: 0.12),
+                  color: context.colors.accent.withValues(alpha: 0.12),
                   child: ListTile(
                     onTap: () => context.push('/missing'),
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.playlist_add_check_circle_outlined,
-                      color: AppColors.dustyRose,
+                      color: context.colors.accent,
                     ),
                     title: Text(
                       'Dir fehlen ${missingCount.valueOrNull} Filme aus deinen Reihen.',
@@ -87,16 +87,16 @@ class CollectionsScreen extends ConsumerWidget {
                                     child: LinearProgressIndicator(
                                       value: collection.progress,
                                       minHeight: 7,
-                                      backgroundColor: AppColors.divider,
-                                      color: AppColors.sage,
+                                      backgroundColor: context.colors.hairline,
+                                      color: context.colors.owned,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
                                   Text(
                                     '${collection.ownedCount} / ${collection.totalCount} gekauft · ${collection.missingCount} fehlen',
-                                    style: const TextStyle(
+                                    style: TextStyle(
                                       fontSize: 12,
-                                      color: AppColors.neutralGray,
+                                      color: context.colors.textSecondary,
                                     ),
                                   ),
                                 ],

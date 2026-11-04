@@ -1,8 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/network/dio_client.dart';
-import 'package:movie_shelf/core/network/network_info.dart';
-import 'package:movie_shelf/core/network/upcmdb/upcmdb_client.dart';
+import 'package:speednema/core/network/dio_client.dart';
+import 'package:speednema/core/network/network_info.dart';
+import 'package:speednema/core/network/upcmdb/upcmdb_client.dart';
 
 void main() {
   test('maps documented UPCMDB fields and leaves missing ones empty', () {
@@ -27,30 +27,31 @@ void main() {
     expect(record.mediaType, 'movie');
   });
 
-  test('an invalid UPCMDB body is a failure and does not invent a product', () async {
-    final dio = Dio(BaseOptions(baseUrl: 'https://upcmdb.invalid'));
-    dio.interceptors.add(
-      InterceptorsWrapper(
-        onRequest: (options, handler) {
-          handler.resolve(
-            Response(
-              requestOptions: options,
-              statusCode: 200,
-              data: 'not-a-product',
-            ),
-          );
-        },
-      ),
-    );
-    final client = UpcmdbClient(
-      DioClient(dio: dio, networkInfo: _Online()),
-    );
+  test(
+    'an invalid UPCMDB body is a failure and does not invent a product',
+    () async {
+      final dio = Dio(BaseOptions(baseUrl: 'https://upcmdb.invalid'));
+      dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) {
+            handler.resolve(
+              Response(
+                requestOptions: options,
+                statusCode: 200,
+                data: 'not-a-product',
+              ),
+            );
+          },
+        ),
+      );
+      final client = UpcmdbClient(DioClient(dio: dio, networkInfo: _Online()));
 
-    final result = await client.lookupGtin('0123456789055');
+      final result = await client.lookupGtin('0123456789055');
 
-    expect(result, isA<UpcmdbFailed>());
-    expect((result as UpcmdbFailed).reason, 'invalid');
-  });
+      expect(result, isA<UpcmdbFailed>());
+      expect((result as UpcmdbFailed).reason, 'invalid');
+    },
+  );
 }
 
 class _Online implements NetworkInfo {

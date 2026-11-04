@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/import/domain/import_text_parser.dart';
+import 'package:speednema/features/import/domain/import_text_parser.dart';
 
 void main() {
   const parser = ImportTextParser();

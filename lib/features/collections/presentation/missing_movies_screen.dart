@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/empty_state.dart';
@@ -10,6 +10,7 @@ import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/widgets/poster_image.dart';
 import '../application/collections_providers.dart';
+import '../application/franchise_gaps.dart';
 
 class MissingMoviesScreen extends ConsumerWidget {
   const MissingMoviesScreen({super.key});
@@ -25,12 +26,7 @@ class MissingMoviesScreen extends ConsumerWidget {
         error: (error, stack) => ErrorView(error: error),
         data: (groups) {
           if (groups.isEmpty) {
-            return const EmptyState(
-              icon: Icons.playlist_add_check_circle_outlined,
-              title: 'Dir fehlt nichts',
-              message:
-                  'In deinen bekannten Reihen sind aktuell keine Filme offen.',
-            );
+            return _NothingMissing(gaps: ref.watch(franchiseGapsProvider));
           }
           final total = groups.fold<int>(
             0,
@@ -56,10 +52,10 @@ class MissingMoviesScreen extends ConsumerWidget {
                           style: const TextStyle(fontWeight: FontWeight.w700),
                         ),
                       ),
-                      const Icon(
+                      Icon(
                         Icons.arrow_forward_ios,
                         size: 12,
-                        color: AppColors.neutralGray,
+                        color: context.colors.textSecondary,
                       ),
                     ],
                   ),
@@ -94,9 +90,9 @@ class MissingMoviesScreen extends ConsumerWidget {
                                   if (entry.releaseDate != null)
                                     Text(
                                       '${entry.releaseDate!.year}',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: AppColors.neutralGray,
+                                        color: context.colors.textSecondary,
                                       ),
                                     ),
                                 ],
@@ -129,10 +125,10 @@ class MissingMoviesScreen extends ConsumerWidget {
                                   );
                                 }
                               },
-                              icon: const Icon(
+                              icon: Icon(
                                 Icons.favorite_border,
                                 size: 18,
-                                color: AppColors.dustyRose,
+                                color: context.colors.accent,
                               ),
                               label: const Text('Wunschliste'),
                             ),
@@ -148,5 +144,50 @@ class MissingMoviesScreen extends ConsumerWidget {
         },
       ),
     );
+  }
+}
+
+/// Why the list is empty. "Nothing missing" only when series are known.
+class _NothingMissing extends StatelessWidget {
+  const _NothingMissing({required this.gaps});
+
+  final FranchiseGaps gaps;
+
+  @override
+  Widget build(BuildContext context) {
+    return switch (gaps) {
+      FranchiseGapsComplete(:final seriesCount) => EmptyState(
+        icon: Icons.playlist_add_check_circle_outlined,
+        title: 'Dir fehlt nichts',
+        message: seriesCount == 1
+            ? 'Deine Reihe ist vollständig.'
+            : 'Alle $seriesCount Reihen in deinem Regal sind vollständig.',
+      ),
+      FranchiseGapsNoMovies() => EmptyState(
+        icon: Icons.movie_filter_outlined,
+        title: 'Noch keine Filme im Regal',
+        message:
+            'Sobald du Filme hinzufügst, zeigt Speednema hier, welche Teile '
+            'ihrer Reihen dir fehlen.',
+        action: FilledButton(
+          onPressed: () => context.push('/search'),
+          child: const Text('Film hinzufügen'),
+        ),
+      ),
+      FranchiseGapsNotConfigured() => const EmptyState(
+        icon: Icons.cloud_off_outlined,
+        title: 'Filminfos sind nicht eingerichtet',
+        message:
+            'Ohne Filminfos von TMDB erkennt Speednema nicht, welche Filme zu '
+            'einer Reihe gehören. Deine Sammlung funktioniert trotzdem.',
+      ),
+      _ => const EmptyState(
+        icon: Icons.playlist_add_check_circle_outlined,
+        title: 'Noch keine Reihen erkannt',
+        message:
+            'Sobald ein Film zu einer Reihe gehört, siehst du hier, welche '
+            'Teile dir fehlen.',
+      ),
+    };
   }
 }

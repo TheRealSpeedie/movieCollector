@@ -1,8 +1,8 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/scanner/data/barcode_repository.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/scanner/data/barcode_repository.dart';
 
 void main() {
   late AppDatabase db;

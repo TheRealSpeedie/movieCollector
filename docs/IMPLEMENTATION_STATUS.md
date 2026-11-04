@@ -1,6 +1,6 @@
 # Implementation status
 
-What the app has, what is partial, and what is missing. How each part is tested, and what still needs a real device, is in the server repository's [VERIFICATION.md](https://github.com/TheRealSpeedie/movieshelf_server/blob/main/docs/VERIFICATION.md). What each feature looks like for the user is in [FEATURES.md](FEATURES.md).
+What the app has, what is partial, and what is missing. How each part is tested, and what still needs a real device, is in the server repository's [VERIFICATION.md](https://github.com/TheRealSpeedie/speednema_server/blob/main/docs/VERIFICATION.md). What each feature looks like for the user is in [FEATURES.md](FEATURES.md).
 
 Last updated: 28 October 2026 (Phase 5.5).
 
@@ -13,7 +13,7 @@ Last updated: 28 October 2026 (Phase 5.5).
 | Sync engine (field merge, conflicts, refused changes undone, collection switch) | `lib/core/sync/` | `test/core/sync/` |
 | Storage modes, migration with snapshot and count check, sync status | `lib/features/sync/` | `test/features/sync/`, `test/features/cloud/cloud_migration_test.dart` |
 | Own server: pairing, HTTPS pinning, browsing, playback, pending positions, TV remote | `lib/features/server/`, `playback/`, `remote/` | `test/features/server/`, `test/features/playback/`, `test/integration/television_test.dart` (needs a running server) |
-| Movie Shelf Cloud account and sync | `lib/features/cloud/` | `test/features/cloud/` |
+| Speednema Cloud account and sync | `lib/features/cloud/` | `test/features/cloud/` |
 | Households | `lib/features/household/` | `test/core/sync/collection_switch_test.dart`, `test/core/collection/household_ownership_test.dart` |
 | Fundstück-Check with offline queue (drained on start and resume) | `lib/features/scanner/` | `test/features/scanner/` |
 | Editions, copies, edition catalog, edition comparison | `lib/features/editions/` | `test/features/editions/` |
@@ -33,7 +33,7 @@ Last updated: 28 October 2026 (Phase 5.5).
 
 ## Not implemented
 
-- Buying a Movie Shelf Cloud subscription in the app (the operator grants subscriptions).
+- Buying a Speednema Cloud subscription in the app (the operator grants subscriptions).
 - An on-device AI model (the interface exists, none is bundled).
 - Statistics screens, lending tracking, push notifications for collection insights.
 - Offline downloads, casting and remote access outside the home network (proposed for Phase 6 in the roadmap).

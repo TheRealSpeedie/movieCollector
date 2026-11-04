@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../application/settings_providers.dart';
 import '../data/settings_repository.dart';
 
@@ -88,11 +88,11 @@ class LanguageScreen extends ConsumerWidget {
                 controller.save(p.copyWith(subtitleMode: s.first)),
           ),
           const SizedBox(height: 4),
-          const Text(
+          Text(
             '„Wenn nötig“ zeigt Untertitel, wenn der Ton in einer Sprache ist, '
             'die du nicht angegeben hast, und erzwungene Untertitel für '
             'fremdsprachige Stellen.',
-            style: TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
           ),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
@@ -111,10 +111,10 @@ class LanguageScreen extends ConsumerWidget {
             onChanged: (v) => controller.save(p.copyWith(audioDescription: v)),
           ),
           const SizedBox(height: 8),
-          const Text(
+          Text(
             'Im Player kannst du jederzeit eine andere Spur wählen, Untertitel '
             'suchen und verschieben.',
-            style: TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
       ),

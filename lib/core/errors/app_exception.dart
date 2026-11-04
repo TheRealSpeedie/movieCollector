@@ -1,6 +1,11 @@
-sealed class AppException implements Exception {
+import '../health/service_health.dart';
+import 'server_error_text.dart';
+import 'user_facing_error.dart';
+
+sealed class AppException implements Exception, UserFacingError {
   const AppException(this.message);
 
+  @override
   final String message;
 
   @override
@@ -43,6 +48,31 @@ class InvalidApiConfigException extends AppException {
   ]);
 }
 
+/// A service is needed but has no key in this build and none was entered.
+/// Thrown before any request is sent.
+class ServiceNotConfiguredException extends InvalidApiConfigException {
+  const ServiceNotConfiguredException(this.service)
+    : super(
+        service == ExternalService.tmdb
+            ? 'Filminfos sind noch nicht eingerichtet.'
+            : 'Dieser Dienst ist noch nicht eingerichtet.',
+      );
+
+  final ExternalService service;
+}
+
+/// The service rejected the key that was sent (HTTP 401 or 403).
+class ServiceCredentialsInvalidException extends InvalidApiConfigException {
+  const ServiceCredentialsInvalidException(this.service)
+    : super(
+        service == ExternalService.tmdb
+            ? 'TMDB hat den Schlüssel abgelehnt. Prüfe ihn in den Einstellungen.'
+            : 'Der Dienst hat den Schlüssel abgelehnt.',
+      );
+
+  final ExternalService service;
+}
+
 class DuplicateMovieException extends AppException {
   const DuplicateMovieException()
     : super('Dieser Film befindet sich bereits in deiner Sammlung.');
@@ -62,7 +92,7 @@ class UnknownAppException extends AppException {
 class ServerUnreachableException extends AppException {
   const ServerUnreachableException()
     : super(
-        'Der Movie-Shelf-Server ist nicht erreichbar. Prüfe, ob er läuft und ihr im selben WLAN seid.',
+        'Der Speednema-Server ist nicht erreichbar. Prüfe, ob er läuft und ihr im selben WLAN seid.',
       );
 }
 
@@ -74,9 +104,37 @@ class ServerRevokedException extends AppException {
 }
 
 class ServerRejectedException extends AppException {
-  const ServerRejectedException(super.message, this.statusCode);
+  const ServerRejectedException(
+    super.message,
+    this.statusCode, {
+    this.code,
+    this.detail,
+  });
+
+  /// From an error response: German words for its [code] or status; the
+  /// server's own (English) text is kept as [detail].
+  factory ServerRejectedException.fromResponse(int status, Object? data) {
+    final code = data is Map && data['code'] is String
+        ? data['code'] as String
+        : null;
+    final detail = data is Map && data['error'] is String
+        ? data['error'] as String
+        : null;
+    return ServerRejectedException(
+      serverErrorText(code: code, status: status),
+      status,
+      code: code,
+      detail: detail,
+    );
+  }
 
   final int statusCode;
+
+  /// Stable error code from the server, e.g. `pin_incorrect`.
+  final String? code;
+
+  /// The server's own text, for details and logs only.
+  final String? detail;
 }
 
 class PairingFailedException extends AppException {
@@ -86,11 +144,11 @@ class PairingFailedException extends AppException {
 class CloudUnreachableException extends AppException {
   const CloudUnreachableException()
     : super(
-        'Movie Shelf Cloud ist gerade nicht erreichbar. Deine Änderungen bleiben auf dem Gerät und werden später übertragen.',
+        'Speednema Cloud ist gerade nicht erreichbar. Deine Änderungen bleiben auf dem Gerät und werden später übertragen.',
       );
 }
 
-/// The Movie Shelf Cloud subscription ended: changes stay on the device until
+/// The Speednema Cloud subscription ended: changes stay on the device until
 /// it is renewed. Reading and export keep working.
 class CloudSubscriptionException extends AppException {
   const CloudSubscriptionException(super.message);

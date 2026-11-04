@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../playback/domain/play_request.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/domain/server_models.dart';
@@ -39,9 +39,9 @@ class DigitalSection extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           if (title == null)
-            const Text(
+            Text(
               'Keine Datei in deiner Server-Bibliothek.',
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             )
           else if (detail == null)
             const LinearProgressIndicator()
@@ -49,9 +49,9 @@ class DigitalSection extends ConsumerWidget {
             for (final file in detail.files)
               Card(
                 child: ListTile(
-                  leading: const Icon(
+                  leading: Icon(
                     Icons.play_circle_outline,
-                    color: AppColors.sage,
+                    color: context.colors.owned,
                   ),
                   title: Text(_picture(file)),
                   subtitle: Text(_languages(file)),
@@ -77,7 +77,7 @@ class DigitalSection extends ConsumerWidget {
                   : detail.progress.canResume
                   ? 'Weiterschauen ab ${(detail.progress.positionSeconds / 60).round()} Min.'
                   : 'Noch nicht gesehen',
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
             TextButton(
               onPressed: () => context.push('/server/title/${title.id}'),

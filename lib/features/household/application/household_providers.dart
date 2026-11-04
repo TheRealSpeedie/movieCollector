@@ -9,7 +9,7 @@ import '../../sync/application/sync_providers.dart';
 import '../data/household_api.dart';
 
 /// Households need a place that shares the collection: the own server or
-/// Movie Shelf Cloud, whichever the collection syncs with.
+/// Speednema Cloud, whichever the collection syncs with.
 final householdApiProvider = Provider<HouseholdApi?>((ref) {
   switch (ref.watch(collectionStorageProvider)) {
     case CollectionStorage.selfHosted:

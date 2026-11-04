@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 
 class EmptyState extends StatelessWidget {
   const EmptyState({
@@ -24,7 +24,7 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: AppColors.neutralGray),
+            Icon(icon, size: 56, color: context.colors.textSecondary),
             const SizedBox(height: 16),
             Text(
               title,
@@ -36,7 +36,7 @@ class EmptyState extends StatelessWidget {
               Text(
                 message!,
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
             ],
             if (action != null) ...[const SizedBox(height: 20), action!],

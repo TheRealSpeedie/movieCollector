@@ -7,7 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:media_kit/media_kit.dart' as mk;
 import 'package:media_kit_video/media_kit_video.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../remote/application/remote_providers.dart';
@@ -138,8 +138,21 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         if (done) _finish();
       }),
       _player.stream.error.listen((message) {
+        // mpv also reports problems that do not stop the film, such as a
+        // subtitle track that fails to load. Only an error while the media
+        // is still opening replaces playback; later ones are logged.
+        if (!_loading) {
+          debugPrint('Player: $message');
+          return;
+        }
         if (mounted) {
-          setState(() => _error = ServerRejectedException(message, 0));
+          setState(
+            () => _error = ServerRejectedException(
+              'Das Video konnte nicht abgespielt werden.',
+              0,
+              detail: message,
+            ),
+          );
         }
       }),
     ]);
@@ -228,6 +241,16 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
         requestedHeight: _requestedHeight,
         preferences: _preferences,
       );
+      if (!mounted) {
+        // Left while the server was starting: release the session (and
+        // any conversion it started) now instead of after the idle timeout.
+        unawaited(
+          _api
+              .stop(session.id, position: startSeconds, duration: 0)
+              .catchError((Object _) {}),
+        );
+        return;
+      }
       _session = session;
       final headers = await _client.authHeaders();
       await _player.open(
@@ -258,6 +281,15 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
             'Diese Datei ist nicht mehr auf dem Server vorhanden.',
             404,
           );
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      // Anything else (for example the platform player failing to open)
+      // must end the spinner with an explanation.
+      if (mounted) {
+        setState(() {
+          _error = e;
           _loading = false;
         });
       }
@@ -601,8 +633,10 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
                 fit: BoxFit.contain,
               ),
               if (_loading || _buffering)
-                const Center(
-                  child: CircularProgressIndicator(color: AppColors.dustyRose),
+                Center(
+                  child: CircularProgressIndicator(
+                    color: context.colors.accent,
+                  ),
                 ),
               if (_error != null) _errorOverlay(),
               if (_controlsVisible && _error == null && !_loading)
@@ -634,7 +668,7 @@ class _PlayerScreenState extends ConsumerState<PlayerScreen> {
 
   Widget _errorOverlay() {
     return Container(
-      color: AppColors.background,
+      color: context.colors.background,
       child: SafeArea(
         child: Stack(
           children: [

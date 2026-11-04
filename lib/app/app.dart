@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
 
 import '../core/constants/app_constants.dart';
+import '../l10n/app_localizations.dart';
 import '../features/playback/application/preferences_upload.dart';
 import '../features/scanner/application/scan_providers.dart';
 import '../features/sync/application/sync_providers.dart';
 import 'router.dart';
 import 'theme/app_theme.dart';
 
-class MovieShelfApp extends ConsumerWidget {
-  const MovieShelfApp({super.key});
+class SpeednemaApp extends ConsumerWidget {
+  const SpeednemaApp({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -20,17 +20,13 @@ class MovieShelfApp extends ConsumerWidget {
     return MaterialApp.router(
       title: AppConstants.appName,
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.dark,
+      theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      themeMode: ThemeMode.dark,
+      themeMode: ThemeMode.system,
       routerConfig: appRouter,
       locale: const Locale('de', 'DE'),
-      supportedLocales: const [Locale('de', 'DE'), Locale('en', 'US')],
-      localizationsDelegates: const [
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
+      supportedLocales: AppLocalizations.supportedLocales,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
     );
   }
 }

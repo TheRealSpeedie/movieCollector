@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/remote/data/control_connection.dart';
-import 'package:movie_shelf/features/remote/domain/remote_models.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
+import 'package:speednema/features/remote/data/control_connection.dart';
+import 'package:speednema/features/remote/domain/remote_models.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
 
 import 'support.dart';
 

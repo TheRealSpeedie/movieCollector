@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../domain/server_models.dart';
 import 'server_image.dart';
 
@@ -29,16 +29,16 @@ class TitleCard extends StatelessWidget {
               children: [
                 ServerImage(path: title.posterUrl),
                 if (title.watched)
-                  const Positioned(
+                  Positioned(
                     top: 6,
                     right: 6,
                     child: CircleAvatar(
                       radius: 11,
-                      backgroundColor: AppColors.sage,
+                      backgroundColor: context.colors.owned,
                       child: Icon(
                         Icons.check,
                         size: 14,
-                        color: AppColors.background,
+                        color: context.colors.background,
                       ),
                     ),
                   ),
@@ -50,8 +50,8 @@ class TitleCard extends StatelessWidget {
                     child: LinearProgressIndicator(
                       value: progress.clamp(0, 1).toDouble(),
                       minHeight: 4,
-                      backgroundColor: Colors.black54,
-                      color: AppColors.dustyRose,
+                      backgroundColor: context.colors.scrim,
+                      color: context.colors.accent,
                     ),
                   ),
               ],
@@ -69,7 +69,7 @@ class TitleCard extends StatelessWidget {
               if (title.year != null) '${title.year}',
               if (title.isSeries) 'Serie',
             ].join(' · '),
-            style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+            style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
           ),
         ],
       ),

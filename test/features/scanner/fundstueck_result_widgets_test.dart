@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/app/theme/app_colors.dart';
-import 'package:movie_shelf/shared/widgets/action_button.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/features/collections/application/collections_providers.dart';
-import 'package:movie_shelf/features/collections/domain/movie_collection_info.dart';
-import 'package:movie_shelf/features/scanner/presentation/fundstueck_result_screen.dart';
-import 'package:movie_shelf/shared/models/match_candidate.dart';
+import 'package:speednema/app/theme/speednema_colors.dart';
+import 'package:speednema/shared/widgets/action_button.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/collections/application/collections_providers.dart';
+import 'package:speednema/features/collections/domain/movie_collection_info.dart';
+import 'package:speednema/features/scanner/presentation/fundstueck_result_screen.dart';
+import 'package:speednema/shared/models/match_candidate.dart';
 
 import '../../fixtures/movie_fixtures.dart';
 
@@ -42,7 +42,7 @@ void main() {
     ) async {
       await pump(tester, KnownMovieView(movie: ownedMovieFixture()));
 
-      expect(find.text('✓ Bereits in deiner Sammlung'), findsOneWidget);
+      expect(find.text('Hab ich'), findsOneWidget);
       expect(find.text('Gekaufter Film'), findsOneWidget);
     });
 
@@ -51,13 +51,13 @@ void main() {
     ) async {
       await pump(tester, KnownMovieView(movie: wishlistMovieFixture()));
 
-      expect(find.text('♡ Auf deiner Wunschliste'), findsOneWidget);
+      expect(find.text('Auf deiner Wunschliste'), findsOneWidget);
     });
 
     testWidgets('shows the open banner for an open movie', (tester) async {
       await pump(tester, KnownMovieView(movie: openMovieFixture()));
 
-      expect(find.text('Als offen gespeichert'), findsOneWidget);
+      expect(find.text('Noch nicht gekauft'), findsOneWidget);
     });
   });
 
@@ -65,6 +65,11 @@ void main() {
     testWidgets('shows the missing-movie banner and save actions', (
       tester,
     ) async {
+      // A tall phone: the verdict comes first, the save actions follow.
+      tester.view
+        ..physicalSize = const Size(430, 1400)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       const candidate = MatchCandidate(
         result: TmdbSearchResult(id: 1, title: 'Ein unbekannter Film'),
         confidence: 0.6,
@@ -84,14 +89,17 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(
-        find.text('Diese Veröffentlichung wurde gefunden.'),
+        find.text('Neu für dich'),
         findsOneWidget,
       );
       expect(find.text('Als gekauft speichern'), findsOneWidget);
       expect(find.text('Zur Wunschliste'), findsOneWidget);
       expect(find.text('Als offen speichern'), findsOneWidget);
       expect(find.text('Manuell suchen'), findsOneWidget);
-      expect(find.text('Wie möchtest du diesen Film speichern?'), findsOneWidget);
+      expect(
+        find.text('Wie möchtest du diesen Film speichern?'),
+        findsOneWidget,
+      );
       expect(find.text('Falscher Film? Manuell suchen'), findsNothing);
       expect(find.text('Speichern'), findsNothing);
     });
@@ -155,18 +163,10 @@ void main() {
       expect(find.text('Alle gekauft'), findsNothing);
       expect(find.text('Alle offen'), findsNothing);
       expect(find.text('Speichern'), findsOneWidget);
-      expect(
-        _outlinedColor(tester, 'Alle als gekauft'),
-        AppColors.sage,
-      );
-      expect(
-        _outlinedColor(tester, 'Alle auf die Wunschliste'),
-        AppColors.dustyRose,
-      );
-      expect(
-        _outlinedColor(tester, 'Alle als offen'),
-        AppColors.amber,
-      );
+      final colors = tester.element(find.text('Alle als gekauft')).colors;
+      expect(_outlinedColor(tester, 'Alle als gekauft'), colors.owned);
+      expect(_outlinedColor(tester, 'Alle auf die Wunschliste'), colors.accent);
+      expect(_outlinedColor(tester, 'Alle als offen'), colors.attention);
       await tester.scrollUntilVisible(
         find.text('Falscher Film? Manuell suchen'),
         200,

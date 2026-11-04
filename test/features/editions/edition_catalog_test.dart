@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/database/media_format.dart';
-import 'package:movie_shelf/features/editions/data/copy_repository.dart';
-import 'package:movie_shelf/features/editions/data/edition_catalog.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_lookup_service.dart';
-import 'package:movie_shelf/features/scanner/domain/scan_trace.dart';
+import 'package:speednema/core/database/media_format.dart';
+import 'package:speednema/features/editions/data/copy_repository.dart';
+import 'package:speednema/features/editions/data/edition_catalog.dart';
+import 'package:speednema/features/scanner/domain/barcode_lookup_service.dart';
+import 'package:speednema/features/scanner/domain/scan_trace.dart';
 
 import '../../core/sync/sync_engine_test.dart' show Device, FakeServer;
 import '../scanner/barcode_resolver_test.mocks.dart';
@@ -48,7 +48,7 @@ const steelbook = CatalogEntry(
   editionName: 'Steelbook',
   region: 'B',
   barcodes: ['5051890012345'],
-  attribution: 'Movie Shelf users',
+  attribution: 'Speednema users',
 );
 
 void main() {
@@ -59,13 +59,13 @@ void main() {
       'title': 'Arrival',
       'format': 'bluray',
       'barcodes': ['4006680012345'],
-      'attribution': 'Movie Shelf users',
+      'attribution': 'Speednema users',
       'status': 'pending',
       'mine': true,
     });
     expect(entry.format, MediaFormat.bluray);
     expect(entry.pending, isTrue);
-    expect(entry.attribution, 'Movie Shelf users');
+    expect(entry.attribution, 'Speednema users');
   });
 
   test('sharing sends the release only, and names the corrected entry', () {

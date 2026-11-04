@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/shared/models/collection_with_entries.dart';
+import 'package:speednema/shared/models/collection_with_entries.dart';
 
 import '../../fixtures/movie_fixtures.dart';
 

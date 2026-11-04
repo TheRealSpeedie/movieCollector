@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../playback/domain/play_request.dart';
@@ -28,7 +28,7 @@ class TvHomeScreen extends ConsumerWidget {
         ),
         data: (data) => ListView(
           children: [
-            _Header(serverName: serverName ?? 'Movie Shelf'),
+            _Header(serverName: serverName ?? 'Speednema'),
             if (data.resume.isNotEmpty)
               _Row(
                 title: 'Weiter schauen',
@@ -70,7 +70,7 @@ class _Header extends ConsumerWidget {
       padding: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-          const Icon(Icons.movie_outlined, color: AppColors.dustyRose),
+          Icon(Icons.movie_outlined, color: context.colors.accent),
           const SizedBox(width: 12),
           Text(serverName, style: Theme.of(context).textTheme.titleLarge),
           const Spacer(),
@@ -200,16 +200,16 @@ class TvPosterTile extends StatelessWidget {
                 children: [
                   ServerImage(path: title.posterUrl),
                   if (title.watched)
-                    const Positioned(
+                    Positioned(
                       top: 6,
                       right: 6,
                       child: CircleAvatar(
                         radius: 12,
-                        backgroundColor: AppColors.sage,
+                        backgroundColor: context.colors.owned,
                         child: Icon(
                           Icons.check,
                           size: 16,
-                          color: AppColors.background,
+                          color: context.colors.background,
                         ),
                       ),
                     ),
@@ -221,8 +221,8 @@ class TvPosterTile extends StatelessWidget {
                       child: LinearProgressIndicator(
                         value: progress.clamp(0, 1).toDouble(),
                         minHeight: 5,
-                        backgroundColor: Colors.black54,
-                        color: AppColors.dustyRose,
+                        backgroundColor: context.colors.scrim,
+                        color: context.colors.accent,
                       ),
                     ),
                 ],
@@ -240,7 +240,7 @@ class TvPosterTile extends StatelessWidget {
                 if (title.year != null) '${title.year}',
                 if (title.isSeries) 'Serie',
               ].join(' · '),
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ],
         ),
@@ -280,12 +280,12 @@ class TvResumeTile extends StatelessWidget {
               aspectRatio: 16 / 9,
               borderRadius: 11,
             ),
-            Container(color: Colors.black38),
-            const Center(
+            Container(color: context.colors.scrim.withValues(alpha: 0.38)),
+            Center(
               child: Icon(
                 Icons.play_circle_outline,
                 size: 48,
-                color: Colors.white,
+                color: context.colors.onMedia,
               ),
             ),
             Positioned(
@@ -300,8 +300,8 @@ class TvResumeTile extends StatelessWidget {
                     item.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: context.colors.onMedia,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -311,7 +311,9 @@ class TvResumeTile extends StatelessWidget {
                         : item.subtitle ?? '',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(color: Colors.white70),
+                    style: TextStyle(
+                      color: context.colors.onMedia.withValues(alpha: 0.7),
+                    ),
                   ),
                 ],
               ),
@@ -324,8 +326,8 @@ class TvResumeTile extends StatelessWidget {
                 child: LinearProgressIndicator(
                   value: item.fraction.toDouble(),
                   minHeight: 5,
-                  backgroundColor: Colors.black54,
-                  color: AppColors.dustyRose,
+                  backgroundColor: context.colors.scrim,
+                  color: context.colors.accent,
                 ),
               ),
           ],

@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/app_shell.dart';
+import '../../add/presentation/add_sheet.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../../shared/models/movie.dart';
 import '../../../shared/models/tv_series_with_seasons.dart';
-import '../../../shared/widgets/poster_image.dart';
-import '../../../shared/widgets/status_chip.dart';
+import '../../../shared/widgets/media_card.dart';
+import '../../../shared/widgets/poster_grid.dart';
+import '../../../shared/widgets/skeleton.dart';
+import '../../../app/theme/tokens.g.dart';
 import '../../movies/application/movie_providers.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/presentation/title_card.dart';
@@ -18,6 +21,7 @@ import '../../settings/data/settings_repository.dart';
 import '../../sync/application/sync_providers.dart';
 import '../../tv/application/tv_providers.dart';
 import '../application/collection_filter_controller.dart';
+import 'collection_filter_sheet.dart';
 
 class CollectionScreen extends ConsumerStatefulWidget {
   const CollectionScreen({super.key});
@@ -58,6 +62,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
               )
             : const Text('Sammlung'),
         actions: [
+          if (MediaQuery.sizeOf(context).width < Breakpoints.medium)
+            const AddButton(),
           IconButton(
             tooltip: _searching ? 'Suche schließen' : 'Sammlung durchsuchen',
             icon: Icon(_searching ? Icons.close : Icons.search),
@@ -70,47 +76,37 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
             },
           ),
           IconButton(
-            tooltip: filter.viewMode == CollectionViewMode.grid
-                ? 'Als Liste zeigen'
-                : 'Als Raster zeigen',
-            icon: Icon(
-              filter.viewMode == CollectionViewMode.grid
-                  ? Icons.view_list
-                  : Icons.grid_view,
+            tooltip: 'Filter & Ansicht',
+            icon: Badge(
+              isLabelVisible:
+                  filter.genreFilter != null || filter.yearFilter != null,
+              smallSize: 8,
+              child: const Icon(Icons.tune),
             ),
-            onPressed: notifier.toggleViewMode,
-          ),
-          PopupMenuButton<SortOption>(
-            tooltip: 'Sortieren',
-            icon: const Icon(Icons.sort),
-            onSelected: notifier.setSort,
-            itemBuilder: (context) => const [
-              PopupMenuItem(
-                value: SortOption.recentlyAdded,
-                child: Text('Zuletzt hinzugefügt'),
-              ),
-              PopupMenuItem(value: SortOption.title, child: Text('Titel')),
-              PopupMenuItem(
-                value: SortOption.releaseYear,
-                child: Text('Erscheinungsjahr'),
-              ),
-              PopupMenuItem(value: SortOption.status, child: Text('Status')),
-            ],
+            onPressed: () => showCollectionFilterSheet(context),
           ),
         ],
       ),
       body: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-            child: SegmentedButton<bool>(
-              segments: const [
-                ButtonSegment(value: false, label: Text('Filme')),
-                ButtonSegment(value: true, label: Text('Serien')),
-              ],
-              selected: {_showTv},
-              onSelectionChanged: (value) =>
-                  setState(() => _showTv = value.first),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.l,
+              AppSpacing.s,
+              AppSpacing.l,
+              0,
+            ),
+            child: Align(
+              alignment: AlignmentDirectional.centerStart,
+              child: SegmentedButton<bool>(
+                segments: const [
+                  ButtonSegment(value: false, label: Text('Filme')),
+                  ButtonSegment(value: true, label: Text('Serien')),
+                ],
+                selected: {_showTv},
+                onSelectionChanged: (value) =>
+                    setState(() => _showTv = value.first),
+              ),
             ),
           ),
           _StatusFilterRow(filter: filter, notifier: notifier),
@@ -123,9 +119,11 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                 : connected && filter.availability == Availability.digital
                 ? _DigitalOnlyGrid(query: filter.query)
                 : moviesAsync.when(
-                    loading: () => const LoadingView(),
-                    error: (error, stack) =>
-                        ErrorView(error: error, onRetry: () {}),
+                    loading: () => const SkeletonPosterGrid(),
+                    error: (error, stack) => ErrorView(
+                      error: error,
+                      onRetry: () => ref.invalidate(allMoviesProvider),
+                    ),
                     data: (movies) {
                       if (movies.isEmpty) {
                         return EmptyState(
@@ -137,13 +135,13 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen> {
                           message:
                               filter.query.isNotEmpty || filter.hasActiveFilters
                               ? 'Passe deine Suche oder Filter an.'
-                              : 'Füge deinen ersten Film über Suche oder Fundstück-Check hinzu.',
+                              : 'Scanne einen Barcode, suche einen Titel oder importiere eine Liste.',
                           action:
                               (filter.query.isEmpty && !filter.hasActiveFilters)
                               ? FilledButton.icon(
-                                  onPressed: () => context.push('/search'),
-                                  icon: const Icon(Icons.search),
-                                  label: const Text('Film suchen'),
+                                  onPressed: () => showAddSheet(context),
+                                  icon: const Icon(Icons.add),
+                                  label: const Text('Ersten Film hinzufügen'),
                                 )
                               : null,
                         );
@@ -168,10 +166,15 @@ class _StatusFilterRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+    // One line that scrolls, aligned with the grid, instead of wrapping.
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.l,
+        vertical: AppSpacing.s,
+      ),
       child: Wrap(
-        spacing: 8,
+        spacing: AppSpacing.s,
         children: [
           ChoiceChip(
             label: const Text('Alle'),
@@ -200,10 +203,16 @@ class _AvailabilityRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.l,
+        0,
+        AppSpacing.l,
+        AppSpacing.s,
+      ),
       child: Wrap(
-        spacing: 8,
+        spacing: AppSpacing.s,
         children: [
           for (final availability in Availability.values)
             ChoiceChip(
@@ -274,66 +283,17 @@ class _MovieGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.58,
-      ),
+    return PosterGrid(
       itemCount: movies.length,
       itemBuilder: (context, index) {
         final movie = movies[index];
-        return Semantics(
-          button: true,
-          label: [
-            movie.title,
-            if (movie.releaseYear != null) '${movie.releaseYear}',
-            movie.status.germanLabel,
-          ].join(', '),
-          excludeSemantics: true,
-          child: GestureDetector(
-            onTap: () => context.push('/movie/${movie.id}'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: PosterImage(posterPath: movie.posterPath)),
-                const SizedBox(height: 6),
-                Text(
-                  movie.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    if (movie.releaseYear != null)
-                      Text(
-                        '${movie.releaseYear}',
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: AppColors.neutralGray,
-                        ),
-                      ),
-                    const Spacer(),
-                    Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: colorForStatus(movie.status),
-                        shape: BoxShape.circle,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ),
+        return MediaCard(
+          key: ValueKey(movie.id),
+          title: movie.title,
+          posterPath: movie.posterPath,
+          subtitle: movie.releaseYear?.toString(),
+          status: movie.status,
+          onTap: () => context.push('/movie/${movie.id}'),
         );
       },
     );
@@ -347,53 +307,18 @@ class _MovieList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(12),
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
       itemCount: movies.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final movie = movies[index];
-        return Card(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => context.push('/movie/${movie.id}'),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 56,
-                    child: PosterImage(
-                      posterPath: movie.posterPath,
-                      borderRadius: 10,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          movie.title,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        if (movie.releaseYear != null)
-                          Text(
-                            '${movie.releaseYear}',
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
-                              fontSize: 12,
-                            ),
-                          ),
-                        const SizedBox(height: 6),
-                        StatusChip(status: movie.status, compact: true),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        return MediaRow(
+          key: ValueKey(movie.id),
+          title: movie.title,
+          posterPath: movie.posterPath,
+          subtitle: movie.releaseYear?.toString(),
+          status: movie.status,
+          onTap: () => context.push('/movie/${movie.id}'),
         );
       },
     );
@@ -409,8 +334,11 @@ class _TvCollectionBody extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final seriesAsync = ref.watch(filteredTvSeriesProvider);
     return seriesAsync.when(
-      loading: () => const LoadingView(),
-      error: (error, stack) => ErrorView(error: error, onRetry: () {}),
+      loading: () => const SkeletonPosterGrid(),
+      error: (error, stack) => ErrorView(
+        error: error,
+        onRetry: () => ref.invalidate(allTvSeriesProvider),
+      ),
       data: (series) {
         if (series.isEmpty) {
           return EmptyState(
@@ -438,51 +366,16 @@ class _TvGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        mainAxisSpacing: 12,
-        crossAxisSpacing: 12,
-        childAspectRatio: 0.52,
-      ),
+    return PosterGrid(
       itemCount: series.length,
       itemBuilder: (context, index) {
         final entry = series[index];
-        return Semantics(
-          button: true,
-          label: '${entry.series.name}, ${entry.progressLabel}',
-          excludeSemantics: true,
-          child: GestureDetector(
-            onTap: () => context.push('/series/${entry.series.id}'),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: PosterImage(posterPath: entry.series.posterPath),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  entry.series.name,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                  ),
-                ),
-                Text(
-                  entry.progressLabel,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: AppColors.neutralGray,
-                  ),
-                ),
-              ],
-            ),
-          ),
+        return MediaCard(
+          key: ValueKey(entry.series.id),
+          title: entry.series.name,
+          posterPath: entry.series.posterPath,
+          subtitle: entry.progressLabel,
+          onTap: () => context.push('/series/${entry.series.id}'),
         );
       },
     );
@@ -496,59 +389,22 @@ class _TvList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      padding: const EdgeInsets.all(12),
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.s),
       itemCount: series.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 10),
       itemBuilder: (context, index) {
         final entry = series[index];
-        return Card(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(16),
-            onTap: () => context.push('/series/${entry.series.id}'),
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Row(
-                children: [
-                  SizedBox(
-                    width: 56,
-                    child: PosterImage(
-                      posterPath: entry.series.posterPath,
-                      borderRadius: 10,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          entry.series.name,
-                          style: const TextStyle(fontWeight: FontWeight.w600),
-                        ),
-                        if (entry.series.firstAirYear != null)
-                          Text(
-                            '${entry.series.firstAirYear}',
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
-                              fontSize: 12,
-                            ),
-                          ),
-                        const SizedBox(height: 6),
-                        Text(
-                          entry.progressLabel,
-                          style: const TextStyle(
-                            color: AppColors.neutralGray,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+        return MediaRow(
+          key: ValueKey(entry.series.id),
+          title: entry.series.name,
+          posterPath: entry.series.posterPath,
+          subtitle: [
+            if (entry.series.firstAirYear != null)
+              '${entry.series.firstAirYear}',
+            entry.progressLabel,
+          ].join(' · '),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () => context.push('/series/${entry.series.id}'),
         );
       },
     );

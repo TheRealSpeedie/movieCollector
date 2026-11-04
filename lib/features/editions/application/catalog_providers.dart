@@ -5,13 +5,13 @@ import '../../server/application/server_providers.dart';
 import '../data/edition_catalog.dart';
 
 /// The edition catalog to ask: the own server when one is connected,
-/// otherwise Movie Shelf Cloud when signed in. Without either, editions come
+/// otherwise Speednema Cloud when signed in. Without either, editions come
 /// only from this device.
 final editionCatalogProvider = Provider<EditionCatalog?>((ref) {
   final server = ref.watch(serverClientProvider);
   if (server != null) {
     return RemoteEditionCatalog(
-      name: 'deinem Movie Shelf Server',
+      name: 'deinem Speednema Server',
       get: (path, query) => server.get(path, query: query),
       post: (path, body) => server.post(path, body: body),
     );
@@ -19,7 +19,7 @@ final editionCatalogProvider = Provider<EditionCatalog?>((ref) {
   final cloud = ref.watch(cloudClientProvider);
   if (cloud?.session != null) {
     return RemoteEditionCatalog(
-      name: 'Movie Shelf Cloud',
+      name: 'Speednema Cloud',
       get: (path, query) => cloud!.get(path, query: query),
       post: (path, body) => cloud!.post(path, body: body),
     );

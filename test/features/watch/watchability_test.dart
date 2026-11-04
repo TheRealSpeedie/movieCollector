@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart';
-import 'package:movie_shelf/features/watch/domain/watchability.dart';
+import 'package:speednema/core/network/tmdb/tmdb_watch_models.dart';
+import 'package:speednema/features/watch/domain/watchability.dart';
 
 const _netflix = 8;
 const _prime = 9;

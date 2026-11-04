@@ -94,6 +94,7 @@ enum ImportSaveFailureCategory {
   databaseMigration,
   invalidData,
   network,
+  configuration,
   metadata,
   unknown,
 }
@@ -124,6 +125,7 @@ class ImportSaveFailure {
     ImportSaveFailureCategory.databaseMigration => 'Datenbankversion',
     ImportSaveFailureCategory.invalidData => 'Ungültige Daten',
     ImportSaveFailureCategory.network => 'Netzwerkfehler',
+    ImportSaveFailureCategory.configuration => 'Filminfos nicht eingerichtet',
     ImportSaveFailureCategory.metadata => 'API-Daten unvollständig',
     ImportSaveFailureCategory.unknown => 'Unerwarteter Fehler',
   };
@@ -138,6 +140,8 @@ class ImportSaveFailure {
     ImportSaveFailureCategory.invalidData =>
       'Die gespeicherten Daten für diesen Titel sind unvollständig oder ungültig.',
     ImportSaveFailureCategory.network => userMessage,
+    ImportSaveFailureCategory.configuration =>
+      'Ohne Filminfos von TMDB kann dieser Titel nicht zugeordnet werden. Richte sie in den Einstellungen ein und versuche es erneut.',
     ImportSaveFailureCategory.metadata =>
       'Die Filmdaten von TMDB waren unvollständig oder konnten nicht geladen werden.',
     ImportSaveFailureCategory.unknown =>
@@ -315,10 +319,11 @@ ImportSaveFailure importSaveFailureFrom(
   final developerMessage = '${error.runtimeType}: $error';
   if (error is AppException) {
     final category = switch (error) {
+      // Missing or rejected movie-information key: not a network problem.
+      InvalidApiConfigException() => ImportSaveFailureCategory.configuration,
       RateLimitException() ||
       NoInternetException() ||
-      ApiUnavailableException() ||
-      InvalidApiConfigException() => ImportSaveFailureCategory.network,
+      ApiUnavailableException() => ImportSaveFailureCategory.network,
       MovieNotFoundException() => ImportSaveFailureCategory.metadata,
       DuplicateMovieException() => ImportSaveFailureCategory.duplicate,
       _ => ImportSaveFailureCategory.unknown,

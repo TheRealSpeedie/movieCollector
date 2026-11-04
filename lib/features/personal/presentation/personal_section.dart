@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../editions/data/copy_repository.dart';
 import '../../watch/application/watch_providers.dart';
 import '../data/personal_state_repository.dart';
@@ -80,7 +80,7 @@ class PersonalSection extends ConsumerWidget {
                             : (state?.rating ?? 0) == star * 2 - 1
                             ? Icons.star_half
                             : Icons.star_border,
-                        color: AppColors.amber,
+                        color: context.colors.attention,
                       ),
                     ),
                 ],

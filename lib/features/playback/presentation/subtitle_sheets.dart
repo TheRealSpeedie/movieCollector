@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../data/playback_api.dart';
@@ -117,8 +117,8 @@ class _SubtitleSearchSheetState extends State<SubtitleSearchSheet> {
                                   ? Icons.verified
                                   : Icons.subtitles_outlined,
                               color: offer.hashMatch
-                                  ? AppColors.sage
-                                  : AppColors.neutralGray,
+                                  ? context.colors.owned
+                                  : context.colors.textSecondary,
                             ),
                             title: Text(
                               offer.release.isEmpty
@@ -141,11 +141,14 @@ class _SubtitleSearchSheetState extends State<SubtitleSearchSheet> {
                       ],
                     ),
             ),
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(8),
               child: Text(
                 'Untertitel von OpenSubtitles über deinen Server.',
-                style: TextStyle(color: AppColors.neutralGray, fontSize: 12),
+                style: TextStyle(
+                  color: context.colors.textSecondary,
+                  fontSize: 12,
+                ),
               ),
             ),
           ],

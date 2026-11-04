@@ -3,12 +3,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/app/theme/app_theme.dart';
-import 'package:movie_shelf/features/server/application/server_providers.dart';
-import 'package:movie_shelf/features/server/data/pairing_crypto.dart';
-import 'package:movie_shelf/features/server/data/pairing_service.dart';
-import 'package:movie_shelf/features/server/data/server_discovery.dart';
-import 'package:movie_shelf/features/television/presentation/tv_connect_screen.dart';
+import 'package:speednema/app/theme/app_theme.dart';
+import 'package:speednema/features/server/application/server_providers.dart';
+import 'package:speednema/features/server/data/pairing_crypto.dart';
+import 'package:speednema/features/server/data/pairing_service.dart';
+import 'package:speednema/features/server/data/server_discovery.dart';
+import 'package:speednema/features/television/presentation/tv_connect_screen.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
 import '../server/support/fakes.dart';
@@ -18,7 +18,7 @@ final _secret = List<int>.generate(32, (i) => i);
 
 String get _link {
   final fingerprint = sampleCredentials().fingerprint;
-  return 'movieshelf://pair?v=1&m=tv&sid=$_sessionId&s=${base64Url.encode(_secret).replaceAll('=', '')}&h=192.168.1.10&p=8096&tls=0&fp=$fingerprint&id=server-1&n=Wohnzimmer';
+  return 'speednema://pair?v=1&m=tv&sid=$_sessionId&s=${base64Url.encode(_secret).replaceAll('=', '')}&h=192.168.1.10&p=8096&tls=0&fp=$fingerprint&id=server-1&n=Wohnzimmer';
 }
 
 Future<String> _sealedCredentials() async {

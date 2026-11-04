@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../playback/domain/play_request.dart';
@@ -91,7 +91,7 @@ class _TitleBody extends ConsumerWidget {
         SliverAppBar(
           pinned: true,
           expandedHeight: 220,
-          backgroundColor: AppColors.background,
+          backgroundColor: context.colors.background,
           actions: [
             IconButton(
               tooltip: 'Auf dem Fernseher öffnen',
@@ -125,15 +125,15 @@ class _TitleBody extends ConsumerWidget {
                     '★ ${title.rating!.toStringAsFixed(1)}',
                   if (title.isSeries) 'Serie',
                 ].join(' · '),
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
               if (detail.tagline.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 Text(
                   detail.tagline,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontStyle: FontStyle.italic,
-                    color: AppColors.neutralGray,
+                    color: context.colors.textSecondary,
                   ),
                 ),
               ],
@@ -246,7 +246,7 @@ class _TitleBody extends ConsumerWidget {
                 const SizedBox(height: 4),
                 Text(
                   detail.cast.take(8).join(', '),
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ],
               if (!title.isSeries && detail.files.length > 1) ...[
@@ -325,7 +325,7 @@ class _ToggleChip extends StatelessWidget {
       avatar: Icon(
         icon,
         size: 18,
-        color: active ? AppColors.dustyRose : AppColors.neutralGray,
+        color: active ? context.colors.accent : context.colors.textSecondary,
       ),
       label: Text(label),
       onPressed: onTap,
@@ -507,23 +507,26 @@ class _EpisodeTile extends ConsumerWidget {
                     if (episode.runtimeMinutes != null)
                       Text(
                         '${episode.runtimeMinutes} Min.',
-                        style: const TextStyle(
-                          color: AppColors.neutralGray,
+                        style: TextStyle(
+                          color: context.colors.textSecondary,
                           fontSize: 12,
                         ),
                       ),
                     if (file == null)
-                      const Text(
+                      Text(
                         'Nicht verfügbar',
-                        style: TextStyle(color: AppColors.amber, fontSize: 12),
+                        style: TextStyle(
+                          color: context.colors.attention,
+                          fontSize: 12,
+                        ),
                       ),
                     if (!progress.watched && fraction > 0) ...[
                       const SizedBox(height: 6),
                       LinearProgressIndicator(
                         value: fraction.clamp(0, 1).toDouble(),
                         minHeight: 4,
-                        backgroundColor: AppColors.divider,
-                        color: AppColors.dustyRose,
+                        backgroundColor: context.colors.hairline,
+                        color: context.colors.accent,
                       ),
                     ],
                   ],
@@ -538,8 +541,8 @@ class _EpisodeTile extends ConsumerWidget {
                       ? Icons.check_circle
                       : Icons.check_circle_outline,
                   color: progress.watched
-                      ? AppColors.sage
-                      : AppColors.neutralGray,
+                      ? context.colors.owned
+                      : context.colors.textSecondary,
                 ),
                 onPressed: () async {
                   await ref

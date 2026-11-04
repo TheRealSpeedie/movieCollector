@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/matching/media_title_parser.dart';
+import 'package:speednema/core/matching/media_title_parser.dart';
 
 void main() {
   const parser = MediaTitleParser();

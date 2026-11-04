@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/scanner/domain/scanned_code.dart';
+import 'package:speednema/features/scanner/domain/scanned_code.dart';
 
 void main() {
   String ean13(String body) => '$body${gtinCheckDigit(body)}';

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/sync/sync_engine.dart';
-import 'package:movie_shelf/core/sync/sync_provider.dart';
-import 'package:movie_shelf/features/household/data/household_api.dart';
+import 'package:speednema/core/sync/sync_engine.dart';
+import 'package:speednema/core/sync/sync_provider.dart';
+import 'package:speednema/features/household/data/household_api.dart';
 
 import 'sync_engine_test.dart' show Device, FakeServer;
 

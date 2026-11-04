@@ -1,0 +1,11 @@
+{
+  "@@locale": "de",
+  "appTitle": "Speednema",
+  "@appTitle": {
+    "description": "Product name. Never translated."
+  },
+  "actionRetry": "Erneut versuchen",
+  "@actionRetry": {
+    "description": "Button that repeats a failed load or request."
+  }
+}

@@ -21,8 +21,12 @@ class MovieUpsertResult {
 }
 
 class MovieRepository {
-  MovieRepository(this._db, this._tmdb, this._collectionRepository)
-    : _ownership = OwnershipService(_db);
+  MovieRepository(
+    this._db,
+    this._tmdb,
+    this._collectionRepository, {
+    String? Function()? defaultFormat,
+  }) : _ownership = OwnershipService(_db, defaultFormat: defaultFormat);
 
   final AppDatabase _db;
   final OwnershipService _ownership;

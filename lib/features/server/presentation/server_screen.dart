@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../shared/widgets/inline_notice.dart';
+import '../../../shared/widgets/status_view.dart';
+import '../application/server_connection.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/empty_state.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -37,20 +40,19 @@ class _NotConnected extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final revoked = ref.watch(serverRevokedProvider);
+    final connection = ref.watch(serverConnectionProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Heimserver')),
-      body: EmptyState(
+      appBar: AppBar(title: const Text('Speednema Server')),
+      body: StatusView(
+        kind: revoked ? StatusKind.authRequired : StatusKind.empty,
         icon: revoked ? Icons.link_off : Icons.dns_outlined,
         title: revoked
             ? 'Dieses Gerät wurde getrennt'
             : 'Kein Server verbunden',
-        message: revoked
-            ? 'Der Server hat dieses Gerät entfernt. Verbinde es erneut mit einem neuen QR-Code.'
-            : 'Verbinde dein Handy mit dem Movie-Shelf-Server, um deine Filme und Serien im Heimnetz zu schauen.',
-        action: FilledButton.icon(
-          onPressed: () => context.push('/server/connect'),
-          icon: const Icon(Icons.qr_code_scanner),
-          label: const Text('Server verbinden'),
+        message: connection.explanation,
+        primary: StatusAction(
+          revoked ? 'Neu verbinden' : 'Server verbinden',
+          () => context.push('/server/connect'),
         ),
       ),
     );
@@ -86,7 +88,7 @@ class _Connected extends ConsumerWidget {
                 }
               },
               itemBuilder: (context) => const [
-                PopupMenuItem(value: 'tv', child: Text('Fernseher koppeln')),
+                PopupMenuItem(value: 'tv', child: Text('Gerät koppeln')),
                 PopupMenuItem(
                   value: 'sync',
                   child: Text('Sammlung abgleichen'),
@@ -105,7 +107,28 @@ class _Connected extends ConsumerWidget {
             ],
           ),
         ),
-        body: const TabBarView(children: [_DiscoverTab(), _LibraryTab()]),
+        body: Column(
+          children: [
+            if (ref.watch(serverConnectionProvider)
+                case final ServerOffline offline)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
+                child: InlineNotice(
+                  kind: StatusKind.serviceUnavailable,
+                  title: offline.label,
+                  message: offline.explanation,
+                  // The library tab retries on its own; home data is shared.
+                  action: StatusAction(
+                    'Erneut versuchen',
+                    () => ref.invalidate(serverHomeProvider),
+                  ),
+                ),
+              ),
+            const Expanded(
+              child: TabBarView(children: [_DiscoverTab(), _LibraryTab()]),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -251,12 +274,12 @@ class ResumeCard extends StatelessWidget {
                 aspectRatio: 16 / 9,
                 borderRadius: 0,
               ),
-              Container(color: Colors.black38),
-              const Center(
+              Container(color: context.colors.scrim.withValues(alpha: 0.38)),
+              Center(
                 child: Icon(
                   Icons.play_circle_outline,
                   size: 44,
-                  color: Colors.white,
+                  color: context.colors.onMedia,
                 ),
               ),
               Positioned(
@@ -271,8 +294,8 @@ class ResumeCard extends StatelessWidget {
                       item.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: context.colors.onMedia,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -282,8 +305,8 @@ class ResumeCard extends StatelessWidget {
                           : item.subtitle ?? '',
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white70,
+                      style: TextStyle(
+                        color: context.colors.onMedia.withValues(alpha: 0.7),
                         fontSize: 12,
                       ),
                     ),
@@ -298,8 +321,8 @@ class ResumeCard extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: item.fraction.toDouble(),
                     minHeight: 4,
-                    backgroundColor: Colors.black54,
-                    color: AppColors.dustyRose,
+                    backgroundColor: context.colors.scrim,
+                    color: context.colors.accent,
                   ),
                 ),
             ],

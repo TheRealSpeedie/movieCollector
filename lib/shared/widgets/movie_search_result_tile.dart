@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 import '../../core/network/tmdb/tmdb_models.dart';
 import 'poster_image.dart';
 
@@ -92,17 +92,15 @@ class MovieSearchResultTile extends StatelessWidget {
                     if (originalTitle != null && originalTitle != title)
                       Text(
                         originalTitle!,
-                        style: const TextStyle(
-                          color: AppColors.neutralGray,
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     if (releaseYear != null)
                       Text(
                         '$releaseYear',
-                        style: const TextStyle(
-                          color: AppColors.neutralGray,
-                          fontSize: 12,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     if (overview != null && overview!.trim().isNotEmpty)
@@ -112,10 +110,8 @@ class MovieSearchResultTile extends StatelessWidget {
                           overview!,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.neutralGray,
-                            fontSize: 12,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(color: context.colors.textSecondary),
                         ),
                       ),
                   ],
@@ -123,7 +119,10 @@ class MovieSearchResultTile extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               trailing ??
-                  const Icon(Icons.chevron_right, color: AppColors.neutralGray),
+                  Icon(
+                    Icons.chevron_right,
+                    color: context.colors.textSecondary,
+                  ),
             ],
           ),
         ),

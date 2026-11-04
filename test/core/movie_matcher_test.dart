@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/matching/movie_matcher.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/matching/movie_matcher.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
 
 void main() {
   const matcher = MovieMatcher();
@@ -22,17 +22,15 @@ void main() {
   });
 
   test('ranks a localized title above the original English title', () {
-    final ranked = matcher.rank(
-      'Pirates Of The Caribbean - Am Ende Der Welt',
-      const [
-        TmdbSearchResult(
-          id: 285,
-          title: 'Pirates of the Caribbean - Am Ende der Welt',
-          originalTitle: "Pirates of the Caribbean: At World's End",
-        ),
-        TmdbSearchResult(id: 22, title: 'Fluch der Karibik'),
-      ],
-    );
+    final ranked = matcher
+        .rank('Pirates Of The Caribbean - Am Ende Der Welt', const [
+          TmdbSearchResult(
+            id: 285,
+            title: 'Pirates of the Caribbean - Am Ende der Welt',
+            originalTitle: "Pirates of the Caribbean: At World's End",
+          ),
+          TmdbSearchResult(id: 22, title: 'Fluch der Karibik'),
+        ]);
     expect(ranked.first.result.id, 285);
     expect(ranked.first.confidence, greaterThan(0.9));
   });

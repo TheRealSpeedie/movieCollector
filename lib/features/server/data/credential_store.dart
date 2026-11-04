@@ -12,7 +12,7 @@ class SecureCredentialStore implements CredentialStore {
   SecureCredentialStore([FlutterSecureStorage? storage])
     : _storage = storage ?? const FlutterSecureStorage();
 
-  static const _key = 'movieshelf.server';
+  static const _key = 'speednema.server';
 
   final FlutterSecureStorage _storage;
 

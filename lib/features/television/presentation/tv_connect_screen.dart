@@ -4,8 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
+import '../../server/data/server_discovery.dart';
 import '../../server/application/server_providers.dart';
 import '../../server/data/pairing_service.dart';
 import '../../server/presentation/tv_approve_screen.dart';
@@ -14,7 +15,6 @@ import 'tv_focusable.dart';
 const tvDeviceName = 'Fernseher';
 const _sessionLifetime = Duration(seconds: 150);
 const _pollInterval = Duration(seconds: 2);
-const _defaultPort = 8096;
 
 class TvConnectScreen extends ConsumerStatefulWidget {
   const TvConnectScreen({super.key});
@@ -50,8 +50,7 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
   Future<({String baseUrl, String? fingerprint, String name})?> _find() async {
     final typed = _address.text.trim();
     if (typed.isNotEmpty) {
-      final host = typed.contains(':') ? typed : '$typed:$_defaultPort';
-      return (baseUrl: 'http://$host', fingerprint: null, name: typed);
+      return (baseUrl: serverBaseUrl(typed), fingerprint: null, name: typed);
     }
     final found = await ref.read(serverDiscoveryProvider).discover();
     final server = found.firstOrNull;
@@ -141,15 +140,17 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
         const SizedBox(height: 16),
         Text(
           _searching
-              ? 'Der Movie-Shelf-Server wird im Heimnetz gesucht …'
+              ? 'Der Speednema-Server wird im Heimnetz gesucht …'
               : _manual
               ? 'Es wurde kein Server gefunden. Gib die Adresse deines Servers ein, zum Beispiel 192.168.1.20.'
-              : 'Öffne Movie Shelf auf deinem Handy, wähle „Fernseher koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
-          style: theme.titleMedium?.copyWith(color: AppColors.neutralGray),
+              : 'Öffne Speednema auf deinem Handy, wähle „Gerät koppeln“ und scanne den QR-Code. Du kannst auch den Code eingeben.',
+          style: theme.titleMedium?.copyWith(
+            color: context.colors.textSecondary,
+          ),
         ),
         if (_error != null) ...[
           const SizedBox(height: 16),
-          Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+          Text(_error!, style: TextStyle(color: context.colors.error)),
         ],
         const SizedBox(height: 24),
         if (_manual) ...[
@@ -191,8 +192,8 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
     final pairing = _pairing;
     if (pairing == null) {
       return _searching
-          ? const CircularProgressIndicator(color: AppColors.dustyRose)
-          : const Icon(Icons.tv, size: 96, color: AppColors.neutralGray);
+          ? CircularProgressIndicator(color: context.colors.accent)
+          : Icon(Icons.tv, size: 96, color: context.colors.textSecondary);
     }
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -220,7 +221,7 @@ class _TvConnectScreenState extends ConsumerState<TvConnectScreen> {
         Text(
           '${_serverName ?? ''} · ${formatFingerprint(pairing.link.fingerprint)}',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
       ],
     );

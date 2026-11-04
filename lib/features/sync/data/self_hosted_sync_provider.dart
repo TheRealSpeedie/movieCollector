@@ -1,7 +1,7 @@
 import '../../../core/sync/sync_provider.dart';
 import '../../server/data/server_client.dart';
 
-/// Collection sync through the user's own Movie Shelf Server (`/api/sync`).
+/// Collection sync through the user's own Speednema Server (`/api/sync`).
 class SelfHostedSyncProvider implements CollectionSyncProvider {
   SelfHostedSyncProvider(this._client);
 

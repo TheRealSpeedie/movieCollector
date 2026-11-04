@@ -1,18 +1,18 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/core/network/network_info.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_api_client.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
-import 'package:movie_shelf/core/network/upcitemdb/upcitemdb_client.dart';
-import 'package:movie_shelf/core/network/upcitemdb/upcitemdb_models.dart';
-import 'package:movie_shelf/features/scanner/data/barcode_repository.dart';
-import 'package:movie_shelf/core/network/upcmdb/upcmdb_client.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_lookup_result.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_lookup_service.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_resolver.dart';
-import 'package:movie_shelf/features/scanner/domain/scanned_code.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/core/network/network_info.dart';
+import 'package:speednema/core/network/tmdb/tmdb_api_client.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/core/network/upcitemdb/upcitemdb_client.dart';
+import 'package:speednema/core/network/upcitemdb/upcitemdb_models.dart';
+import 'package:speednema/features/scanner/data/barcode_repository.dart';
+import 'package:speednema/core/network/upcmdb/upcmdb_client.dart';
+import 'package:speednema/features/scanner/domain/barcode_lookup_result.dart';
+import 'package:speednema/features/scanner/domain/barcode_lookup_service.dart';
+import 'package:speednema/features/scanner/domain/barcode_resolver.dart';
+import 'package:speednema/features/scanner/domain/scanned_code.dart';
 
 import '../../fixtures/movie_fixtures.dart';
 import 'barcode_resolver_test.mocks.dart';
@@ -163,51 +163,14 @@ void main() {
     verifyNever(barcodeProvider.lookup(any));
   });
 
-  test('a physical UPCMDB title is searched as the cleaned movie title', () async {
-    when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
-    when(networkInfo.isConnected).thenAnswer((_) async => true);
-    when(tmdbApiClient.searchMovies('Interstellar', year: 2014)).thenAnswer(
-      (_) async => const [TmdbSearchResult(id: 157336, title: 'Interstellar')],
-    );
-    final localResolver = BarcodeResolver(
-      barcodeRepository: barcodeRepository,
-      barcodeProvider: barcodeProvider,
-      tmdbApiClient: tmdbApiClient,
-      networkInfo: networkInfo,
-      lookupService: BarcodeLookupService(
-        upcItemDb: barcodeProvider,
-        upcmdb: _CountingUpcmdb(
-          const UpcmdbFound(
-            UpcmdbRecord(
-              title: 'Interstellar 4K UHD Steelbook Limited Edition Blu-ray',
-              year: 2014,
-            ),
-          ),
-        ),
-      ),
-    );
-
-    final result = await localResolver.resolve(gtin);
-
-    expect(result, isA<BarcodeNeedsConfirmation>());
-    verify(tmdbApiClient.searchMovies('Interstellar', year: 2014)).called(1);
-    verifyNever(barcodeProvider.lookup(any));
-  });
-
   test(
-    'a distributor suffix still confirms the localized TMDB movie',
+    'a physical UPCMDB title is searched as the cleaned movie title',
     () async {
       when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
       when(networkInfo.isConnected).thenAnswer((_) async => true);
-      const cleaned = 'Pirates Of The Caribbean - Am Ende Der Welt';
-      when(tmdbApiClient.searchMovies(cleaned)).thenAnswer(
-        (_) async => [
-          TmdbSearchResult(
-            id: 285,
-            title: 'Pirates of the Caribbean - Am Ende der Welt',
-            originalTitle: "Pirates of the Caribbean: At World's End",
-            releaseDate: DateTime(2007),
-          ),
+      when(tmdbApiClient.searchMovies('Interstellar', year: 2014)).thenAnswer(
+        (_) async => const [
+          TmdbSearchResult(id: 157336, title: 'Interstellar'),
         ],
       );
       final localResolver = BarcodeResolver(
@@ -220,9 +183,8 @@ void main() {
           upcmdb: _CountingUpcmdb(
             const UpcmdbFound(
               UpcmdbRecord(
-                title:
-                    'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
-                publisher: 'Buena Vista Home Entertainment',
+                title: 'Interstellar 4K UHD Steelbook Limited Edition Blu-ray',
+                year: 2014,
               ),
             ),
           ),
@@ -232,33 +194,69 @@ void main() {
       final result = await localResolver.resolve(gtin);
 
       expect(result, isA<BarcodeNeedsConfirmation>());
-      final confirmation = result as BarcodeNeedsConfirmation;
-      expect(confirmation.searchTitle, cleaned);
-      expect(confirmation.candidates.single.result.id, 285);
-      expect(confirmation.candidates.single.confidence, greaterThan(0.9));
-      verify(tmdbApiClient.searchMovies(cleaned)).called(1);
-      verifyNever(
-        tmdbApiClient.searchMovies(
-          'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
-        ),
-      );
+      verify(tmdbApiClient.searchMovies('Interstellar', year: 2014)).called(1);
       verifyNever(barcodeProvider.lookup(any));
     },
   );
 
+  test('a distributor suffix still confirms the localized TMDB movie', () async {
+    when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
+    when(networkInfo.isConnected).thenAnswer((_) async => true);
+    const cleaned = 'Pirates Of The Caribbean - Am Ende Der Welt';
+    when(tmdbApiClient.searchMovies(cleaned)).thenAnswer(
+      (_) async => [
+        TmdbSearchResult(
+          id: 285,
+          title: 'Pirates of the Caribbean - Am Ende der Welt',
+          originalTitle: "Pirates of the Caribbean: At World's End",
+          releaseDate: DateTime(2007),
+        ),
+      ],
+    );
+    final localResolver = BarcodeResolver(
+      barcodeRepository: barcodeRepository,
+      barcodeProvider: barcodeProvider,
+      tmdbApiClient: tmdbApiClient,
+      networkInfo: networkInfo,
+      lookupService: BarcodeLookupService(
+        upcItemDb: barcodeProvider,
+        upcmdb: _CountingUpcmdb(
+          const UpcmdbFound(
+            UpcmdbRecord(
+              title:
+                  'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+              publisher: 'Buena Vista Home Entertainment',
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final result = await localResolver.resolve(gtin);
+
+    expect(result, isA<BarcodeNeedsConfirmation>());
+    final confirmation = result as BarcodeNeedsConfirmation;
+    expect(confirmation.searchTitle, cleaned);
+    expect(confirmation.candidates.single.result.id, 285);
+    expect(confirmation.candidates.single.confidence, greaterThan(0.9));
+    verify(tmdbApiClient.searchMovies(cleaned)).called(1);
+    verifyNever(
+      tmdbApiClient.searchMovies(
+        'Pirates Of The Caribbean - Am Ende Der Welt By Buena Vista Home Entertainment.',
+      ),
+    );
+    verifyNever(barcodeProvider.lookup(any));
+  });
+
   test('an empty year-filtered search is retried without the year', () async {
     when(barcodeRepository.resolveMovie(any)).thenAnswer((_) async => null);
     when(networkInfo.isConnected).thenAnswer((_) async => true);
-    when(tmdbApiClient.searchMovies('Heat', year: 1995)).thenAnswer(
-      (_) async => const [],
-    );
+    when(
+      tmdbApiClient.searchMovies('Heat', year: 1995),
+    ).thenAnswer((_) async => const []);
     when(tmdbApiClient.searchMovies('Heat')).thenAnswer(
       (_) async => [
-        TmdbSearchResult(
-          id: 949,
-          title: 'Heat',
-          releaseDate: DateTime(1995),
-        ),
+        TmdbSearchResult(id: 949, title: 'Heat', releaseDate: DateTime(1995)),
       ],
     );
     final localResolver = BarcodeResolver(

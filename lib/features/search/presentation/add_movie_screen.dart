@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
@@ -67,8 +67,8 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
                             details.originalTitle != details.title)
                           Text(
                             details.originalTitle!,
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
+                            style: TextStyle(
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         const SizedBox(height: 6),
@@ -88,8 +88,8 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
                           const SizedBox(height: 6),
                           Text(
                             details.genres.map((g) => g.name).join(', '),
-                            style: const TextStyle(
-                              color: AppColors.neutralGray,
+                            style: TextStyle(
+                              color: context.colors.textSecondary,
                             ),
                           ),
                         ],
@@ -102,9 +102,9 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
                 const SizedBox(height: 16),
                 Card(
                   child: ListTile(
-                    leading: const Icon(
+                    leading: Icon(
                       Icons.collections_bookmark_outlined,
-                      color: AppColors.dustyRose,
+                      color: context.colors.accent,
                     ),
                     title: Text('Teil der Reihe: ${details.collection!.name}'),
                     subtitle: const Text(
@@ -120,7 +120,7 @@ class _AddMovieScreenState extends ConsumerState<AddMovieScreen> {
               const SizedBox(height: 24),
               if (existing != null) ...[
                 Card(
-                  color: AppColors.sage.withValues(alpha: 0.12),
+                  color: context.colors.owned.withValues(alpha: 0.12),
                   child: Padding(
                     padding: const EdgeInsets.all(16),
                     child: Column(

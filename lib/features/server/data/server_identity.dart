@@ -59,7 +59,7 @@ Future<ServerIdentityInfo> verifyServerIdentity(
   );
   if (!trusted) {
     throw const PairingFailedException(
-      'Dieser Server konnte nicht als der erwartete Movie-Shelf-Server bestätigt werden. Die Verbindung wurde abgebrochen.',
+      'Dieser Server konnte nicht als der erwartete Speednema-Server bestätigt werden. Die Verbindung wurde abgebrochen.',
     );
   }
   return ServerIdentityInfo(

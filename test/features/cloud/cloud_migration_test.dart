@@ -2,15 +2,15 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/providers/core_providers.dart';
-import 'package:movie_shelf/core/providers/shared_preferences_provider.dart';
-import 'package:movie_shelf/core/sync/sync_provider.dart';
-import 'package:movie_shelf/features/backup/application/backup_providers.dart';
-import 'package:movie_shelf/features/backup/data/backup_service.dart';
-import 'package:movie_shelf/features/cloud/application/cloud_providers.dart';
-import 'package:movie_shelf/features/settings/application/settings_providers.dart';
-import 'package:movie_shelf/features/settings/data/settings_repository.dart';
-import 'package:movie_shelf/features/sync/application/storage_migration.dart';
+import 'package:speednema/core/providers/core_providers.dart';
+import 'package:speednema/core/providers/shared_preferences_provider.dart';
+import 'package:speednema/core/sync/sync_provider.dart';
+import 'package:speednema/features/backup/application/backup_providers.dart';
+import 'package:speednema/features/backup/data/backup_service.dart';
+import 'package:speednema/features/cloud/application/cloud_providers.dart';
+import 'package:speednema/features/settings/application/settings_providers.dart';
+import 'package:speednema/features/settings/data/settings_repository.dart';
+import 'package:speednema/features/sync/application/storage_migration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../core/sync/sync_engine_test.dart' show Device, FakeServer;
@@ -71,7 +71,7 @@ void main() {
         isA<MigrationException>().having(
           (e) => e.message,
           'message',
-          contains('Movie Shelf Cloud'),
+          contains('Speednema Cloud'),
         ),
       ),
     );

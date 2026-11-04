@@ -1,13 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/collection/ownership_service.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/sync/collection_records.dart';
-import 'package:movie_shelf/features/backup/data/backup_service.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/collection/ownership_service.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/sync/collection_records.dart';
+import 'package:speednema/features/backup/data/backup_service.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
 void main() {
   late AppDatabase source;
@@ -16,7 +17,7 @@ void main() {
 
   setUp(() async {
     source = AppDatabase(NativeDatabase.memory());
-    documents = await Directory.systemTemp.createTemp('movieshelf-backup');
+    documents = await Directory.systemTemp.createTemp('speednema-backup');
     backup = BackupService(source, documents: () async => documents);
     for (final (tmdbId, status) in [
       (603, CollectionStatus.owned),
@@ -64,6 +65,62 @@ void main() {
     expect(movies, {
       603: CollectionStatus.owned,
       604: CollectionStatus.wishlist,
+    });
+  });
+
+  group('backups from before the rename to Speednema', () {
+    Future<void> expectRestores(Map<String, Object?> export) async {
+      final target = AppDatabase(NativeDatabase.memory());
+      addTearDown(target.close);
+      final restore = BackupService(target, documents: () async => documents);
+      await restore.restore(export, replace: false);
+      final titles = {
+        for (final m in await target.select(target.movies).get()) m.title,
+      };
+      expect(titles, {'Film 603', 'Film 604'});
+    }
+
+    test('a plain movieshelf-export still restores', () async {
+      final legacy = {
+        ...await backup.exportJson(),
+        'format': BackupService.legacyFormat,
+      };
+      final read = await backup.read(jsonEncode(legacy));
+      await expectRestores(read);
+    });
+
+    test('an encrypted movieshelf-backup still restores', () async {
+      final file = Map<String, Object?>.from(
+        jsonDecode(
+              await backup.encrypt({
+                ...await backup.exportJson(),
+                'format': BackupService.legacyFormat,
+              }, 'richtig langes passwort'),
+            )
+            as Map,
+      )..['format'] = BackupService.legacyEncryptedFormat;
+      final read = await backup.read(
+        jsonEncode(file),
+        password: 'richtig langes passwort',
+      );
+      await expectRestores(read);
+    });
+
+    test('a foreign file is called foreign, not newer', () async {
+      await expectLater(
+        backup.restore({
+          'format': 'something-else',
+          'version': 1,
+          'records': [],
+        }, replace: false),
+        throwsA(
+          isA<BackupException>().having(
+            (e) => e.message,
+            'message',
+            contains('keine Speednema-Sicherung'),
+          ),
+        ),
+      );
     });
   });
 

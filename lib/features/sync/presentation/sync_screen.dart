@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../../../core/errors/user_facing_error.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../core/providers/core_providers.dart';
@@ -97,14 +98,14 @@ class _StorageSection extends ConsumerWidget {
                   'Kein Konto, kein Server. Sicherungen machst du selbst.',
                 CollectionStorage.selfHosted =>
                   hasServer
-                      ? 'Abgleich über deinen Heimserver im eigenen Netzwerk.'
-                      : 'Verbinde zuerst einen Movie Shelf Server.',
+                      ? 'Abgleich über deinen Speednema Server im eigenen Netzwerk.'
+                      : 'Verbinde zuerst einen Speednema Server.',
                 CollectionStorage.cloud =>
                   !cloud
                       ? 'In dieser Version nicht verfügbar.'
                       : cloudSession == null
                       ? 'Abgleich ohne eigenen Server. Anmelden oder Konto erstellen.'
-                      : 'Abgleich über Movie Shelf Cloud als ${cloudSession.email}.',
+                      : 'Abgleich über Speednema Cloud als ${cloudSession.email}.',
               }),
               enabled:
                   option != current &&
@@ -155,7 +156,7 @@ class _StorageSection extends ConsumerWidget {
     try {
       preview = await migration.preview(target);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('$e')));
+      messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
       return;
     }
     if (!context.mounted) return;
@@ -195,7 +196,7 @@ class _StorageSection extends ConsumerWidget {
       await migration.migrate(target);
       message = 'Fertig. Speicherort: ${target.label}.';
     } catch (e) {
-      message = '$e';
+      message = describeError(e);
     }
     if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
     messenger.showSnackBar(SnackBar(content: Text(message)));
@@ -213,7 +214,7 @@ class _StorageSection extends ConsumerWidget {
         '$base bleiben hier. Der Abgleich mit anderen Geräten endet.',
       _ =>
         '$base werden übertragen und danach gezählt.'
-            '${(preview.remote?[SyncEntityType.title] ?? 0) > 0 ? '\n\nAm Ziel liegen schon ${preview.remote![SyncEntityType.title]} Titel von anderen Geräten. Beide Stände werden zusammengeführt; Widersprüche zeigt Movie Shelf dir an.' : ''}',
+            '${(preview.remote?[SyncEntityType.title] ?? 0) > 0 ? '\n\nAm Ziel liegen schon ${preview.remote![SyncEntityType.title]} Titel von anderen Geräten. Beide Stände werden zusammengeführt; Widersprüche zeigt Speednema dir an.' : ''}',
     };
   }
 }
@@ -405,11 +406,11 @@ class _BackupSection extends ConsumerWidget {
                 leading: const Icon(Icons.data_object),
                 title: const Text('Export (JSON)'),
                 subtitle: const Text(
-                  'Lesbar und in jede Movie-Shelf-Installation importierbar.',
+                  'Lesbar und in jede Speednema-Installation importierbar.',
                 ),
                 onTap: () => _share(
                   context,
-                  'movieshelf-export.json',
+                  'speednema-export.json',
                   () async => jsonEncode(
                     await ref.read(backupServiceProvider).exportJson(),
                   ),
@@ -420,7 +421,7 @@ class _BackupSection extends ConsumerWidget {
                 title: const Text('Exemplare als Tabelle (CSV)'),
                 onTap: () => _share(
                   context,
-                  'movieshelf-exemplare.csv',
+                  'speednema-exemplare.csv',
                   ref.read(backupServiceProvider).exportCsv,
                 ),
               ),
@@ -459,7 +460,7 @@ class _BackupSection extends ConsumerWidget {
       await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
     } catch (e) {
       messenger.showSnackBar(
-        SnackBar(content: Text('Export fehlgeschlagen: $e')),
+        SnackBar(content: Text('Export fehlgeschlagen. ${describeError(e)}')),
       );
     }
   }
@@ -471,7 +472,7 @@ class _BackupSection extends ConsumerWidget {
     final stamp = DateFormat('yyyy-MM-dd').format(DateTime.now());
     await _share(
       context,
-      'movieshelf-$stamp.msbackup',
+      'speednema-$stamp.msbackup',
       () async => backup.encrypt(await backup.exportJson(), password),
     );
   }
@@ -481,11 +482,19 @@ class _BackupSection extends ConsumerWidget {
     final picked = await FilePicker.pickFiles(withData: true);
     final bytes = picked?.files.single.bytes;
     if (bytes == null || !context.mounted) return;
-    final content = utf8.decode(bytes);
     final backup = ref.read(backupServiceProvider);
     try {
+      // A picked photo or PDF is not text; say so instead of failing silently.
+      final String content;
+      try {
+        content = utf8.decode(bytes);
+      } on FormatException {
+        throw const BackupException('Die Datei ist keine Speednema-Sicherung.');
+      }
       String? password;
-      if (content.contains(BackupService.encryptedFormat)) {
+      // Older backups from before the rename carry the legacy id.
+      if (content.contains(BackupService.encryptedFormat) ||
+          content.contains(BackupService.legacyEncryptedFormat)) {
         password = await _askPassword(context, confirm: false);
         if (password == null) return;
       }
@@ -524,7 +533,7 @@ class _BackupSection extends ConsumerWidget {
         const SnackBar(content: Text('Sicherung eingespielt.')),
       );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('$e')));
+      messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
     }
   }
 
@@ -567,7 +576,7 @@ class _BackupSection extends ConsumerWidget {
         const SnackBar(content: Text('Schnappschuss wiederhergestellt.')),
       );
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('$e')));
+      messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
     }
   }
 
@@ -584,7 +593,7 @@ class _BackupSection extends ConsumerWidget {
             if (confirm)
               const Text(
                 'Ohne dieses Passwort lässt sich die Sicherung nicht öffnen. '
-                'Movie Shelf kann es nicht wiederherstellen.',
+                'Speednema kann es nicht wiederherstellen.',
               ),
             TextField(
               controller: controller,

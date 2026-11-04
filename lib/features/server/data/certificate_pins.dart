@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:crypto/crypto.dart';
 
-/// Pins the self-signed HTTPS certificate of each paired Movie Shelf server.
+/// Pins the self-signed HTTPS certificate of each paired Speednema server.
 ///
 /// Installed as [HttpOverrides.global] by both app entry points, so every
 /// dart:io connection (the API client, SignalR, artwork) accepts a server

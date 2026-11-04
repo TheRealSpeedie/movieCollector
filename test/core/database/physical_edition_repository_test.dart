@@ -1,9 +1,9 @@
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/features/editions/data/physical_edition_repository.dart';
-import 'package:movie_shelf/features/scanner/data/barcode_repository.dart';
-import 'package:movie_shelf/shared/models/physical_edition_kind.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/features/editions/data/physical_edition_repository.dart';
+import 'package:speednema/features/scanner/data/barcode_repository.dart';
+import 'package:speednema/shared/models/physical_edition_kind.dart';
 
 void main() {
   late AppDatabase db;

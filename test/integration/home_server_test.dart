@@ -1,13 +1,13 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/playback/data/playback_api.dart';
-import 'package:movie_shelf/features/server/application/server_providers.dart';
-import 'package:movie_shelf/features/server/data/library_repository.dart';
-import 'package:movie_shelf/features/server/data/pairing_link.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/playback/data/playback_api.dart';
+import 'package:speednema/features/server/application/server_providers.dart';
+import 'package:speednema/features/server/data/library_repository.dart';
+import 'package:speednema/features/server/data/pairing_link.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
 import '../features/server/support/fakes.dart';
 import 'support.dart';
 

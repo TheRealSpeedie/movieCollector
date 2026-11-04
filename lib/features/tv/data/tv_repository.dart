@@ -25,7 +25,8 @@ class TvUpsertResult {
 }
 
 class TvRepository {
-  TvRepository(this._db, this._tmdb) : _ownership = OwnershipService(_db);
+  TvRepository(this._db, this._tmdb, {String? Function()? defaultFormat})
+    : _ownership = OwnershipService(_db, defaultFormat: defaultFormat);
 
   final AppDatabase _db;
   final OwnershipService _ownership;

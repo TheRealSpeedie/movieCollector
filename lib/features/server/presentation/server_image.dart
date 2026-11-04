@@ -2,7 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../application/server_providers.dart';
 
 class ServerImage extends ConsumerStatefulWidget {
@@ -61,18 +61,18 @@ class _ServerImageState extends ConsumerState<ServerImage> {
 
   Widget _placeholder({bool loading = false}) {
     return Container(
-      color: AppColors.divider,
+      color: context.colors.hairline,
       alignment: Alignment.center,
       child: loading
-          ? const SizedBox(
+          ? SizedBox(
               width: 20,
               height: 20,
               child: CircularProgressIndicator(
                 strokeWidth: 2,
-                color: AppColors.neutralGray,
+                color: context.colors.textSecondary,
               ),
             )
-          : Icon(widget.icon, color: AppColors.neutralGray, size: 32),
+          : Icon(widget.icon, color: context.colors.textSecondary, size: 32),
     );
   }
 }

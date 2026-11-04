@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/database/media_format.dart';
 import '../../../core/errors/app_exception.dart';
@@ -64,11 +64,11 @@ class CopiesSection extends ConsumerWidget {
           ],
         ),
         if (editions.isEmpty)
-          const Padding(
+          Padding(
             padding: EdgeInsets.symmetric(vertical: 8),
             child: Text(
               'Noch keine Ausgabe erfasst.',
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ),
         for (final e in editions)
@@ -102,8 +102,8 @@ class CopiesSection extends ConsumerWidget {
                                   'aus dem Katalog',
                                 _ownership(e.copies),
                               ].join(' · '),
-                              style: const TextStyle(
-                                color: AppColors.neutralGray,
+                              style: TextStyle(
+                                color: context.colors.textSecondary,
                               ),
                             ),
                           ],
@@ -138,7 +138,13 @@ class CopiesSection extends ConsumerWidget {
                               '${_copyTitle(copy)} · gehört '
                               '${names[copy.ownerId] ?? 'jemand anderem im Haushalt'}',
                             ),
-                            subtitle: Text(_copyDetails(copy, own: false)),
+                            // Why it cannot be changed, said in the row,
+                            // not only in a tooltip touch users rarely find.
+                            subtitle: Text(
+                              '${_copyDetails(copy, own: false)}\n'
+                              'Nur ${names[copy.ownerId] ?? 'die Person, der es gehört'} '
+                              'kann es ändern.',
+                            ),
                             trailing: const Tooltip(
                               message:
                                   'Nur die Besitzerin oder der Besitzer kann es ändern',
@@ -568,7 +574,7 @@ class CopiesSection extends ConsumerWidget {
                     TextButton(
                       onPressed: () => Navigator.pop(context, 'remove'),
                       style: TextButton.styleFrom(
-                        foregroundColor: AppColors.errorRed,
+                        foregroundColor: context.colors.error,
                       ),
                       child: const Text('Exemplar entfernen'),
                     ),

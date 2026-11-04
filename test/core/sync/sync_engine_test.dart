@@ -1,14 +1,14 @@
 import 'package:drift/drift.dart' hide isNull, isNotNull;
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/collection/ownership_service.dart';
-import 'package:movie_shelf/core/database/app_database.dart';
-import 'package:movie_shelf/core/sync/collection_records.dart';
-import 'package:movie_shelf/core/sync/sync_engine.dart';
-import 'package:movie_shelf/core/sync/sync_provider.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
+import 'package:speednema/core/collection/ownership_service.dart';
+import 'package:speednema/core/database/app_database.dart';
+import 'package:speednema/core/sync/collection_records.dart';
+import 'package:speednema/core/sync/sync_engine.dart';
+import 'package:speednema/core/sync/sync_provider.dart';
+import 'package:speednema/shared/models/collection_status.dart';
 
-/// In-memory server with the merge rules of MovieShelf.Core.Sync.SyncMerger.
+/// In-memory server with the merge rules of Speednema.Core.Sync.SyncMerger.
 class FakeServer implements CollectionSyncProvider {
   final records = <String, _Stored>{};
   final ops = <String, SyncPushResult>{};

@@ -3,7 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../data/pairing_link.dart';
 
 class PairScanScreen extends StatefulWidget {
@@ -57,12 +57,12 @@ class _PairScanScreenState extends State<PairScanScreen> {
       backgroundColor: Colors.black,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        foregroundColor: Colors.white,
+        foregroundColor: context.colors.onMedia,
         title: const Text('QR-Code scannen'),
       ),
       body: switch (_permission) {
-        null => const Center(
-          child: CircularProgressIndicator(color: Colors.white),
+        null => Center(
+          child: CircularProgressIndicator(color: context.colors.onMedia),
         ),
         PermissionStatus.granted || PermissionStatus.limited => Stack(
           fit: StackFit.expand,
@@ -73,19 +73,19 @@ class _PairScanScreenState extends State<PairScanScreen> {
                 width: 240,
                 height: 240,
                 decoration: BoxDecoration(
-                  border: Border.all(color: AppColors.dustyRose, width: 3),
+                  border: Border.all(color: context.colors.accent, width: 3),
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
             ),
-            const Positioned(
+            Positioned(
               left: 24,
               right: 24,
               bottom: 64,
               child: Text(
-                'Öffne im Dashboard „Geräte“ und wähle „Gerät verbinden“. Scanne dann den QR-Code.',
+                'Öffne im Dashboard „Geräte“ und wähle „Handy verbinden“. Scanne dann den QR-Code.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: context.colors.onMedia),
               ),
             ),
           ],
@@ -96,16 +96,16 @@ class _PairScanScreenState extends State<PairScanScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
+                Icon(
                   Icons.camera_alt_outlined,
                   size: 56,
-                  color: Colors.white70,
+                  color: context.colors.onMedia.withValues(alpha: 0.7),
                 ),
                 const SizedBox(height: 16),
-                const Text(
+                Text(
                   'Kamerazugriff wird benötigt, um den QR-Code zu scannen.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white),
+                  style: TextStyle(color: context.colors.onMedia),
                 ),
                 const SizedBox(height: 20),
                 FilledButton(

@@ -5,7 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/constants/api_constants.dart';
 import '../../../core/database/media_format.dart';
 import '../application/watch_providers.dart';
@@ -97,7 +97,7 @@ class _WhereToWatchSectionState extends ConsumerState<WhereToWatchSection> {
               'Angebote konnten nicht geladen werden',
             'Daten: JustWatch über TMDB',
           ].join(' · '),
-          style: const TextStyle(color: AppColors.neutralGray, fontSize: 12),
+          style: TextStyle(color: context.colors.textSecondary, fontSize: 12),
         ),
         if (data?.link != null)
           TextButton(
@@ -120,12 +120,12 @@ class _SourceTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final (icon, color) = switch (source.option) {
-      WatchOption.playNow => (Icons.play_circle, AppColors.sage),
-      WatchOption.subscription => (Icons.check_circle, AppColors.sage),
-      WatchOption.free => (Icons.check_circle_outline, AppColors.sage),
-      WatchOption.shelf => (Icons.album_outlined, AppColors.dustyRose),
-      WatchOption.rentOrBuy => (Icons.euro, AppColors.neutralGray),
-      WatchOption.unavailable => (Icons.block, AppColors.neutralGray),
+      WatchOption.playNow => (Icons.play_circle, context.colors.owned),
+      WatchOption.subscription => (Icons.check_circle, context.colors.owned),
+      WatchOption.free => (Icons.check_circle_outline, context.colors.owned),
+      WatchOption.shelf => (Icons.album_outlined, context.colors.accent),
+      WatchOption.rentOrBuy => (Icons.euro, context.colors.textSecondary),
+      WatchOption.unavailable => (Icons.block, context.colors.textSecondary),
     };
     return ListTile(
       contentPadding: EdgeInsets.zero,

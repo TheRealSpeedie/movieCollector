@@ -1,8 +1,10 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/data/server_discovery.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/data/server_discovery.dart';
 
 import 'support/fakes.dart';
 
@@ -120,27 +122,85 @@ void main() {
     },
   );
 
-  test('reports the server error message for rejected requests', () async {
-    final dio = fakeDio((o) {
-      if (o.path.endsWith('/api/auth/refresh')) {
-        return jsonBody({
-          'accessToken': 'a',
-          'expiresIn': 600,
-          'refreshToken': 'r',
-        });
-      }
-      return jsonBody({'error': 'This file is not available.'}, 404);
-    });
+  test(
+    'rejected requests are described in German; the server text is kept as detail',
+    () async {
+      Dio rejecting(Map<String, Object?> body) => fakeDio((o) {
+        if (o.path.endsWith('/api/auth/refresh')) {
+          return jsonBody({
+            'accessToken': 'a',
+            'expiresIn': 600,
+            'refreshToken': 'r',
+          });
+        }
+        return jsonBody(body, 404);
+      });
 
-    await expectLater(
-      build(dio).get('/api/files/9'),
-      throwsA(
-        isA<ServerRejectedException>()
-            .having((e) => e.statusCode, 'status', 404)
-            .having((e) => e.message, 'message', 'This file is not available.'),
-      ),
-    );
-  });
+      await expectLater(
+        build(
+          rejecting({'error': 'This file is not available.'}),
+        ).get('/api/files/9'),
+        throwsA(
+          isA<ServerRejectedException>()
+              .having((e) => e.statusCode, 'status', 404)
+              .having(
+                (e) => e.message,
+                'message',
+                'Das gibt es auf dem Server nicht mehr.',
+              )
+              .having((e) => e.detail, 'detail', 'This file is not available.'),
+        ),
+      );
+      await expectLater(
+        build(
+          rejecting({
+            'error':
+                'This file is not available right now. Check that its drive is connected.',
+            'code': 'file_offline',
+          }),
+        ).get('/api/files/9'),
+        throwsA(
+          isA<ServerRejectedException>()
+              .having((e) => e.code, 'code', 'file_offline')
+              .having((e) => e.message, 'message', contains('Laufwerk')),
+        ),
+      );
+    },
+  );
+
+  test(
+    'no answer at all is unreachable, not a refusal, and not "connected"',
+    () async {
+      final reach = <bool>[];
+      final dio = fakeDio((o) {
+        if (o.path.endsWith('/api/auth/refresh')) {
+          return jsonBody({
+            'accessToken': 'a',
+            'expiresIn': 600,
+            'refreshToken': 'r',
+          });
+        }
+        throw DioException(
+          requestOptions: o,
+          error: const SocketException('Failed host lookup'),
+        );
+      });
+      final client = ServerClient(
+        credentials: sampleCredentials(),
+        store: MemoryStore(sampleCredentials()),
+        discovery: FakeDiscovery(),
+        onRevoked: () {},
+        onReachability: reach.add,
+        dio: dio,
+      );
+
+      await expectLater(
+        client.get('/api/home'),
+        throwsA(isA<ServerUnreachableException>()),
+      );
+      expect(reach.last, isFalse);
+    },
+  );
 
   test('reports an unreachable server when nothing can be found', () async {
     final discovery = FakeDiscovery();

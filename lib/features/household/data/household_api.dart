@@ -51,7 +51,7 @@ class HouseholdInvite {
   final DateTime expiresAt;
 }
 
-/// People who share one collection, on the home server or in Movie Shelf
+/// People who share one collection, on the home server or in Speednema
 /// Cloud. Both offer the same endpoints.
 class HouseholdApi {
   HouseholdApi({

@@ -1,4 +1,4 @@
-name: movie_shelf
+name: speednema
 description: "Offline-first personal movie collection manager."
 publish_to: 'none'
 version: 1.0.0+1
@@ -58,6 +58,7 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  generate: true
   default-flavor: phone
 
 flutter_launcher_icons:

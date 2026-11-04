@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/core/database/media_format.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_watch_models.dart';
-import 'package:movie_shelf/features/discover/domain/watch_suggestions.dart';
+import 'package:speednema/core/database/media_format.dart';
+import 'package:speednema/core/network/tmdb/tmdb_watch_models.dart';
+import 'package:speednema/features/discover/domain/watch_suggestions.dart';
 
 const _netflix = 8;
 

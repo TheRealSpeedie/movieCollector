@@ -7,7 +7,7 @@ import '../database/app_database.dart';
 import 'sync_ids.dart';
 
 /// Record types of the collection sync protocol. They match
-/// MovieShelf.Core.Sync.SyncEntityTypes on the server.
+/// Speednema.Core.Sync.SyncEntityTypes on the server.
 abstract final class SyncEntityType {
   static const title = 'title';
   static const season = 'season';

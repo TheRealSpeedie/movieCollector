@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
-import 'package:movie_shelf/features/collections/application/collections_providers.dart';
-import 'package:movie_shelf/features/collections/domain/movie_collection_info.dart';
-import 'package:movie_shelf/features/collections/presentation/franchise_section.dart';
-import 'package:movie_shelf/features/scanner/presentation/fundstueck_result_screen.dart';
-import 'package:movie_shelf/shared/models/collection_status.dart';
-import 'package:movie_shelf/shared/models/match_candidate.dart';
-import 'package:movie_shelf/core/network/tmdb/tmdb_models.dart';
+import 'package:speednema/features/collections/application/collections_providers.dart';
+import 'package:speednema/features/collections/domain/movie_collection_info.dart';
+import 'package:speednema/features/collections/presentation/franchise_section.dart';
+import 'package:speednema/features/scanner/presentation/fundstueck_result_screen.dart';
+import 'package:speednema/shared/models/collection_status.dart';
+import 'package:speednema/shared/models/match_candidate.dart';
+import 'package:speednema/core/network/tmdb/tmdb_models.dart';
 
 void main() {
   MovieCollectionInfo sample() {
@@ -78,6 +78,11 @@ void main() {
   testWidgets('a franchise failure still shows the scan confirmation', (
     tester,
   ) async {
+    // A tall phone: the verdict comes first, the save actions follow.
+    tester.view
+      ..physicalSize = const Size(430, 1400)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     const candidate = MatchCandidate(
       result: TmdbSearchResult(id: 285, title: 'Am Ende der Welt'),
       confidence: 0.99,

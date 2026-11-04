@@ -1,11 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/server/data/pairing_crypto.dart';
+import 'package:speednema/features/server/data/pairing_crypto.dart';
 
 const _id = '11111111-2222-3333-4444-555555555555';
 const _secret = 'AQIDBAUGBwgJCgsMDQ4PEA';
 
+/// Expected values come from the server (Speednema.Core PairingCrypto and
+/// ServerIdentity), regenerated after the labels were renamed from
+/// movieshelf-* to speednema-*. Never derive them from this Dart code.
 void main() {
   test('derives the same keys as the server', () async {
     final keys = await PairingCrypto.derive(
@@ -13,11 +16,11 @@ void main() {
     );
     expect(
       base64.encode(keys.authKey),
-      'TxdwmkZ5NPvSA22K/32vEeKt4PpnYTXbGCu97YEIwGc=',
+      'tSCY2IZCMCRT9h3r56fE2BPNCGv8RIZK24nNiQZRTwk=',
     );
     expect(
       base64.encode(keys.encKey),
-      '8FbOxavnQt/lj23G2MeqlL0FDo6SHbAKW1jpieVHaxo=',
+      'tsQNZ4Ftc0n5N0zSMVXxEozYA3kTQ+SEgAPDtSpjtgU=',
     );
   });
 
@@ -27,11 +30,11 @@ void main() {
     );
     expect(
       await PairingCrypto.proof(keys.authKey, 'claim|$_id|Pixel|phone'),
-      'ZOI63+a5Awse4+Fm7H0v6e0x9yDXUcYdp9PQ6Eq/UtE=',
+      'EodJzNF+lPJ3WSFNmf6B7zkPr3erad2VcE3+ByuA4rM=',
     );
     expect(
       await PairingCrypto.proof(keys.authKey, 'poll|$_id'),
-      'd5dlEnzmmAZP68rIIG4ZoFnQCsRedwPd2V+qof7/zNQ=',
+      'BsBKqK4rbfsmHgd+p/+vMDMlYEanwfe0+SC03KXgEEY=',
     );
   });
 
@@ -40,7 +43,7 @@ void main() {
       PairingCrypto.fromBase64Url(_secret),
     );
     const sealed =
-        'H1whAfo0929U+Hg2qXxQBtbEQSyBgldJFMvjgJxu1qTVjonsC5RP9g9sJOFMnTBu7Lglxqx636/0TJS3iHMOrA==';
+        'uKhr8+YKsW4FfhqYn7b5YY7RA+dJu5r65+9jOTuic9fYBlo8lUVLNT0KVkJpJMKcjJegWANAb/UWOKAaxQ8O5A==';
     final plain = await PairingCrypto.open(
       keys.encKey,
       sealed,
@@ -67,13 +70,13 @@ void main() {
 
   test('verifies the server identity signature and fingerprint', () async {
     final publicKey = base64.decode(
-      'ANBaHR6iUTltVXr71FiLPG2Z2+uXL+0QoyVi6ibc3Po=',
+      'oYDF5nG7vs82CONrCkgWXJvDZCjJgLvaoDins17I+UM=',
     );
     final signature = base64.decode(
-      'sHv+2ZslgsG8TuyQa+8YEQ0TtyTRhN2aiaNxLQFxRbjLQSqxrKG390DQlkp9YTyKUqSG5r7BWhxO9CBQOPrmDQ==',
+      'v/Osnl3/uRd2+5wGzoTo4t/VJ2j88LNmICS4704dpg2us2rIpWK/U7AmZyjHRX6X7zaeRPpJwb3PlbWo4rEnCg==',
     );
     const fingerprint =
-        '62dad5bb09cd5a45a09f25dad719d56858c51ff993415162f3cfddbd8b80d078';
+        'c703fa2090cf685cadda71c8d963c035c680f5e8456e9e55c57f58d049e27b06';
 
     Future<bool> check(String nonce, String fp) => PairingCrypto.verifyIdentity(
       publicKey: publicKey,

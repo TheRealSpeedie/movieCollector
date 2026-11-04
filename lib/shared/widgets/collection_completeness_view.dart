@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../app/theme/app_colors.dart';
+import '../../app/theme/speednema_colors.dart';
 import '../models/collection_status.dart';
 import '../models/collection_with_entries.dart';
 import 'status_chip.dart';
@@ -25,9 +25,9 @@ class CollectionCompletenessView extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Icon(
+                Icon(
                   Icons.collections_bookmark_outlined,
-                  color: AppColors.dustyRose,
+                  color: context.colors.accent,
                 ),
                 const SizedBox(width: 8),
                 Expanded(
@@ -44,8 +44,8 @@ class CollectionCompletenessView extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: collection.progress,
                 minHeight: 7,
-                backgroundColor: AppColors.divider,
-                color: AppColors.sage,
+                backgroundColor: context.colors.hairline,
+                color: context.colors.owned,
               ),
             ),
             const SizedBox(height: 6),
@@ -69,17 +69,17 @@ class CollectionCompletenessView extends StatelessWidget {
                               ? FontWeight.w800
                               : FontWeight.w400,
                           color: entry.tmdbMovieId == highlightTmdbMovieId
-                              ? AppColors.dustyRose
-                              : AppColors.charcoal,
+                              ? context.colors.accent
+                              : context.colors.text,
                         ),
                       ),
                     ),
                     if (entry.tmdbMovieId == highlightTmdbMovieId)
-                      const Text(
+                      Text(
                         'dieser Film',
                         style: TextStyle(
                           fontSize: 11,
-                          color: AppColors.dustyRose,
+                          color: context.colors.accent,
                         ),
                       ),
                   ],
@@ -100,16 +100,16 @@ class _EntryIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (status == null) {
-      return const Icon(
+      return Icon(
         Icons.circle_outlined,
         size: 18,
-        color: AppColors.neutralGray,
+        color: context.colors.textSecondary,
       );
     }
     return Icon(
       iconForStatus(status!),
       size: 18,
-      color: colorForStatus(status!),
+      color: context.colors.forStatus(status!),
     );
   }
 }

@@ -148,7 +148,7 @@ class BarcodeResolver {
         );
         if (product.mediaType == 'tv' && found.tv != null) {
           log.add('path=imdb-tv');
-          return _tvFromImdb(barcode, product, found.tv!);
+          return await _tvFromImdb(barcode, product, found.tv!);
         }
         if (product.mediaType != 'tv' && found.movie != null) {
           log.add('path=imdb-movie confidence=0.99');
@@ -167,7 +167,7 @@ class BarcodeResolver {
         }
         if (found.tv != null) {
           log.add('path=imdb-tv');
-          return _tvFromImdb(barcode, product, found.tv!);
+          return await _tvFromImdb(barcode, product, found.tv!);
         }
       } catch (error) {
         log.add('tmdb-find-error=$error');

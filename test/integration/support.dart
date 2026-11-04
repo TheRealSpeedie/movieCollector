@@ -3,17 +3,17 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:movie_shelf/features/server/data/certificate_pins.dart';
-import 'package:movie_shelf/features/server/data/pairing_link.dart';
-import 'package:movie_shelf/features/server/data/pairing_service.dart';
-import 'package:movie_shelf/features/server/data/server_client.dart';
-import 'package:movie_shelf/features/server/data/server_credentials.dart';
+import 'package:speednema/features/server/data/certificate_pins.dart';
+import 'package:speednema/features/server/data/pairing_link.dart';
+import 'package:speednema/features/server/data/pairing_service.dart';
+import 'package:speednema/features/server/data/server_client.dart';
+import 'package:speednema/features/server/data/server_credentials.dart';
 
 import '../features/server/support/fakes.dart';
 
-final serverUrl = Platform.environment['MOVIESHELF_IT_URL'];
+final serverUrl = Platform.environment['SPEEDNEMA_IT_URL'];
 final skipReason = serverUrl == null
-    ? 'Run movieshelf_server/scripts/flutter-integration.ps1 to start a real server.'
+    ? 'Run speednema_server/scripts/flutter-integration.ps1 to start a real server.'
     : null;
 
 class Admin {
@@ -29,10 +29,10 @@ class Admin {
     final response = await dio.post<dynamic>(
       '$serverUrl/api/auth/login',
       data: {
-        'username': Platform.environment['MOVIESHELF_IT_ADMIN'],
-        'password': Platform.environment['MOVIESHELF_IT_PASSWORD'],
+        'username': Platform.environment['SPEEDNEMA_IT_ADMIN'],
+        'password': Platform.environment['SPEEDNEMA_IT_PASSWORD'],
       },
-      options: Options(headers: {'X-MovieShelf-Client': 'integration'}),
+      options: Options(headers: {'X-Speednema-Client': 'integration'}),
     );
     final cookie = response.headers['set-cookie']!.first.split(';').first;
     return Admin(cookie);
@@ -44,7 +44,7 @@ class Admin {
       data: body,
       options: Options(
         method: method,
-        headers: {'Cookie': _cookie, 'X-MovieShelf-Client': 'integration'},
+        headers: {'Cookie': _cookie, 'X-Speednema-Client': 'integration'},
       ),
     );
     if (response.statusCode! >= 400) {
@@ -76,7 +76,7 @@ Future<ServerCredentials> pair(
   username: username,
   password: username == null
       ? null
-      : password ?? Platform.environment['MOVIESHELF_IT_PASSWORD'],
+      : password ?? Platform.environment['SPEEDNEMA_IT_PASSWORD'],
 );
 
 ServerClient clientFor(

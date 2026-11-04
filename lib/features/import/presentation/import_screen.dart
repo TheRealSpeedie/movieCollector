@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/utils/season_format.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/widgets/loading_view.dart';
@@ -86,7 +86,7 @@ class _InputViewState extends ConsumerState<_InputView> {
         Text(
           'Füge eine Liste mit Filmen oder Serien ein oder importiere eine TXT-/CSV-Datei. '
           'Unordentliche Listen mit Aufzählungszeichen, Checkboxen oder Nummerierungen werden automatisch bereinigt.',
-          style: const TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         TextField(
@@ -152,43 +152,43 @@ class _ReviewView extends ConsumerWidget {
               _SummaryChip(
                 label: 'Gesamt',
                 value: summary.totalLines,
-                color: AppColors.charcoal,
+                color: context.colors.text,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Erkannt',
                 value: summary.matchedAutomatically,
-                color: AppColors.sage,
+                color: context.colors.owned,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Manuell zugeordnet',
                 value: summary.matchedManually,
-                color: AppColors.dustyRose,
+                color: context.colors.accent,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Unklar',
                 value: summary.ambiguous,
-                color: AppColors.amber,
+                color: context.colors.attention,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Nicht gefunden',
                 value: summary.notFound,
-                color: AppColors.errorRed,
+                color: context.colors.error,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Übersprungen',
                 value: summary.skipped,
-                color: AppColors.neutralGray,
+                color: context.colors.textSecondary,
               ),
               const SizedBox(width: 8),
               _SummaryChip(
                 label: 'Duplikate',
                 value: summary.duplicates,
-                color: AppColors.neutralGray,
+                color: context.colors.textSecondary,
               ),
             ],
           ),
@@ -253,19 +253,16 @@ class _ImportRowTile extends StatelessWidget {
   final ImportRow row;
   final ImportController notifier;
 
-  static const _statusStyle = {
-    ImportRowStatus.matchedAutomatically: ('Erkannt', AppColors.sage),
-    ImportRowStatus.matchedManually: (
-      'Manuell zugeordnet',
-      AppColors.dustyRose,
-    ),
-    ImportRowStatus.ambiguous: ('Nicht eindeutig erkannt', AppColors.amber),
-    ImportRowStatus.notFound: (
-      'Kein passender Titel erkannt',
-      AppColors.errorRed,
-    ),
-    ImportRowStatus.duplicate: ('Bereits vorhanden', AppColors.neutralGray),
-    ImportRowStatus.skipped: ('Ohne Zuordnung', AppColors.neutralGray),
+  static (String, Color) _statusStyle(
+    ImportRowStatus status,
+    SpeednemaColors colors,
+  ) => switch (status) {
+    ImportRowStatus.matchedAutomatically => ('Erkannt', colors.owned),
+    ImportRowStatus.matchedManually => ('Manuell zugeordnet', colors.accent),
+    ImportRowStatus.ambiguous => ('Nicht eindeutig erkannt', colors.attention),
+    ImportRowStatus.notFound => ('Kein passender Titel erkannt', colors.error),
+    ImportRowStatus.duplicate => ('Bereits vorhanden', colors.textSecondary),
+    ImportRowStatus.skipped => ('Ohne Zuordnung', colors.textSecondary),
   };
 
   void _openManualSearch(BuildContext context, {bool tv = false}) {
@@ -301,8 +298,8 @@ class _ImportRowTile extends StatelessWidget {
             target.isBundle &&
             row.status != ImportRowStatus.skipped
         ? target.kindLabel
-        : _statusStyle[row.status]!.$1;
-    final color = _statusStyle[row.status]!.$2;
+        : _statusStyle(row.status, context.colors).$1;
+    final color = _statusStyle(row.status, context.colors).$2;
 
     return Card(
       child: Padding(
@@ -331,9 +328,8 @@ class _ImportRowTile extends StatelessWidget {
                   ),
                   child: Text(
                     chipLabel,
-                    style: TextStyle(
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(
                       color: color,
-                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -345,7 +341,7 @@ class _ImportRowTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   '→ ${target.movie.title} (${target.movie.releaseYear ?? '–'})',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ),
             if (target is ImportTargetMovieBundle) ...[
@@ -354,7 +350,7 @@ class _ImportRowTile extends StatelessWidget {
                 child: Text(
                   '${target.collection.name}\n'
                   '${target.selectedTmdbIds.length} Filme ausgewählt',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ),
               for (final part
@@ -413,7 +409,7 @@ class _ImportRowTile extends StatelessWidget {
                         ),
                         Text(
                           '${selected.where((n) => n > 0).length} / $total Staffeln ausgewählt',
-                          style: const TextStyle(color: AppColors.neutralGray),
+                          style: TextStyle(color: context.colors.textSecondary),
                         ),
                         const SizedBox(height: 4),
                         Text(formatSeasonSelection(selected)),
@@ -441,7 +437,7 @@ class _ImportRowTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   '→ ${row.selectedCandidate!.title} (${row.selectedCandidate!.releaseYear ?? '–'})',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ),
             if (row.status == ImportRowStatus.duplicate &&
@@ -450,7 +446,7 @@ class _ImportRowTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Text(
                   'Bereits in Sammlung: ${row.existingLocalMovie!.title}',
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ),
             if (row.status == ImportRowStatus.skipped)
@@ -458,12 +454,11 @@ class _ImportRowTile extends StatelessWidget {
                 padding: const EdgeInsets.only(top: 6),
                 child: Row(
                   children: [
-                    const Expanded(
+                    Expanded(
                       child: Text(
                         'Wird beim Import nicht berücksichtigt.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.neutralGray,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.colors.textSecondary,
                         ),
                       ),
                     ),
@@ -482,9 +477,9 @@ class _ImportRowTile extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: MovieSearchResultTile.fromResult(
                     candidate.result,
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.check_circle_outline,
-                      color: AppColors.dustyRose,
+                      color: context.colors.accent,
                     ),
                     onTap: () =>
                         notifier.selectCandidate(row.index, candidate.result),
@@ -495,9 +490,9 @@ class _ImportRowTile extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 8),
                   child: MovieSearchResultTile.fromTvResult(
                     candidate.result,
-                    trailing: const Icon(
+                    trailing: Icon(
                       Icons.check_circle_outline,
-                      color: AppColors.dustyRose,
+                      color: context.colors.accent,
                     ),
                     onTap: () => context.push(
                       '/import/selection/${row.index}?seriesId=${candidate.result.id}',
@@ -591,10 +586,10 @@ class _CommitProgressView extends ConsumerWidget {
           ),
           if (progress?.currentTitle != null) ...[
             const SizedBox(height: 24),
-            const Text(
+            Text(
               'Aktuell:',
               textAlign: TextAlign.center,
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
             const SizedBox(height: 4),
             Text(
@@ -614,14 +609,14 @@ class _CommitProgressView extends ConsumerWidget {
                   '${progress!.seasonsAdded} Staffeln hinzugefügt',
               ].join('\n'),
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.sage),
+              style: TextStyle(color: context.colors.owned),
             ),
           if ((progress?.alreadyExisted ?? 0) > 0) ...[
             const SizedBox(height: 8),
             Text(
               '${progress!.alreadyExisted} bereits vorhanden',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ],
           if ((progress?.skipped ?? 0) > 0) ...[
@@ -629,7 +624,7 @@ class _CommitProgressView extends ConsumerWidget {
             Text(
               '${progress!.skipped} übersprungen',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ],
           if ((progress?.failed ?? 0) > 0) ...[
@@ -637,7 +632,7 @@ class _CommitProgressView extends ConsumerWidget {
             Text(
               '${progress!.failed} fehlgeschlagen',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.errorRed),
+              style: TextStyle(color: context.colors.error),
             ),
           ],
         ],
@@ -672,10 +667,10 @@ class _DoneView extends ConsumerWidget {
           complete ? Icons.check_circle_outline : Icons.error_outline,
           size: 56,
           color: complete
-              ? AppColors.sage
+              ? context.colors.owned
               : partial
-              ? AppColors.amber
-              : AppColors.errorRed,
+              ? context.colors.attention
+              : context.colors.error,
         ),
         const SizedBox(height: 16),
         Text(
@@ -700,7 +695,7 @@ class _DoneView extends ConsumerWidget {
           Text(
             '${report!.importedMovies} Filme hinzugefügt',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if ((report?.importedSeasons ?? 0) > 0) ...[
@@ -708,7 +703,7 @@ class _DoneView extends ConsumerWidget {
           Text(
             '${report!.importedSeasons} Staffeln hinzugefügt',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if ((report?.alreadyExisted ?? 0) > 0) ...[
@@ -716,7 +711,7 @@ class _DoneView extends ConsumerWidget {
           Text(
             '${report!.alreadyExisted} bereits vorhanden',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if ((report?.updated ?? 0) > 0) ...[
@@ -724,7 +719,7 @@ class _DoneView extends ConsumerWidget {
           Text(
             '${report!.updated} aktualisiert',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if ((report?.skipped ?? 0) > 0) ...[
@@ -732,16 +727,16 @@ class _DoneView extends ConsumerWidget {
           Text(
             '${report!.skipped} übersprungen',
             textAlign: TextAlign.center,
-            style: const TextStyle(color: AppColors.neutralGray),
+            style: TextStyle(color: context.colors.textSecondary),
           ),
         ],
         if (complete) ...[
           const SizedBox(height: 16),
-          const Text(
+          Text(
             '✓ Alles gespeichert',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: AppColors.sage,
+              color: context.colors.owned,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -751,8 +746,8 @@ class _DoneView extends ConsumerWidget {
           Text(
             '$failed Einträge konnten nicht gespeichert werden',
             textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: AppColors.errorRed,
+            style: TextStyle(
+              color: context.colors.error,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -763,7 +758,7 @@ class _DoneView extends ConsumerWidget {
               child: Text(
                 '${entry.value.first.failure?.categoryLabel ?? 'Fehler'} · ${entry.value.length}',
                 textAlign: TextAlign.center,
-                style: const TextStyle(color: AppColors.errorRed),
+                style: TextStyle(color: context.colors.error),
               ),
             ),
           const SizedBox(height: 20),
@@ -813,7 +808,9 @@ class _FailedEntryTile extends StatelessWidget {
         title: Text(outcome.sourceText),
         subtitle: Text(
           failure?.categoryLabel ?? 'Konnte nicht gespeichert werden.',
-          style: const TextStyle(color: AppColors.errorRed, fontSize: 13),
+          style: Theme.of(
+            context,
+          ).textTheme.bodyMedium?.copyWith(color: context.colors.error),
         ),
         children: [
           Align(
@@ -821,7 +818,7 @@ class _FailedEntryTile extends StatelessWidget {
             child: Text(
               failure?.detailMessage ??
                   'Der Eintrag konnte nicht gespeichert werden.',
-              style: const TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           ),
         ],
@@ -843,11 +840,7 @@ class _ErrorView extends ConsumerWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Icon(
-              Icons.error_outline,
-              size: 48,
-              color: AppColors.errorRed,
-            ),
+            Icon(Icons.error_outline, size: 48, color: context.colors.error),
             const SizedBox(height: 16),
             Text(message, textAlign: TextAlign.center),
             const SizedBox(height: 20),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/providers/repository_providers.dart';
 import '../../../shared/models/collection_status.dart';
 import '../../../shared/models/collection_with_entries.dart';
@@ -44,7 +44,7 @@ class CollectionDetailScreen extends ConsumerWidget {
                 const SizedBox(height: 8),
                 Text(
                   collection.overview!,
-                  style: const TextStyle(color: AppColors.neutralGray),
+                  style: TextStyle(color: context.colors.textSecondary),
                 ),
               ],
               const SizedBox(height: 16),
@@ -53,8 +53,8 @@ class CollectionDetailScreen extends ConsumerWidget {
                 child: LinearProgressIndicator(
                   value: collection.progress,
                   minHeight: 8,
-                  backgroundColor: AppColors.divider,
-                  color: AppColors.sage,
+                  backgroundColor: context.colors.hairline,
+                  color: context.colors.owned,
                 ),
               ),
               const SizedBox(height: 8),
@@ -113,9 +113,9 @@ class _CollectionEntryTile extends ConsumerWidget {
                     if (entry.releaseDate != null)
                       Text(
                         '${entry.releaseDate!.year}',
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 12,
-                          color: AppColors.neutralGray,
+                          color: context.colors.textSecondary,
                         ),
                       ),
                   ],
@@ -128,9 +128,9 @@ class _CollectionEntryTile extends ConsumerWidget {
                   children: [
                     const MissingChip(),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.favorite_border,
-                        color: AppColors.dustyRose,
+                        color: context.colors.accent,
                       ),
                       tooltip: 'Zur Wunschliste',
                       onPressed: () => _addToWishlist(context, ref),

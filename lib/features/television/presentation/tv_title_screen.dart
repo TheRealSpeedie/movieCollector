@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/loading_view.dart';
 import '../../playback/domain/play_request.dart';
@@ -97,7 +97,7 @@ class _Body extends ConsumerWidget {
                   if (title.isSeries) 'Serie',
                   ...title.genres.take(3),
                 ].join(' · '),
-                style: const TextStyle(color: AppColors.neutralGray),
+                style: TextStyle(color: context.colors.textSecondary),
               ),
               const SizedBox(height: 16),
               Wrap(
@@ -303,7 +303,7 @@ class _EpisodeTile extends ConsumerWidget {
               },
         child: Ink(
           decoration: BoxDecoration(
-            color: AppColors.surface,
+            color: context.colors.surface,
             borderRadius: BorderRadius.circular(14),
           ),
           padding: const EdgeInsets.all(12),
@@ -338,15 +338,15 @@ class _EpisodeTile extends ConsumerWidget {
                             ].join(' · '),
                       style: TextStyle(
                         color: file == null
-                            ? AppColors.amber
-                            : AppColors.neutralGray,
+                            ? context.colors.attention
+                            : context.colors.textSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
               if (progress.watched)
-                const Icon(Icons.check_circle, color: AppColors.sage),
+                Icon(Icons.check_circle, color: context.colors.owned),
             ],
           ),
         ),

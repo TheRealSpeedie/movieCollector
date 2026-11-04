@@ -9,7 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../settings/application/settings_providers.dart';
@@ -31,7 +31,7 @@ final _devicesProvider = FutureProvider.autoDispose<List<Map<String, dynamic>>>(
   },
 );
 
-/// Movie Shelf Cloud: sign in or create an account, then manage it.
+/// Speednema Cloud: sign in or create an account, then manage it.
 /// Returns true when the user signed in, so a storage move can continue.
 class CloudAccountScreen extends ConsumerWidget {
   const CloudAccountScreen({super.key});
@@ -40,12 +40,12 @@ class CloudAccountScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(cloudAccountProvider).valueOrNull;
     return Scaffold(
-      appBar: AppBar(title: const Text('Movie Shelf Cloud')),
+      appBar: AppBar(title: const Text('Speednema Cloud')),
       body: ref.watch(cloudClientProvider) == null
           ? const Padding(
               padding: EdgeInsets.all(24),
               child: Text(
-                'Diese Version der App kennt keinen Movie-Shelf-Cloud-Dienst.',
+                'Diese Version der App kennt keinen Speednema-Cloud-Dienst.',
               ),
             )
           : session == null
@@ -81,7 +81,7 @@ class _SignInState extends ConsumerState<_SignIn> {
       _error = null;
     });
     try {
-      final device = '${Platform.operatingSystem} · Movie Shelf';
+      final device = '${Platform.operatingSystem} · Speednema';
       final session = _register
           ? await client.signUp(_email.text, _password.text, device)
           : await client.signIn(_email.text, _password.text, device);
@@ -137,11 +137,11 @@ class _SignInState extends ConsumerState<_SignIn> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
-          'Movie Shelf Cloud hält deine Sammlung auf all deinen Geräten aktuell, '
+        Text(
+          'Speednema Cloud hält deine Sammlung auf all deinen Geräten aktuell, '
           'ohne eigenen Server. Gespeichert werden deine E-Mail-Adresse und deine '
           'Sammlung, keine Filme. Die Sammlung bleibt immer auch auf deinem Gerät.',
-          style: TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         SegmentedButton<bool>(
@@ -180,7 +180,7 @@ class _SignInState extends ConsumerState<_SignIn> {
           ),
         if (_error != null) ...[
           const SizedBox(height: 12),
-          Text(_error!, style: const TextStyle(color: AppColors.errorRed)),
+          Text(_error!, style: TextStyle(color: context.colors.error)),
         ],
         const SizedBox(height: 16),
         FilledButton(
@@ -188,11 +188,11 @@ class _SignInState extends ConsumerState<_SignIn> {
           child: Text(_register ? 'Konto erstellen' : 'Anmelden'),
         ),
         if (_register)
-          const Padding(
+          Padding(
             padding: EdgeInsets.only(top: 8),
             child: Text(
               'Die ersten 30 Tage sind kostenlos.',
-              style: TextStyle(color: AppColors.neutralGray),
+              style: TextStyle(color: context.colors.textSecondary),
             ),
           )
         else
@@ -243,17 +243,17 @@ class _Account extends ConsumerWidget {
           title: Text(client.session!.email),
           subtitle: Text(
             storage == CollectionStorage.cloud
-                ? 'Deine Sammlung wird über Movie Shelf Cloud abgeglichen.'
-                : 'Angemeldet. Wähle unter Daten & Synchronisation Movie Shelf Cloud als Speicherort.',
+                ? 'Deine Sammlung wird über Speednema Cloud abgeglichen.'
+                : 'Angemeldet. Wähle unter Daten & Synchronisation Speednema Cloud als Speicherort.',
           ),
         ),
         if (details.hasError) ErrorView(error: details.error!),
         if (data != null && data['emailVerified'] != true)
           Card(
             child: ListTile(
-              leading: const Icon(
+              leading: Icon(
                 Icons.mark_email_unread_outlined,
-                color: AppColors.amber,
+                color: context.colors.attention,
               ),
               title: const Text('E-Mail-Adresse bestätigen'),
               subtitle: const Text(
@@ -279,13 +279,13 @@ class _Account extends ConsumerWidget {
                     ? Icons.verified_outlined
                     : Icons.error_outline,
                 color: subscription['active'] == true
-                    ? AppColors.sage
-                    : AppColors.amber,
+                    ? context.colors.owned
+                    : context.colors.attention,
               ),
               title: Text(
                 subscription['plan'] == 'trial'
                     ? 'Testzeitraum'
-                    : 'Movie Shelf Cloud',
+                    : 'Speednema Cloud',
               ),
               subtitle: Text(
                 subscription['active'] == true
@@ -323,7 +323,7 @@ class _Account extends ConsumerWidget {
             final file = File(
               p.join(
                 (await getTemporaryDirectory()).path,
-                'movieshelf-cloud-export.json',
+                'speednema-cloud-export.json',
               ),
             );
             await file.writeAsString(jsonEncode(await client.export()));
@@ -355,7 +355,7 @@ class _Account extends ConsumerWidget {
         ),
         const SizedBox(height: 8),
         TextButton(
-          style: TextButton.styleFrom(foregroundColor: AppColors.errorRed),
+          style: TextButton.styleFrom(foregroundColor: context.colors.error),
           onPressed: () async {
             final password = await _ask(
               context,

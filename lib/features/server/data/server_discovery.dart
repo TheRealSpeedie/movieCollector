@@ -4,6 +4,22 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:multicast_dns/multicast_dns.dart';
 
+/// The port a Speednema Server listens on unless told otherwise
+/// (PortSelector.DefaultPort on the server). Used when someone types only an
+/// address.
+const defaultServerPort = 8420;
+
+/// Turns what someone typed ("192.168.1.20", "nas.local:9000",
+/// "http://…") into a base URL, adding [defaultServerPort] when no port is
+/// given.
+String serverBaseUrl(String typed) {
+  var host = typed.trim();
+  host = host.replaceFirst(RegExp(r'^https?://'), '');
+  host = host.replaceFirst(RegExp(r'/+$'), '');
+  final hasPort = RegExp(r':\d+$').hasMatch(host);
+  return 'http://${hasPort ? host : '$host:$defaultServerPort'}';
+}
+
 class DiscoveredServer {
   const DiscoveredServer({
     required this.name,
@@ -37,8 +53,8 @@ abstract class ServerDiscovery {
 }
 
 class MdnsServerDiscovery implements ServerDiscovery {
-  static const _serviceType = '_movieshelf._tcp';
-  static const _lock = MethodChannel('movieshelf/multicast');
+  static const _serviceType = '_speednema._tcp';
+  static const _lock = MethodChannel('speednema/multicast');
 
   @override
   Future<List<DiscoveredServer>> discover({

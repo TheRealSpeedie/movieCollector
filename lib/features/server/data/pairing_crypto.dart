@@ -13,7 +13,7 @@ class PairingKeys {
 class PairingCrypto {
   PairingCrypto._();
 
-  static final _salt = utf8.encode('movieshelf-pairing-v1');
+  static final _salt = utf8.encode('speednema-pairing-v1');
   static final _hmac = Hmac.sha256();
   static final _gcm = AesGcm.with256bits();
   static final _hkdf = Hkdf(hmac: Hmac.sha256(), outputLength: 32);
@@ -26,8 +26,8 @@ class PairingCrypto {
     )).extractBytes();
 
     return PairingKeys(
-      authKey: await expand('movieshelf-auth'),
-      encKey: await expand('movieshelf-enc'),
+      authKey: await expand('speednema-auth'),
+      encKey: await expand('speednema-enc'),
     );
   }
 
@@ -92,7 +92,7 @@ class PairingCrypto {
         ? nonce
         : '$nonce|$certificateSha256';
     return Ed25519().verify(
-      utf8.encode('movieshelf-identity|$signed'),
+      utf8.encode('speednema-identity|$signed'),
       signature: Signature(
         signature,
         publicKey: SimplePublicKey(publicKey, type: KeyPairType.ed25519),

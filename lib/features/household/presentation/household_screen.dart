@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
 
-import '../../../app/theme/app_colors.dart';
+import '../../../app/theme/speednema_colors.dart';
 import '../../../core/errors/app_exception.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../application/household_providers.dart';
@@ -25,7 +25,7 @@ class HouseholdScreen extends ConsumerWidget {
           ? const Padding(
               padding: EdgeInsets.all(24),
               child: Text(
-                'Ein Haushalt braucht einen gemeinsamen Speicherort: Movie Shelf '
+                'Ein Haushalt braucht einen gemeinsamen Speicherort: Speednema '
                 'Cloud oder deinen eigenen Server. Wähle ihn unter Daten & '
                 'Synchronisation.',
               ),
@@ -68,7 +68,9 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     try {
       await changeHousehold(ref, reason, change);
       messenger.showSnackBar(SnackBar(content: Text(done)));
-    } on AppException catch (e) {
+    } catch (e) {
+      // Snapshots and the file system fail with other errors than the API;
+      // all of them must be reported, in the user's words.
       messenger.showSnackBar(SnackBar(content: Text(describeError(e))));
     } finally {
       if (mounted) setState(() => _busy = false);
@@ -108,7 +110,7 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     }
     if (!mounted) return;
     final text =
-        'Komm in meinen Movie-Shelf-Haushalt: Mehr › Daten & Synchronisation › '
+        'Komm in meinen Speednema-Haushalt: Mehr › Daten & Synchronisation › '
         'Haushalt › Beitreten, Code ${invite.code}';
     await showDialog<void>(
       context: context,
@@ -230,11 +232,11 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
-        const Text(
+        Text(
           'Im Haushalt teilt ihr eine Sammlung: Exemplare, Ausgaben und die '
           'Wunschliste. Was du gesehen hast und wie du Filme bewertest, '
           'bleibt deins.',
-          style: TextStyle(color: AppColors.neutralGray),
+          style: TextStyle(color: context.colors.textSecondary),
         ),
         const SizedBox(height: 16),
         for (final member in _h.members)
@@ -242,7 +244,7 @@ class _HouseholdViewState extends ConsumerState<_HouseholdView> {
             contentPadding: EdgeInsets.zero,
             leading: Icon(
               member.owner ? Icons.home_outlined : Icons.person_outline,
-              color: member.you ? AppColors.sage : null,
+              color: member.you ? context.colors.owned : null,
             ),
             title: Text(member.you ? '${member.name} (du)' : member.name),
             subtitle: Text(

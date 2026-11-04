@@ -1,6 +1,6 @@
 # Setup
 
-Step-by-step instructions to get Movie Shelf running from a fresh clone. This assumes you
+Step-by-step instructions to get Speednema running from a fresh clone. This assumes you
 already know how to program and use Flutter, but have never seen this project before.
 
 ## 1. Prerequisites
@@ -42,13 +42,13 @@ committed to version control in a fresh clone and must be regenerated locally.
 2. Go to **Settings → API** (<https://www.themoviedb.org/settings/api>) and request an API
    key (choose "Developer" — personal, non-commercial use is fine).
 3. Once approved, copy the **API Read Access Token** (the long JWT-style token, *not* the
-   short "API Key (v3 auth)"). Movie Shelf authenticates with
+   short "API Key (v3 auth)"). Speednema authenticates with
    `Authorization: Bearer <token>`, which is TMDB's currently recommended v4-style auth for
    read endpoints.
 
 ## 5. Configure the token
 
-Movie Shelf never reads secrets from committed source files. It reads them via Dart
+Speednema never reads secrets from committed source files. It reads them via Dart
 compile-time environment variables (`String.fromEnvironment`), supplied through a
 `--dart-define-from-file` JSON file.
 
@@ -78,9 +78,9 @@ compile-time environment variables (`String.fromEnvironment`), supplied through 
      up for UPCitemdb's paid tier — see [docs/APIS.md](APIS.md).
    - `UPCMDB_API_KEY` — optional. Enables UPCMDB as the first barcode service; see
      [docs/APIS.md](APIS.md).
-   - `CLOUD_URL` — optional. Address of a Movie Shelf Cloud service, for example
+   - `CLOUD_URL` — optional. Address of a Speednema Cloud service, for example
      `https://cloud.example.org`. Without it the app offers only local storage and your own
-     server. Running the service is described in `movieshelf_server/docs/CLOUD.md`.
+     server. Running the service is described in `speednema_server/docs/CLOUD.md`.
 
 `env.json` is already listed in `.gitignore`, so it will never be committed.
 
@@ -133,7 +133,7 @@ Already configured in `ios/Runner/Info.plist`:
 
 ```xml
 <key>NSCameraUsageDescription</key>
-<string>Movie Shelf benötigt Kamerazugriff, um Barcodes von DVDs und Blu-rays für den Fundstück-Check zu scannen.</string>
+<string>Speednema benötigt Kamerazugriff, um Barcodes von DVDs und Blu-rays für den Fundstück-Check zu scannen.</string>
 ```
 
 iOS will show this text the first time the app requests camera access. No manual steps are
@@ -165,5 +165,5 @@ issues are:
 - **Forgetting to run `build_runner`** → the app fails to compile with errors about missing
   `*.g.dart`/`*.freezed.dart` files or undefined `_$Movie`/`_$AppDatabase` mixins.
 - **Using the short "API Key (v3 auth)" instead of the "API Read Access Token"** → TMDB
-  requests fail with 401. Movie Shelf uses Bearer-token auth, not the `api_key` query
+  requests fail with 401. Speednema uses Bearer-token auth, not the `api_key` query
   parameter.

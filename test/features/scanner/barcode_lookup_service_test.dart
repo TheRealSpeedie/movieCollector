@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:movie_shelf/core/errors/app_exception.dart';
-import 'package:movie_shelf/core/network/upcmdb/upcmdb_client.dart';
-import 'package:movie_shelf/core/network/upcitemdb/upcitemdb_models.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_lookup_cache.dart';
-import 'package:movie_shelf/features/scanner/domain/barcode_lookup_service.dart';
-import 'package:movie_shelf/features/scanner/domain/scan_trace.dart';
+import 'package:speednema/core/errors/app_exception.dart';
+import 'package:speednema/core/network/upcmdb/upcmdb_client.dart';
+import 'package:speednema/core/network/upcitemdb/upcitemdb_models.dart';
+import 'package:speednema/features/scanner/domain/barcode_lookup_cache.dart';
+import 'package:speednema/features/scanner/domain/barcode_lookup_service.dart';
+import 'package:speednema/features/scanner/domain/scan_trace.dart';
 
 import 'barcode_resolver_test.mocks.dart';
 

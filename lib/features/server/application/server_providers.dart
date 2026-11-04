@@ -7,6 +7,7 @@ import '../data/server_client.dart';
 import '../data/server_credentials.dart';
 import '../data/server_discovery.dart';
 import '../domain/server_models.dart';
+import 'server_connection.dart';
 
 final credentialStoreProvider = Provider<CredentialStore>(
   (ref) => SecureCredentialStore(),
@@ -35,13 +36,10 @@ class ServerSession extends AsyncNotifier<ServerCredentials?> {
 
   Future<void> disconnect() async {
     final credentials = state.valueOrNull;
-    if (credentials != null) {
-      final client = ServerClient(
-        credentials: credentials,
-        store: ref.read(credentialStoreProvider),
-        discovery: ref.read(serverDiscoveryProvider),
-        onRevoked: () {},
-      );
+    // The live client: its refresh token is current. A client rebuilt from
+    // stored credentials may hold a rotated one and fail to sign out.
+    final client = ref.read(serverClientProvider);
+    if (credentials != null && client != null) {
       await client
           .delete('/api/devices/${credentials.deviceId}')
           .catchError((_) => null);
@@ -67,6 +65,7 @@ final serverClientProvider = Provider<ServerClient?>((ref) {
     store: ref.watch(credentialStoreProvider),
     discovery: ref.watch(serverDiscoveryProvider),
     onRevoked: () => ref.read(serverSessionProvider.notifier).revoked(),
+    onReachability: ref.read(serverReachabilityProvider.notifier).report,
   );
   client.upgradeToHttps();
   return client;

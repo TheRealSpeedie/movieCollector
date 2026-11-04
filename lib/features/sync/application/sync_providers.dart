@@ -4,6 +4,7 @@ import 'package:drift/drift.dart' show TableUpdateQuery;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/errors/app_exception.dart';
 import '../../../core/database/app_database.dart';
 import '../../../core/providers/core_providers.dart';
 import '../../../core/sync/sync_engine.dart';
@@ -84,7 +85,17 @@ String syncSummary(AsyncValue<SyncReport?> sync, int pending) {
       : ' · $pending Änderungen warten';
   if (sync.isLoading) return 'Wird abgeglichen …';
   if (sync.hasError) {
-    return 'Nicht erreichbar – alles bleibt auf dem Gerät$waiting';
+    // Each cause in its own words; only a real connection problem is
+    // "nicht erreichbar".
+    return switch (sync.error) {
+      ServerRevokedException() =>
+        'Dieses Gerät wurde vom Server getrennt – alles bleibt auf dem Gerät',
+      CloudSubscriptionException() =>
+        'Cloud-Abo abgelaufen – alles bleibt auf dem Gerät$waiting',
+      ServerRejectedException() =>
+        'Abgleich abgelehnt – alles bleibt auf dem Gerät$waiting',
+      _ => 'Nicht erreichbar – alles bleibt auf dem Gerät$waiting',
+    };
   }
   final report = sync.valueOrNull;
   if (report == null) return 'Noch nicht abgeglichen$waiting';
